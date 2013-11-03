@@ -304,6 +304,41 @@ abstract class page_socialwiki {
         unset($SESSION->wikipreviousurl);
     }
 
+    /**
+     * Generates a table view for a list of pages
+     * @param  Array $pages - a list
+     * @return [type]
+     */
+    protected function generate_table_view($pages) {
+        global $CFG;
+        require_once($CFG->dirroot . "/mod/socialwiki/locallib.php");
+        $table = new html_table();
+        $table->head = array(get_string('title', 'socialwiki'),
+                             get_string('creator', 'socialwiki'),
+                             get_string('created', 'socialwiki'),
+                             get_string('updated', 'socialwiki'),
+                             get_string('likes', 'socialwiki'),
+                             get_string('views', 'socialwiki')
+                             );
+        $table->attributes['class'] = 'socialwiki_editor generalbox colourtext';
+        $table->data = array();
+        $table->rowclasses = array();
+
+        foreach ($pages as $page) {
+            $user = socialwiki_get_user_info($page->userid);
+            $updated = strftime('%d %b %Y', $page->timemodified);
+            $created = strftime('%d %b %Y', $page->timecreated);
+
+            $views = $page->pageviews;
+            $likes = socialwiki_numlikes($page->id);
+
+            $linkpage = html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title,array('class'=>'socialwiki_link'));
+            $name = html_writer::link($CFG->wwwroot.'/mod/socialwiki/viewuserpages.php?userid='.$user->id.'&subwikiid='.$page->subwikiid,fullname($user),array('class'=>'socialwiki_link'));
+            $table->data[] = array("$linkpage","$name","$created","$updated","$likes","$views");
+        }
+        echo html_writer::table($table);
+    }
+
 }
 
 /**
@@ -931,23 +966,12 @@ class page_socialwiki_search extends page_socialwiki {
 		$scale=array('follow'=>1,'like'=>1,'trust'=>1,'popular'=>1);
 		$peers=socialwiki_get_peers($this->subwiki->id,$scale);
 		$pages=socialwiki_order_pages_using_peers($peers,$this->search_result,$scale);
-		$table = new html_table();
-			$table->attributes['class'] = 'socialwiki_editor generalbox colourtext';
-			$table->align = array('center');
 		if(count($pages)>0){
-			foreach ($pages as $page) {
-				$table->data[] = array(html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title.' (ID:'.$page->id.')',array('class'=>'socialwiki_link')));
-				$table->data[] = array('Total Score: '.$page->votes.'<br/>Trust Score: '.$page->trust.'<br/>Follow Similarity Score: '.$page->followsim.'<br/>Like Similarity Score: '.$page->likesim.'<br/>Peer Popularity Score: '.$page->peerpopular.'<br/>Time Score: '.$page->time);
-			}
+			$this->generate_table_view($pages);
 		}else{
-			$table->data[] =array('<h3 socialwiki_titleheader>No Pages Found</h3>');
+			echo'<h3 socialwiki_titleheader>No Pages Found</h3>';
 		}
-		echo html_writer::table($table);
-		
-		$jpages=json_encode($pages);
-		$jscale=json_encode($scale);
-		$jpeers=json_encode($peers);
-		echo '<script> var peers='.$jpeers.';var pages='.$jpages.';var scale='.$jscale.';</script>';
+
 	}
 	
 	//print the pages ordered by likes
@@ -955,17 +979,11 @@ class page_socialwiki_search extends page_socialwiki {
 		Global $CFG;
 		$pages=socialwiki_order_by_likes($this->search_result);
 		
-		$table = new html_table();
-			$table->attributes['class'] = 'socialwiki_editor generalbox colourtext';
-			$table->align = array('center');
 		if(count($pages)>0){
-			foreach ($pages as $page) {
-				$table->data[] = array(html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title.' (ID:'.$page->id.')',array('class'=>'socialwiki_link')));
-			}
-		}else{
-			$table->data[] =array('<h3 socialwiki_titleheader>No Pages Found</h3>');
-		}
-		echo html_writer::table($table);
+            $this->generate_table_view($pages);
+        }else{
+            echo'<h3 socialwiki_titleheader>No Pages Found</h3>';
+        }
 	}
 }
 
@@ -1648,40 +1666,7 @@ class page_socialwiki_home extends page_socialwiki {
     }*/
 
 
-    /**
-     * Generates a table view for a list of pages
-     * @param  Array $pages - a list
-     * @return [type]
-     */
-    private function generate_table_view($pages) {
-        global $CFG;
-        require_once($CFG->dirroot . "/mod/socialwiki/locallib.php");
-        $table = new html_table();
-        $table->head = array(get_string('title', 'socialwiki'),
-                             get_string('creator', 'socialwiki'),
-                             get_string('created', 'socialwiki'),
-                             get_string('updated', 'socialwiki'),
-                             get_string('likes', 'socialwiki'),
-                             get_string('views', 'socialwiki')
-                             );
-        $table->attributes['class'] = 'socialwiki_editor generalbox colourtext';
-        $table->data = array();
-        $table->rowclasses = array();
-
-        foreach ($pages as $page) {
-            $user = socialwiki_get_user_info($page->userid);
-            $updated = strftime('%d %b %Y', $page->timemodified);
-            $created = strftime('%d %b %Y', $page->timecreated);
-
-            $views = $page->pageviews;
-            $likes = socialwiki_numlikes($page->id);
-
-            $linkpage = html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title,array('class'=>'socialwiki_link'));
-            $name = html_writer::link($CFG->wwwroot.'/mod/socialwiki/viewuserpages.php?userid='.$user->id.'&subwikiid='.$page->subwikiid,fullname($user),array('class'=>'socialwiki_link'));
-            $table->data[] = array("$linkpage","$name","$created","$updated","$likes","$views");
-        }
-        echo html_writer::table($table);
-    }
+    
 
     /**
      * Prints a list of all pages
