@@ -1647,6 +1647,42 @@ class page_socialwiki_home extends page_socialwiki {
         echo html_writer::table($table);
     }*/
 
+
+    /**
+     * Generates a table view for a list of pages
+     * @param  Array $pages - a list
+     * @return [type]
+     */
+    private function generate_table_view($pages) {
+        global $CFG;
+        require_once($CFG->dirroot . "/mod/socialwiki/locallib.php");
+        $table = new html_table();
+        $table->head = array(get_string('title', 'socialwiki'),
+                             get_string('creator', 'socialwiki'),
+                             get_string('created', 'socialwiki'),
+                             get_string('updated', 'socialwiki'),
+                             get_string('likes', 'socialwiki'),
+                             get_string('views', 'socialwiki')
+                             );
+        $table->attributes['class'] = 'socialwiki_editor generalbox colourtext';
+        $table->data = array();
+        $table->rowclasses = array();
+
+        foreach ($pages as $page) {
+            $user = socialwiki_get_user_info($page->userid);
+            $updated = strftime('%d %b %Y', $page->timemodified);
+            $created = strftime('%d %b %Y', $page->timecreated);
+
+            $views = $page->pageviews;
+            $likes = socialwiki_numlikes($page->id);
+
+            $linkpage = html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title,array('class'=>'socialwiki_link'));
+            $name = html_writer::link($CFG->wwwroot.'/mod/socialwiki/viewuserpages.php?userid='.$user->id.'&subwikiid='.$page->subwikiid,fullname($user),array('class'=>'socialwiki_link'));
+            $table->data[] = array("$linkpage","$name","$created","$updated","$likes","$views");
+        }
+        echo html_writer::table($table);
+    }
+
     /**
      * Prints a list of all pages
      *
@@ -1657,32 +1693,8 @@ class page_socialwiki_home extends page_socialwiki {
 
         $pages = socialwiki_get_page_list($this->subwiki->id);
 
-        $stdaux = new stdClass();
-        $strspecial = get_string('special', 'socialwiki');
+        $this->generate_table_view($pages);
 
-        foreach ($pages as $page) {
-            // We need to format the title here to account for any filtering
-            $letter = format_string($page->title, true, array('context' => $this->modcontext));
-            $letter = textlib::substr($letter, 0, 1);
-            if (preg_match('/^[a-zA-Z]$/', $letter)) {
-                $letter = textlib::strtoupper($letter);
-                $stdaux->{$letter}[] =html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title.' (ID:'.$page->id.')',array('class'=>'socialwiki_link'));
-            } else {
-                $stdaux->{$strspecial}[] = html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title.' (ID:'.$page->id.')',array('class'=>'socialwiki_link'));
-            }
-        }
-
-        $table = new html_table();
-        $table->head = array(get_string('pagelist', 'socialwiki') . $OUTPUT->help_icon('pagelist', 'socialwiki'));
-        $table->attributes['class'] = 'socialwiki_editor generalbox colourtext';
-        $table->align = array('center');
-        foreach ($stdaux as $key => $elem) {
-            $table->data[] = array($key);
-            foreach ($elem as $link) {
-                $table->data[] = array($link);
-            }
-        }
-        echo html_writer::table($table);
     }
 
     /**
@@ -1695,21 +1707,13 @@ class page_socialwiki_home extends page_socialwiki {
 
         $swid = $this->subwiki->id;
 
-        $table = new html_table();
-        $table->head = array(get_string('orphaned', 'socialwiki') . $OUTPUT->help_icon('orphaned', 'socialwiki'));
-        $table->attributes['class'] = 'socialwiki_editor generalbox colourtext';
-        $table->data = array();
-        $table->rowclasses = array();
-
         if ($orphanedpages = socialwiki_get_orphaned_pages($swid)) {
-            foreach ($orphanedpages as $page) {
-                $table->data[] = array(html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title.' (ID:'.$page->id.')',array('class'=>'socialwiki_link')));
-            }
+            $this->generate_table_view($pages);
         } else {
-            $table->data[] = array(get_string('noorphanedpages', 'socialwiki'));
+            echo get_string('noorphanedpages', 'socialwiki');
         }
 
-        echo html_writer::table($table);
+        
     }
 
     /**
@@ -1723,31 +1727,11 @@ class page_socialwiki_home extends page_socialwiki {
 
         $swid = $this->subwiki->id;
 
-        $table = new html_table();
-        $table->head = array(get_string('updatedpages', 'socialwiki') . $OUTPUT->help_icon('updatedpages', 'socialwiki'));
-        $table->attributes['class'] = 'socialwiki_editor generalbox colourtext';
-        $table->data = array();
-        $table->rowclasses = array();
-
         if ($pages = socialwiki_get_updated_pages_by_subwiki($swid)) {
-            $strdataux = '';
-            foreach ($pages as $page) {
-                $user = socialwiki_get_user_info($page->userid);
-                $strdata = strftime('%d %b %Y', $page->timemodified);
-                if ($strdata != $strdataux) {
-                    $table->data[] = array($OUTPUT->heading($strdata, 4,'colourtext'));
-                    $strdataux = $strdata;
-                }
-
-                $linkpage = html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title.' (ID:'.$page->id.')',array('class'=>'socialwiki_link'));
-                $name = html_writer::link($CFG->wwwroot.'/mod/socialwiki/viewuserpages.php?userid='.$user->id.'&subwikiid='.$page->subwikiid,fullname($user),array('class'=>'socialwiki_link'));
-                $table->data[] = array("$name&nbsp&nbsp;$linkpage");
-            }
+            $table = $this->generate_table_view($pages);
         } else {
-            $table->data[] = array(get_string('noupdatedpages', 'socialwiki'));
+            echo get_string('noupdatedpages', 'socialwiki');
         }
-
-        echo html_writer::table($table);
     }
 	
 	/**
@@ -1765,32 +1749,7 @@ class page_socialwiki_home extends page_socialwiki {
 			$user = socialwiki_get_user_info($teacher->id);
 			$pages = socialwiki_get_pages_from_userid($teacher->id,$this->subwiki->id);
 
-			$stdaux = new stdClass();
-			$strspecial = get_string('special', 'socialwiki');
-			
-			//order pages alphabetically 
-			foreach ($pages as $page) {
-				$letter = format_string($page->title, true, array('context' => $this->modcontext));
-				$letter = textlib::substr($letter, 0, 1);
-				if (preg_match('/^[a-zA-Z]$/', $letter)) {
-					$letter = textlib::strtoupper($letter);
-					$stdaux->{$letter}[] = html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title.' (ID:'.$page->id.')',array('class'=>'socialwiki_link'));
-				} else {
-					$stdaux->{$strspecial}[] = html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title.' (ID:'.$page->id.')',array('class'=>'socialwiki_link'));
-				}
-			}
-
-			$table = new html_table();
-			$table->head = array(fullname($user).'\'s pages');
-			$table->attributes['class'] = 'socialwiki_editor generalbox colourtext';
-			$table->align = array('center');
-			foreach ($stdaux as $key => $elem) {
-				$table->data[] = array($key);
-				foreach ($elem as $link) {
-					$table->data[] = array($link);
-				}
-			}
-			echo html_writer::table($table);
+			$this->generate_table_view($pages);
 		}
     }
 	/**
@@ -1801,18 +1760,11 @@ class page_socialwiki_home extends page_socialwiki {
         global $USER,$CFG;
 
 		$pages = socialwiki_get_recommended_pages($USER->id,$this->subwiki->id);
-		$table = new html_table();
-			$table->head = array('Recommended Pages');
-			$table->attributes['class'] = 'socialwiki_editor generalbox colourtext';
-			$table->align = array('center');
 		if(count($pages)>0){
-			foreach ($pages as $page) {
-				$table->data[] = array(html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title.' (ID:'.$page->id.')',array('class'=>'socialwiki_link')));
-			}
+			$this->generate_table_view($pages);
 		}else{
-			$table->data[] =array('<h3 socialwiki_titleheader>No Pages To Recommend</h3>');
+	       echo '<h3 socialwiki_titleheader>No Pages To Recommend</h3>';
 		}
-		echo html_writer::table($table);
 	}
 
     protected function render_navigation_node($items, $attrs = array(), $expansionlimit = null, $depth = 1) {
