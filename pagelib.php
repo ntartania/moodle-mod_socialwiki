@@ -318,14 +318,28 @@ abstract class page_socialwiki {
                              get_string('created', 'socialwiki'),
                              get_string('updated', 'socialwiki'),
                              get_string('likes', 'socialwiki'),
-                             get_string('views', 'socialwiki')
+                             get_string('views', 'socialwiki'),
+                             'Author Popularity',
+                             'Trust Score',
+                             'Like Similarity',
+                             'Follow Similarity'
+                             // get_string('popularity','socialwiki'),
+                             // get_string('trust','socialwiki'),
+                             // get_string('likesim','socialwiki'),
+                             // get_string('followsim','socialwiki')
                              );
         $table->attributes['class'] = 'socialwiki_editor generalbox colourtext';
         $table->data = array();
         $table->rowclasses = array();
-
+//ethanreturn
         foreach ($pages as $page) {
             $user = socialwiki_get_user_info($page->userid);
+            $swid = $this->subwiki->id;
+            $peer = new peer($page->userid,
+                             $swid,
+                             $uid,
+                             socialwiki_get_user_count($swid),
+                             null);
             $updated = strftime('%d %b %Y', $page->timemodified);
             $created = strftime('%d %b %Y', $page->timecreated);
 
@@ -334,7 +348,18 @@ abstract class page_socialwiki {
 
             $linkpage = html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title,array('class'=>'socialwiki_link'));
             $name = html_writer::link($CFG->wwwroot.'/mod/socialwiki/viewuserpages.php?userid='.$user->id.'&subwikiid='.$page->subwikiid,fullname($user),array('class'=>'socialwiki_link'));
-            $table->data[] = array("$linkpage","$name","$created","$updated","$likes","$views");
+            $table->data[] = array(
+                "$linkpage",
+                "$name",
+                "$created",
+                "$updated",
+                "$likes",
+                "$views",
+                "$peer->popularity",
+                "$peer->trust",
+                "$peer->likesim",
+                "$peer->followsim"
+                );
         }
         echo html_writer::table($table);
     }

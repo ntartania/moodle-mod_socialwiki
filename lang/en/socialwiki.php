@@ -309,3 +309,8 @@ $string['updated'] = 'Updated';
 $string['likes'] = "Likes";
 $string['views'] = "Views";
 $string['contributers'] = '# of Contributers';
+
+//$string['popularity'] = 'Author Popularity';
+//$string['trust'] = 'Trust Score';
+//$string['likesim'] = 'Like Similarity';
+//$string['followsim'] = 'Follow Similarity';

@@ -1681,6 +1681,14 @@ function socialwiki_get_peers($swid,$scale){
 	return $peers;
 }
 
+function socialwiki_get_user_count($swid) {
+    Global $PAGE,$USER;
+    $context = get_context_instance(CONTEXT_MODULE, $PAGE->cm->id);
+    $users=get_enrolled_users($context);
+    $numusers=count($users)-1;
+    return $numusers;
+}
+
 //returns an array of pages chosen based on peers likes and follows
 function socialwiki_get_recommended_pages($userid,$swid){
 	Global $PAGE;
@@ -1842,6 +1850,14 @@ class peer{
 		$this->popularity=socialwiki_get_followers($id,$swid)/$numusers;
 		$this->set_follow_sim($currentuser,$swid);
 		$this->set_like_sim($currentuser,$swid);
+        if($scale == null) {
+            $scale = array(
+                'trust' => 1,
+                'like' => 1,
+                'follow' => 1,
+                'popular' => 1
+            );
+        }
 		$this->set_score($scale);
 	}
 	
