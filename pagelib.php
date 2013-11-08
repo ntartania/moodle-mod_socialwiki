@@ -1560,47 +1560,16 @@ class page_socialwiki_home extends page_socialwiki {
 		
         $swid = $this->subwiki->id;
 
-        $table = new html_table();
-        $table->head = array(get_string('userpages', 'socialwiki') . $OUTPUT->help_icon('userpages', 'socialwiki'));
-        $table->attributes['class'] = 'socialwiki_editor generalbox colourtext';
-        $table->data = array();
-        $table->rowclasses = array();
-        $lastversions = array();
         $pages = array();
-        $users = array();
-
+        
         if ($contribs = socialwiki_get_contributions($swid, $USER->id)) {
             foreach ($contribs as $contrib) {
-                if (!array_key_exists($contrib->pageid, $pages)) {
-                    $page = socialwiki_get_page($contrib->pageid);
-                    $pages[$contrib->pageid] = $page;
-                } else {
-                    continue;
-                }
-
-                if (!array_key_exists($page->id, $lastversions)) {
-                    $version = socialwiki_get_last_version($page->id);
-                    $lastversions[$page->id] = $version;
-                } else {
-                    $version = $lastversions[$page->id];
-                }
-
-                if (!array_key_exists($version->userid, $users)) {
-                    $user = socialwiki_get_user_info($version->userid);
-                    $users[$version->userid] = $user;
-                } else {
-                    $user = $users[$version->userid];
-                }
-
-                $linkpage = html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title.' (ID:'.$page->id.')',array('class'=>'socialwiki_link'));
-                
-
-                $table->data[] = array("$linkpage");
+                array_push($pages, socialwiki_get_page($contrib->pageid));
             }
+            $this->generate_table_view($pages);
         } else {
-            $table->data[] = array(get_string('nocontribs', 'socialwiki'));
+            echo get_string('nocontribs', 'socialwiki');
         }
-        echo html_writer::table($table);
     }
 
     /**
