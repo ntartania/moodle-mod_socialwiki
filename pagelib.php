@@ -319,14 +319,14 @@ abstract class page_socialwiki {
                              get_string('updated', 'socialwiki'),
                              get_string('likes', 'socialwiki'),
                              get_string('views', 'socialwiki'),
-                             'Author Popularity',
-                             'Trust Score',
-                             'Like Similarity',
-                             'Follow Similarity'
-                             // get_string('popularity','socialwiki'),
-                             // get_string('trust','socialwiki'),
-                             // get_string('likesim','socialwiki'),
-                             // get_string('followsim','socialwiki')
+                             // 'Author Popularity',
+                             // 'Trust Score',
+                             // 'Like Similarity',
+                             // 'Follow Similarity'
+                             get_string('popularity','socialwiki'),
+                             get_string('trust','socialwiki'),
+                             get_string('likesim','socialwiki'),
+                             get_string('followsim','socialwiki')
                              );
         $table->attributes['class'] = 'socialwiki_editor generalbox colourtext';
         $table->data = array();
