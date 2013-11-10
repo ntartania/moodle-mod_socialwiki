@@ -101,7 +101,7 @@ abstract class page_socialwiki {
      * @param $cm. Current course_module.
      */
     function __construct($wiki, $subwiki, $cm) {
-        global $PAGE, $CFG;
+        global $PAGE, $CFG, $USER;
 		$PAGE->requires->js(new moodle_url("/mod/socialwiki/toolbar.js"));
         $this->subwiki = $subwiki;
 		$this->wiki=$wiki;
@@ -310,7 +310,7 @@ abstract class page_socialwiki {
      * @return [type]
      */
     protected function generate_table_view($pages) {
-        global $CFG;
+        global $CFG, $PAGE, $USER;
         require_once($CFG->dirroot . "/mod/socialwiki/locallib.php");
         $table = new html_table();
         $table->head = array(get_string('title', 'socialwiki'),
@@ -337,7 +337,7 @@ abstract class page_socialwiki {
             $swid = $this->subwiki->id;
             $peer = new peer($page->userid,
                              $swid,
-                             $uid,
+                             $USER->id,
                              socialwiki_get_user_count($swid),
                              null);
             $updated = strftime('%d %b %Y', $page->timemodified);
@@ -347,9 +347,15 @@ abstract class page_socialwiki {
             $likes = socialwiki_numlikes($page->id);
 
             $linkpage = html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title,array('class'=>'socialwiki_link'));
+            echo "uid = ".$USER->id." AND pid = ".$page->id." || ";
+            if(socialwiki_liked($USER->id, $this->page->id)) {
+                $likelink = html_writer::link($CFG->wwwroot.'/mod/socialwiki/like.php?pageid='.$page->id.'&from='.urlencode($PAGE->url->out()),'Unlike',array('class'=>'socialwiki_unlikelink socialwiki_link'));
+            } else {
+                $likelink = html_writer::link($CFG->wwwroot.'/mod/socialwiki/like.php?pageid='.$page->id.'&from='.urlencode($PAGE->url->out()),'Like',array('class'=>'socialwiki_likelink socialwiki_link'));
+            }
             $name = html_writer::link($CFG->wwwroot.'/mod/socialwiki/viewuserpages.php?userid='.$user->id.'&subwikiid='.$page->subwikiid,fullname($user),array('class'=>'socialwiki_link'));
             $table->data[] = array(
-                "$linkpage",
+                "$linkpage $likelink",                
                 "$name",
                 "$created",
                 "$updated",
