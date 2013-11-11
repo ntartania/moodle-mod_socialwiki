@@ -313,17 +313,17 @@ abstract class page_socialwiki {
         global $CFG, $PAGE, $USER;
         require_once($CFG->dirroot . "/mod/socialwiki/locallib.php");
         $table = new html_table();
-        $string_array = (array(get_string('title', 'socialwiki'),
-                               get_string('creator', 'socialwiki'),
-                               get_string('created', 'socialwiki'),
-                               get_string('updated', 'socialwiki'),
-                               get_string('likes', 'socialwiki'),
-                               get_string('views', 'socialwiki'),
-                               get_string('popularity','socialwiki'),
-                               get_string('trust','socialwiki'),
-                               get_string('likesim','socialwiki'),
-                               get_string('followsim','socialwiki')
-                               )
+        $string_array = (array( get_string('title', 'socialwiki'),
+                                get_string('creator', 'socialwiki'),
+                                get_string('created', 'socialwiki'),
+                                get_string('updated', 'socialwiki'),
+                                get_string('likes', 'socialwiki'),
+                                get_string('views', 'socialwiki'),
+                                get_string('popularity','socialwiki'),
+                                get_string('trust','socialwiki'),
+                                get_string('likesim','socialwiki'),
+                                get_string('followsim','socialwiki')
+                                )
                         );
         $table->head = $string_array;
         $table->attributes['class'] = 'datable-sort socialwiki_editor generalbox colourtext';
@@ -347,22 +347,29 @@ abstract class page_socialwiki {
             $followlink;
             $likelink;
 
+            $pageimg = "<img style='width: 50%; height: 50%' src=".$CFG->wwwroot."/mod/socialwiki/img/icons/page.png></img>";
+
             if(socialwiki_is_following($USER->id,$page->userid,$swid))
             {
-                $followlink = html_writer::link($CFG->wwwroot.'/mod/socialwiki/follow.php?user2='.$page->userid.'&from='.urlencode($PAGE->url->out()).'&swid='.$this->swid,'Unfollow',array('class'=>'socialwiki_unfollowlink socialwiki_link'));
+                $img = "<img style='width: 50%; height: 50%' src=".$CFG->wwwroot."/mod/socialwiki/img/icons/man-minus.png></img>";
+                // $followlink = html_writer::link($CFG->wwwroot.'/mod/socialwiki/follow.php?user2='.$page->userid.'&from='.urlencode($PAGE->url->out()).'&swid='.$this->swid,'follow',array('class'=>'socialwiki_followlink socialwiki_link'));
+                $followlink = html_writer::link($CFG->wwwroot.'/mod/socialwiki/follow.php?user2='.$page->userid.'&from='.urlencode($PAGE->url->out()).'&swid='.$swid,"$img",array('class'=>'socialwiki_unfollowlink socialwiki_link'));
             } else {
-                $followlink = html_writer::link($CFG->wwwroot.'/mod/socialwiki/follow.php?user2='.$page->userid.'&from='.urlencode($PAGE->url->out()).'&swid='.$this->swid,'Follow',array('class'=>'socialwiki_followlink socialwiki_link'));
-            }
+                $img = "<img style='width: 50%; height: 50%' src=".$CFG->wwwroot."/mod/socialwiki/img/icons/man-plus.png></img>";
+                $followlink = html_writer::link($CFG->wwwroot.'/mod/socialwiki/follow.php?user2='.$page->userid.'&from='.urlencode($PAGE->url->out()).'&swid='.$swid,"$img",array('class'=>'socialwiki_followlink socialwiki_link'));
+            }   
 
             $linkpage = html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title,array('class'=>'socialwiki_link'));
             if(socialwiki_liked($USER->id, $page->id)) {
-                $likelink = html_writer::link($CFG->wwwroot.'/mod/socialwiki/like.php?pageid='.$page->id.'&from='.urlencode($PAGE->url->out()),'Unlike',array('class'=>'socialwiki_unlikelink socialwiki_link'));
+                $img = "<img style='width: 50%; height: 50%' src=".$CFG->wwwroot."/mod/socialwiki/img/icons/star1.png></img>";
+                $likelink = html_writer::link($CFG->wwwroot.'/mod/socialwiki/like.php?pageid='.$page->id.'&from='.urlencode($PAGE->url->out()),"$img",array('class'=>'socialwiki_unlikelink socialwiki_link'));
             } else {
-                $likelink = html_writer::link($CFG->wwwroot.'/mod/socialwiki/like.php?pageid='.$page->id.'&from='.urlencode($PAGE->url->out()),'Like',array('class'=>'socialwiki_likelink socialwiki_link'));
+                $img = "<img style='width: 50%; height: 50%' src=".$CFG->wwwroot."/mod/socialwiki/img/icons/star2.png></img>";
+                $likelink = html_writer::link($CFG->wwwroot.'/mod/socialwiki/like.php?pageid='.$page->id.'&from='.urlencode($PAGE->url->out()),"$img",array('class'=>'socialwiki_likelink socialwiki_link'));
             }
             $name = html_writer::link($CFG->wwwroot.'/mod/socialwiki/viewuserpages.php?userid='.$user->id.'&subwikiid='.$page->subwikiid,fullname($user),array('class'=>'socialwiki_link'));
             $table->data[] = array(
-                "$linkpage $likelink",                
+                "$pageimg $linkpage $likelink",                
                 "$name $followlink",
                 "$created",
                 "$updated",
