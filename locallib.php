@@ -1538,7 +1538,6 @@ global $DB;
 		  WHERE userid=? AND pageid=?';
 		  
     $rtn = $DB->record_exists_sql($sql,array($userid,$pageid));
-    echo "rtn = " . $rtn . "<br/>";
     return $rtn;
 }
 
