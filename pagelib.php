@@ -331,7 +331,6 @@ abstract class page_socialwiki {
         $table->attributes['class'] = 'socialwiki_editor generalbox colourtext';
         $table->data = array();
         $table->rowclasses = array();
-//ethanreturn
         foreach ($pages as $page) {
             $user = socialwiki_get_user_info($page->userid);
             $swid = $this->subwiki->id;
@@ -346,8 +345,17 @@ abstract class page_socialwiki {
             $views = $page->pageviews;
             $likes = socialwiki_numlikes($page->id);
 
+            $followlink;
+            $likelink;
+
+            if(socialwiki_is_following($USER->id,$page->userid,$swid))
+            {
+                $followlink = html_writer::link($CFG->wwwroot.'/mod/socialwiki/follow.php?user2='.$page->userid.'&from='.urlencode($PAGE->url->out()).'&swid='.$this->swid,'Unfollow',array('class'=>'socialwiki_unfollowlink socialwiki_link'));
+            } else {
+                $followlink = html_writer::link($CFG->wwwroot.'/mod/socialwiki/follow.php?user2='.$page->userid.'&from='.urlencode($PAGE->url->out()).'&swid='.$this->swid,'Follow',array('class'=>'socialwiki_followlink socialwiki_link'));
+            }
+
             $linkpage = html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title,array('class'=>'socialwiki_link'));
-            echo "uid = ".$USER->id." AND pid = ".$page->id." || ";
             if(socialwiki_liked($USER->id, $this->page->id)) {
                 $likelink = html_writer::link($CFG->wwwroot.'/mod/socialwiki/like.php?pageid='.$page->id.'&from='.urlencode($PAGE->url->out()),'Unlike',array('class'=>'socialwiki_unlikelink socialwiki_link'));
             } else {
@@ -355,8 +363,8 @@ abstract class page_socialwiki {
             }
             $name = html_writer::link($CFG->wwwroot.'/mod/socialwiki/viewuserpages.php?userid='.$user->id.'&subwikiid='.$page->subwikiid,fullname($user),array('class'=>'socialwiki_link'));
             $table->data[] = array(
-                "$linkpage $likelink",                
-                "$name",
+                "$linkpage - $likelink",                
+                "$name - $followlink",
                 "$created",
                 "$updated",
                 "$likes",
