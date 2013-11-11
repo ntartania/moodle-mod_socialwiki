@@ -313,22 +313,21 @@ abstract class page_socialwiki {
         global $CFG, $PAGE, $USER;
         require_once($CFG->dirroot . "/mod/socialwiki/locallib.php");
         $table = new html_table();
-        $table->head = array(get_string('title', 'socialwiki'),
-                             get_string('creator', 'socialwiki'),
-                             get_string('created', 'socialwiki'),
-                             get_string('updated', 'socialwiki'),
-                             get_string('likes', 'socialwiki'),
-                             get_string('views', 'socialwiki'),
-                             // 'Author Popularity',
-                             // 'Trust Score',
-                             // 'Like Similarity',
-                             // 'Follow Similarity'
-                             get_string('popularity','socialwiki'),
-                             get_string('trust','socialwiki'),
-                             get_string('likesim','socialwiki'),
-                             get_string('followsim','socialwiki')
-                             );
-        $table->attributes['class'] = 'socialwiki_editor generalbox colourtext';
+        $string_array = (array(get_string('title', 'socialwiki'),
+                               get_string('creator', 'socialwiki'),
+                               get_string('created', 'socialwiki'),
+                               get_string('updated', 'socialwiki'),
+                               get_string('likes', 'socialwiki'),
+                               get_string('views', 'socialwiki'),
+                               get_string('popularity','socialwiki'),
+                               get_string('trust','socialwiki'),
+                               get_string('likesim','socialwiki'),
+                               get_string('followsim','socialwiki')
+                               )
+                        );
+        $table->head = $string_array;
+        $table->attributes['class'] = 'datable-sort socialwiki_editor generalbox colourtext';
+        $table->sortable = true;
         $table->data = array();
         $table->rowclasses = array();
         foreach ($pages as $page) {
@@ -356,15 +355,15 @@ abstract class page_socialwiki {
             }
 
             $linkpage = html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title,array('class'=>'socialwiki_link'));
-            if(socialwiki_liked($USER->id, $this->page->id)) {
+            if(socialwiki_liked($USER->id, $page->id)) {
                 $likelink = html_writer::link($CFG->wwwroot.'/mod/socialwiki/like.php?pageid='.$page->id.'&from='.urlencode($PAGE->url->out()),'Unlike',array('class'=>'socialwiki_unlikelink socialwiki_link'));
             } else {
                 $likelink = html_writer::link($CFG->wwwroot.'/mod/socialwiki/like.php?pageid='.$page->id.'&from='.urlencode($PAGE->url->out()),'Like',array('class'=>'socialwiki_likelink socialwiki_link'));
             }
             $name = html_writer::link($CFG->wwwroot.'/mod/socialwiki/viewuserpages.php?userid='.$user->id.'&subwikiid='.$page->subwikiid,fullname($user),array('class'=>'socialwiki_link'));
             $table->data[] = array(
-                "$linkpage - $likelink",                
-                "$name - $followlink",
+                "$linkpage $likelink",                
+                "$name $followlink",
                 "$created",
                 "$updated",
                 "$likes",

@@ -1510,7 +1510,10 @@ function socialwiki_is_following($userfromid,$usertoid,$subwikiid)
 		  FROM {socialwiki_follows}
 		  WHERE userfromid=? AND usertoid=? AND subwikiid= ?';
 		  
-	return $DB->record_exists_sql($sql,array($userfromid,$usertoid,$subwikiid));
+    $rtn = $DB->record_exists_sql($sql,array($userfromid,$usertoid,$subwikiid));
+	//echo "Rtn is  = " . $rtn ."<br/>";
+    return $rtn;
+    // return $DB->record_exists_sql($sql,array($userfromid,$usertoid,$subwikiid));
 }
 
 //unfollow a user
@@ -1534,7 +1537,9 @@ global $DB;
 		  FROM {socialwiki_likes}
 		  WHERE userid=? AND pageid=?';
 		  
-	return $DB->record_exists_sql($sql,array($userid,$pageid));
+    $rtn = $DB->record_exists_sql($sql,array($userid,$pageid));
+    echo "rtn = " . $rtn . "<br/>";
+    return $rtn;
 }
 
 //add a like
