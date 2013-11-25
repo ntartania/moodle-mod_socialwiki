@@ -303,7 +303,9 @@ $string['wrongversionsave'] = 'Another user has created a version while you were
 $string['socialwiki:managewiki'] = 'Manage Social Wiki';
 
 $string['title'] = 'Title';
+$string['liked'] = 'Liked';
 $string['creator'] = 'Creator';
+$string['followed'] = 'Followed';
 $string['created'] = 'Created';
 $string['updated'] = 'Updated';
 $string['likes'] = "Likes";

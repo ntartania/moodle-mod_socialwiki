@@ -333,30 +333,30 @@ abstract class page_socialwiki {
             $followlink;
             $likelink;
 
-            $pageimg = "<img style='float:left;' src=".$CFG->wwwroot."/mod/socialwiki/img/icons/page.png></img>";
+            $pageimg = "<img src=".$CFG->wwwroot."/mod/socialwiki/img/icons/page.png></img>";
 
             if(socialwiki_is_following($USER->id,$page->userid,$swid))
             {
-                $img = "<img style='float:right;' src='".$CFG->wwwroot."/mod/socialwiki/img/icons/man-minus.png'></img>";
+                $img = "<img src='".$CFG->wwwroot."/mod/socialwiki/img/icons/man-minus.png'></img>";
                 $followlink = "<a class='socialwiki_unfollowlink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/follow.php?user2=".$page->userid."&from=".urlencode($PAGE->url->out())."&swid=".$swid."'>".$img."</a>";
             } else {
-                $img = "<img style='float:right;' src='".$CFG->wwwroot."/mod/socialwiki/img/icons/man-plus.png'></img>";
+                $img = "<img src='".$CFG->wwwroot."/mod/socialwiki/img/icons/man-plus.png'></img>";
                 $followlink = "<a class='socialwiki_followlink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/follow.php?user2=".$page->userid."&from=".urlencode($PAGE->url->out())."&swid=".$swid."'>".$img."</a>";
             }   
 
             $linkpage = "<a class='socialwiki_link' href=".$CFG->wwwroot."/mod/socialwiki/view.php?pageid=".$page->id.">".$page->title."</a>";
             if(socialwiki_liked($USER->id, $page->id)) {
-                $img = "<img style='float:right;' src='".$CFG->wwwroot."/mod/socialwiki/img/icons/star1.png'></img>";
+                $img = "<img src='".$CFG->wwwroot."/mod/socialwiki/img/icons/star1.png'></img>";
                 $likelink = "<a class='socialwiki_unlikelink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/like.php?pageid=".$page->id."&from=".urlencode($PAGE->url->out())."'>".$img."</a>";
             } else {
-                $img = "<img style='float:right;' src='".$CFG->wwwroot."/mod/socialwiki/img/icons/star2.png'></img>";
+                $img = "<img src='".$CFG->wwwroot."/mod/socialwiki/img/icons/star2.png'></img>";
                 $likelink = "<a class='socialwiki_likelink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/like.php?pageid=".$page->id."&from=".urlencode($PAGE->url->out())."'>".$img."</a>";
             }
             $name = "<a class='socialwiki_link' src='".$CFG->wwwroot."/mod/socialwiki/viewuserpages.php?userid=".$user->id."&from=".urlencode($PAGE->url->out())."'>".fullname($user)."</a>";
 
             $row = array(
-                get_string('title', 'socialwiki') => "$pageimg$linkpage$likelink",
-                get_string('creator', 'socialwiki') => "$name$followlink",
+                get_string('title', 'socialwiki') => "<div style='white-space: nowrap; width: 100%;'>$pageimg$linkpage$likelink</div>",
+                get_string('creator', 'socialwiki') => "<div style='white-space: nowrap;'>$name$followlink</div>",
                 get_string('created', 'socialwiki') => "$created",
                 get_string('updated', 'socialwiki') => "$updated",
                 get_string('likes', 'socialwiki') => "$likes",
@@ -368,7 +368,12 @@ abstract class page_socialwiki {
                 );
             $table->add_row($row);
         }
+        
+        
+        echo "<div class='yui3-js-endable'>";
         $table->print_table();
+        echo "<div id='dtable'></div>";
+        echo "</div>";
     }
 
 }
