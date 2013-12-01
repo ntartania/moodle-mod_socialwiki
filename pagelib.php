@@ -333,7 +333,6 @@ abstract class page_socialwiki {
             $followlink;
             $likelink;
 
-            $pageimg = "<img src=".$CFG->wwwroot."/mod/socialwiki/img/icons/page.png></img>";
 
             if(socialwiki_is_following($USER->id,$page->userid,$swid))
             {
@@ -355,14 +354,13 @@ abstract class page_socialwiki {
             $name = "<a class='socialwiki_link' src='".$CFG->wwwroot."/mod/socialwiki/viewuserpages.php?userid=".$user->id."&from=".urlencode($PAGE->url->out())."'>".fullname($user)."</a>";
 
             $row = array(
-                get_string('title', 'socialwiki') => "<div style='white-space: nowrap; width: 100%;'>$pageimg$linkpage$likelink</div>",
+                get_string('title', 'socialwiki') => "<div style='white-space: nowrap; width: 100%;'>$linkpage$likelink</div>",
                 get_string('creator', 'socialwiki') => "<div style='white-space: nowrap;'>$name$followlink</div>",
                 get_string('created', 'socialwiki') => "$created",
                 get_string('updated', 'socialwiki') => "$updated",
                 get_string('likes', 'socialwiki') => "$likes",
                 get_string('views', 'socialwiki') => "$views",
                 get_string('popularity','socialwiki') => "$peer->popularity",
-                get_string('trust','socialwiki') => "$peer->trust",
                 get_string('likesim','socialwiki') => "$peer->likesim",
                 get_string('followsim','socialwiki') => "$peer->followsim"
                 );
