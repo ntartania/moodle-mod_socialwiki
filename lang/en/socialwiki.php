@@ -316,3 +316,4 @@ $string['popularity'] = 'Author Popularity';
 $string['trust'] = 'Trust Score';
 $string['likesim'] = 'Like Similarity';
 $string['followsim'] = 'Follow Similarity';
+$string['favorite'] = "Favorited By";

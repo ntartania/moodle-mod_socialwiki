@@ -1582,6 +1582,40 @@ function socialwiki_get_author($pageid){
 	return $DB->get_record_sql($sql,array($pageid));
 }
 
+//return user ids of all users who favorite this page
+function socialwiki_get_favorites($pageid, $swid){
+    global $DB;
+    $sql='SELECT *
+          FROM {socialwiki_likes}
+          WHERE pageid=?';
+
+    $results = $DB->get_records_sql($sql,array($pageid),0,1000);
+    $favorites = array();
+    foreach($results as $r) {
+        if(socialwiki_is_user_favorite($r->userid, $pageid, $swid)){
+            array_push($favorites, socialwiki_get_user_info($r->userid));
+        }
+    }
+    return $favorites;
+}
+
+function socialwiki_is_user_favorite($userid, $pageid, $swid) {
+    $liked_pages = socialwiki_getlikes($userid, $swid);
+    $p = socialwiki_get_page($pageid);
+
+    foreach($liked_pages as $page_id) {
+        $page = socialwiki_get_page($page_id->pageid);
+        // echo "Created: $page->timecreated<br/>";
+        // echo "Name: $page->title<br/>";
+        if($page->title == $p->title) {
+            if($page->timemodified > $p->timemodified) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 //returns the id of the parent page
 function socialwiki_get_parent($pageid){
 	Global $DB;

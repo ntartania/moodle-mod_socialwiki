@@ -336,33 +336,41 @@ abstract class page_socialwiki {
 
             if(socialwiki_is_following($USER->id,$page->userid,$swid))
             {
-                $img = "<img src='".$CFG->wwwroot."/mod/socialwiki/img/icons/man-minus.png'></img>";
-                $followlink = "<a class='socialwiki_unfollowlink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/follow.php?user2=".$page->userid."&from=".urlencode($PAGE->url->out())."&swid=".$swid."'>".$img."</a>";
+                $img = "<img style='width:22px; vertical-align:middle;' src='".$CFG->wwwroot."/mod/socialwiki/img/icons/man-minus.png'></img>";
+                $followlink = "<a style='margin:0;'   class='socialwiki_unfollowlink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/follow.php?user2=".$page->userid."&from=".urlencode($PAGE->url->out())."&swid=".$swid."'>".$img."</a>";
             } else {
-                $img = "<img src='".$CFG->wwwroot."/mod/socialwiki/img/icons/man-plus.png'></img>";
-                $followlink = "<a class='socialwiki_followlink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/follow.php?user2=".$page->userid."&from=".urlencode($PAGE->url->out())."&swid=".$swid."'>".$img."</a>";
+                $img = "<img style='width:22px; vertical-align:middle;' src='".$CFG->wwwroot."/mod/socialwiki/img/icons/man-plus.png'></img>";
+                $followlink = "<a style='margin:0;' class='socialwiki_followlink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/follow.php?user2=".$page->userid."&from=".urlencode($PAGE->url->out())."&swid=".$swid."'>".$img."</a>";
             }   
 
-            $linkpage = "<a class='socialwiki_link' href=".$CFG->wwwroot."/mod/socialwiki/view.php?pageid=".$page->id.">".$page->title."</a>";
+            $linkpage = "<a style='margin:0;' class='socialwiki_link' href=".$CFG->wwwroot."/mod/socialwiki/view.php?pageid=".$page->id.">".$page->title."</a>";
             if(socialwiki_liked($USER->id, $page->id)) {
-                $img = "<img src='".$CFG->wwwroot."/mod/socialwiki/img/icons/star1.png'></img>";
-                $likelink = "<a class='socialwiki_unlikelink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/like.php?pageid=".$page->id."&from=".urlencode($PAGE->url->out())."'>".$img."</a>";
+                $img = "<img style='width:22px; vertical-align:middle;' src='".$CFG->wwwroot."/mod/socialwiki/img/icons/star1.png'></img>";
+                $likelink = "<a style='margin:0;' class='socialwiki_unlikelink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/like.php?pageid=".$page->id."&from=".urlencode($PAGE->url->out())."'>".$img."</a>";
             } else {
-                $img = "<img src='".$CFG->wwwroot."/mod/socialwiki/img/icons/star2.png'></img>";
-                $likelink = "<a class='socialwiki_likelink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/like.php?pageid=".$page->id."&from=".urlencode($PAGE->url->out())."'>".$img."</a>";
+                $img = "<img style='width:22px; vertical-align:middle;' src='".$CFG->wwwroot."/mod/socialwiki/img/icons/star2.png'></img>";
+                $likelink = "<a style='margin:0;' class='socialwiki_likelink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/like.php?pageid=".$page->id."&from=".urlencode($PAGE->url->out())."'>".$img."</a>";
             }
-            $name = "<a class='socialwiki_link' src='".$CFG->wwwroot."/mod/socialwiki/viewuserpages.php?userid=".$user->id."&from=".urlencode($PAGE->url->out())."'>".fullname($user)."</a>";
+            $name = "<a style='margin:0;' class='socialwiki_link' src='".$CFG->wwwroot."/mod/socialwiki/viewuserpages.php?userid=".$user->id."&from=".urlencode($PAGE->url->out())."'>".fullname($user)."</a>";
+
+            $favorites = socialwiki_get_favorites($page->id, $swid);
+            $fav = "";
+
+            foreach($favorites as $f) {
+                $fav .= fullname($f).' ';
+            }
 
             $row = array(
-                get_string('title', 'socialwiki') => "<div style='white-space: nowrap; width: 100%;'>$linkpage$likelink</div>",
-                get_string('creator', 'socialwiki') => "<div style='white-space: nowrap;'>$name$followlink</div>",
+                get_string('title', 'socialwiki') => "<div style='white-space: nowrap; width:100%;'>$likelink$linkpage</div>",
+                get_string('creator', 'socialwiki') => "<div style='white-space: nowrap; width:100%;'>$followlink$name</div>",
                 get_string('created', 'socialwiki') => "$created",
                 get_string('updated', 'socialwiki') => "$updated",
                 get_string('likes', 'socialwiki') => "$likes",
                 get_string('views', 'socialwiki') => "$views",
                 get_string('popularity','socialwiki') => "$peer->popularity",
                 get_string('likesim','socialwiki') => "$peer->likesim",
-                get_string('followsim','socialwiki') => "$peer->followsim"
+                get_string('followsim','socialwiki') => "$peer->followsim",
+                get_string('favorite','socialwiki') => "$fav"
                 );
             $table->add_row($row);
         }
