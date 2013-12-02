@@ -61,7 +61,7 @@
 							socialwiki_refresh_cachedcontent(socialwiki_get_page($refreshpage->frompageid));
 					}
 			}
-			redirect($CFG->wwwroot .'/mod/socialwiki/home.php?id='.$cm->id);
+			// redirect($CFG->wwwroot .'/mod/socialwiki/home.php?id='.$cm->id);
 		}
 	}else{
 		socialwiki_add_like($USER->id,$pageid,$subwiki->id);
