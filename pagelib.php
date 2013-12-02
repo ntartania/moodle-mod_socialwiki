@@ -312,7 +312,7 @@ abstract class page_socialwiki {
     protected function generate_table_view($pages) {
         global $CFG, $PAGE, $USER;
         require_once($CFG->dirroot . "/mod/socialwiki/locallib.php");
-        require_once($CFG->dirroot . "/mod/sortableTable/sortableTable.php");
+        require_once($CFG->dirroot . "/mod/socialwiki/sortableTable/sortableTable.php");
 
         $table = new SortableTable();
 
