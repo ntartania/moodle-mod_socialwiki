@@ -346,10 +346,10 @@ abstract class page_socialwiki {
 
             $linkpage = "<a style='margin:0;' class='socialwiki_link' href=".$CFG->wwwroot."/mod/socialwiki/view.php?pageid=".$page->id.">".$page->title."</a>";
             if(socialwiki_liked($USER->id, $page->id)) {
-                $img = "<img style='width:22px; vertical-align:middle;' src='".$CFG->wwwroot."/mod/socialwiki/img/icons/star1.png'></img>";
+                $img = "<img style='width:22px; vertical-align:middle;' src='".$CFG->wwwroot."/mod/socialwiki/img/icons/likefilled.png'></img>";
                 $likelink = "<a style='margin:0;' class='socialwiki_unlikelink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/like.php?pageid=".$page->id."&from=".urlencode($PAGE->url->out()."&option=$option")."'>".$img."</a>";
             } else {
-                $img = "<img style='width:22px; vertical-align:middle;' src='".$CFG->wwwroot."/mod/socialwiki/img/icons/star2.png'></img>";
+                $img = "<img style='width:22px; vertical-align:middle;' src='".$CFG->wwwroot."/mod/socialwiki/img/icons/hollowlike.png'></img>";
                 $likelink = "<a style='margin:0;' class='socialwiki_likelink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/like.php?pageid=".$page->id."&from=".urlencode($PAGE->url->out()."&option=$option")."'>".$img."</a>";
             }
             $name = "<a style='margin:0;' class='socialwiki_link' src='".$CFG->wwwroot."/mod/socialwiki/viewuserpages.php?userid=".$user->id."&from=".urlencode($PAGE->url->out())."'>".fullname($user)."</a>";
