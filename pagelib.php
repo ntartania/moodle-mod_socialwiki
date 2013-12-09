@@ -315,7 +315,7 @@ abstract class page_socialwiki {
         require_once($CFG->dirroot . "/mod/socialwiki/sortableTable/sortableTable.php");
 
         $table = new SortableTable();
-        $option=required_param('option', PARAM_INT);
+        $option=optional_param('option',null, PARAM_INT);
 
         foreach ($pages as $page) {
             $user = socialwiki_get_user_info($page->userid);
