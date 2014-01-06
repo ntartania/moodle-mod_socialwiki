@@ -1518,48 +1518,49 @@ class page_socialwiki_home extends page_socialwiki {
     }
 	
     function print_content() {
-        global $CFG, $PAGE,$OUTPUT;
+        global $CFG, $PAGE, $USER, $OUTPUT;
 
         require_capability('mod/wiki:viewpage', $this->modcontext, NULL, true, 'noviewpagepermission', 'socialwiki');
 		
 		echo $this->wikioutput->content_area_begin();
 		//print the home page heading
-		echo $OUTPUT->heading('Home Page',1,"socialwiki_headingtitle colourtext");
+		echo $OUTPUT->heading('Launch Page',1,"socialwiki_headingtitle colourtext");
+
+        $user_header = "<div>";
+        $user_header .= $OUTPUT->user_picture(socialwiki_get_user_info($USER->id), array('size'=>100,));
+        $user_header .= "<h2 style='text-align: right;'>".fullname($USER)."</h2>";
+        $user_header .= "</div>";
+        echo $user_header;
 
 		//outputs a link to the first page if it exists
-		if ($firstpage=socialwiki_get_first_page($this->subwiki->id)) {
-			echo $OUTPUT->container_start('linkcontainer','firstpagecontainer');
-			echo html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$firstpage->id,'Go to First Page',array('class'=>'socialwiki_link'));
-			echo $OUTPUT->container_end();
-		}
         switch ($this->view) {
         case 1:
-            echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
+            //echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
             $this->print_userpages_content();
             break;
         case 2:
-            echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
+            //echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
             $this->print_orphaned_content();
             break;
         case 3:
-            echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
+            //echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
             $this->print_page_list_content();
             break;
         case 4:
-            echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
+            //echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
             $this->print_updated_content();
             break;
 		case 5:
-			echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
+			//echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
             $this->print_teacher_content();
             break;
 		case 6:
-			echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
+			//echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
             $this->print_recommended_content();
 			break;
         default:
-            echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
-            $this->print_updated_content();
+            //echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
+            $this->print_page_list_content();
         }
 		echo $this->wikioutput->content_area_end();
     }
@@ -1608,6 +1609,8 @@ class page_socialwiki_home extends page_socialwiki {
      *
      * @uses $OUTPUT
      *
+     */
+    /*
     private function print_navigation_content() {
         global $OUTPUT,$PAGE,$COURSE;
         $page = $this->page;
@@ -1665,7 +1668,8 @@ class page_socialwiki_home extends page_socialwiki {
      * Prints the index page tab content
      *
      *
-    
+     */
+    /*
     private function print_index_content() {
         global $OUTPUT;
         $page = $this->page;
