@@ -357,9 +357,21 @@ abstract class page_socialwiki {
             $favorites = socialwiki_get_favorites($page->id, $swid);
             $fav = "";
 
-            foreach($favorites as $f) {
-                $fav .= fullname($f).' ';
+            $firstfav = "";
+
+
+            if(count($favorites) > 0) {
+                $firstfav = fullname(array_shift($favorites));
+                if(count($favorites) > 0) {
+                    $firstfav .= " and ".count($favorites)." more";
+                    
+                    foreach($favorites as $f) {
+                        $fav .= fullname($f).'\n';
+                    }
+                }
             }
+
+            $favdiv = "<a title='$fav'>$firstfav</a>";
 
             $row = array(
                 get_string('title', 'socialwiki') => "<div style='white-space: nowrap; width:100%;'>$likelink$linkpage</div>",
@@ -371,7 +383,7 @@ abstract class page_socialwiki {
                 get_string('popularity','socialwiki') => "$peer->popularity",
                 get_string('likesim','socialwiki') => "$peer->likesim",
                 get_string('followsim','socialwiki') => "$peer->followsim",
-                get_string('favorite','socialwiki') => "$fav"
+                get_string('favorite','socialwiki') => "$favdiv"
                 );
             $table->add_row($row);
         }
