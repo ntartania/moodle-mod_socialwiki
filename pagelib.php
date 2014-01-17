@@ -1520,17 +1520,28 @@ class page_socialwiki_home extends page_socialwiki {
     function print_content() {
         global $CFG, $PAGE, $USER, $OUTPUT;
 
-        require_capability('mod/wiki:viewpage', $this->modcontext, NULL, true, 'noviewpagepermission', 'socialwiki');
+        require_capability(
+            'mod/wiki:viewpage',
+            $this->modcontext,
+            NULL,
+            true,
+            'noviewpagepermission',
+            'socialwiki'
+        );
 		
 		echo $this->wikioutput->content_area_begin();
 		//print the home page heading
-		echo $OUTPUT->heading('Launch Page',1,"socialwiki_headingtitle colourtext");
+		echo $OUTPUT->heading('Social Wiki Home',1,"socialwiki_headingtitle colourtext");
 
         $user_header = "<div>";
         $user_header .= $OUTPUT->user_picture(socialwiki_get_user_info($USER->id), array('size'=>100,));
-        $user_header .= "<h2 style='text-align: right;'>".fullname($USER)."</h2>";
+        $user_header .= "<h2 style='text-align: left; margin-left: 25px;'>".fullname($USER)."</h2>";
         $user_header .= "</div>";
         echo $user_header;
+
+        echo "<div>";
+        echo $this->generate_home_nav();
+        echo "</div>";
 
 		//outputs a link to the first page if it exists
         switch ($this->view) {
@@ -1563,6 +1574,36 @@ class page_socialwiki_home extends page_socialwiki {
             $this->print_page_list_content();
         }
 		echo $this->wikioutput->content_area_end();
+    }
+
+    function generate_nav($nav_link_array, $selected_index) {
+        $navtag .= "<ul class='nav nav-tabs'>\n";
+
+        $end_tag  = "</ul>\n";
+
+
+        $nav_links = "";
+        $count = 0;
+        foreach($nav_link_array as $label => $link) {
+            $a  = "<a ";
+            $a .= "href='$link'>";
+            $a .= "$label</a>";
+            if($count++ === $selected_index) {
+                $nav_links .= "<li class='active'>$a</li>";
+            } else {
+                $nav_links .= "<li>$a</li>";
+            }
+            
+        }
+        return $navtag . $nav_links . $end_nav;
+    }
+
+    function generate_home_nav($selected_index = 0) {
+        $navlinks = array(
+            "Review"  => "#",
+            "Explore" => "#",
+        );
+        return $this->generate_nav($navlinks, $selected_index);
     }
 
     function set_view($option) {
