@@ -1582,6 +1582,18 @@ function socialwiki_get_author($pageid){
 	return $DB->get_record_sql($sql,array($pageid));
 }
 
+function socialwiki_get_user_favorites($userid, $swid) {
+    //return socialwiki_getlikes($userid, $swid);
+    $results = socialwiki_getlikes($userid,$swid);
+    $favorites = array();
+    foreach($results as $r) {
+        if(socialwiki_is_user_favorite($r->userid, $pageid, $swid)){
+            array_push($favorites, socialwiki_get_page($r->pageid));
+        }
+    }
+    return $favorites;
+}
+
 //return user ids of all users who favorite this page
 function socialwiki_get_favorites($pageid, $swid){
     global $DB;

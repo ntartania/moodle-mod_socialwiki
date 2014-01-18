@@ -36,8 +36,8 @@ require_once($CFG->dirroot . '/mod/socialwiki/lib.php');
 require_once($CFG->dirroot . '/mod/socialwiki/locallib.php');
 require_once($CFG->dirroot . '/mod/socialwiki/pagelib.php');
 
-	$id =optional_param('id',0,PARAM_INT); //course module ID
-$option = optional_param('option', 0, PARAM_INT); // Option ID
+	$id = optional_param('id',0,PARAM_INT); //course module ID
+    $tab = optional_param('tabid', 0, PARAM_INT); // Option ID
 
 //case 1 User that comes from a course
 if($id){
@@ -92,7 +92,7 @@ $wikipage = new page_socialwiki_home($wiki, $subwiki, $cm);
 add_to_log($course->id, "socialwiki", "home", "home.php?id=".$cm->id, $cm->id);
 
 // Print page header
-$wikipage->set_view($option);
+$wikipage->set_tab($tab);
 $wikipage->print_header();
 $wikipage->print_content();
 

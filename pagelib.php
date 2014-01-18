@@ -309,7 +309,7 @@ abstract class page_socialwiki {
      * @param  Array $pages - a list
      * @return [type]
      */
-    protected function generate_table_view($pages) {
+    protected function generate_table_view($pages, $table_id = "dtable") {
         global $CFG, $PAGE, $USER;
         require_once($CFG->dirroot . "/mod/socialwiki/locallib.php");
         require_once($CFG->dirroot . "/mod/socialwiki/sortableTable/sortableTable.php");
@@ -388,11 +388,14 @@ abstract class page_socialwiki {
             $table->add_row($row);
         }
         
+        $table_markup = "";
         
-        echo "<div class='yui3-js-endable'>";
-        $table->print_table();
-        echo "<div id='dtable'></div>";
-        echo "</div>";
+        $table_markup .= "<div class='yui3-js-endable'>";
+        $table_markup .= $table->get_table($table_id);
+        $table_markup .= "<div id='$table_id'></div>";
+        $table_markup .= "</div>";
+
+        return $table_markup;
     }
 
 }
@@ -1513,6 +1516,27 @@ class page_socialwiki_home extends page_socialwiki {
      */
     private $view;
 
+    private $tab;
+
+    const REVIEW_TAB = 0;
+    const EXPLORE_TAB = 1;
+
+    function __construct($wiki, $subwiki, $cm, $t = 0) {
+        parent::__construct($wiki, $subwiki, $cm);
+        $this->tab = $t;
+    }
+
+    /**
+     * 
+     * @param int $tab_id   0 - Review Tab
+     *                      1 - Explore Tab
+     */
+    public function set_tab($tab_id) {
+        if($tab_id === self::REVIEW_TAB || $tab_id === self::EXPLORE_TAB) {
+            $this->tab = $tab_id;
+        }
+    }
+
     function print_header() {
         parent::print_header();
     }
@@ -1543,36 +1567,14 @@ class page_socialwiki_home extends page_socialwiki {
         echo $this->generate_home_nav();
         echo "</div>";
 
-		//outputs a link to the first page if it exists
-        switch ($this->view) {
-        case 1:
-            //echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
-            $this->print_userpages_content();
-            break;
-        case 2:
-            //echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
-            $this->print_orphaned_content();
-            break;
-        case 3:
-            //echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
-            $this->print_page_list_content();
-            break;
-        case 4:
-            //echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
-            $this->print_updated_content();
-            break;
-		case 5:
-			//echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
-            $this->print_teacher_content();
-            break;
-		case 6:
-			//echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
-            $this->print_recommended_content();
-			break;
-        default:
-            //echo $this->wikioutput->menu_home($PAGE->cm->id, $this->view);
-            $this->print_page_list_content();
+        if($this->tab === self::REVIEW_TAB) {
+            $this->print_review_page();
+        } else if ($this->tab === self::EXPLORE_TAB) {
+            echo "this is the explore tab";
+        } else {
+            echo "ERROR RENDERING PAGE... Invalid tab option";
         }
+
 		echo $this->wikioutput->content_area_end();
     }
 
@@ -1599,11 +1601,18 @@ class page_socialwiki_home extends page_socialwiki {
     }
 
     function generate_home_nav($selected_index = 0) {
+        global $PAGE;
         $navlinks = array(
-            "Review"  => "#",
-            "Explore" => "#",
+            "Review"  => "home.php?id=".$PAGE->cm->id."&tabid=".self::REVIEW_TAB,
+            "Explore" => "home.php?id=".$PAGE->cm->id."&tabid=".self::EXPLORE_TAB,
         );
-        return $this->generate_nav($navlinks, $selected_index);
+        return $this->generate_nav($navlinks, $this->tab);
+    }
+
+    function print_review_page() {
+        // $this->print_page_list_content();
+        $this->print_favorite_pages();
+        $this->print_userpages_content();
     }
 
     function set_view($option) {
@@ -1611,7 +1620,7 @@ class page_socialwiki_home extends page_socialwiki {
     }
 
     function set_url() {
-        global $PAGE, $CFG;
+        global $PAGE, $CFG, $USER;
         $PAGE->set_url($CFG->wwwroot . '/mod/socialwiki/home.php', array('id' => $PAGE->cm->id));
     }
 
@@ -1621,6 +1630,15 @@ class page_socialwiki_home extends page_socialwiki {
         $PAGE->navbar->add(get_string('home', 'socialwiki'), $CFG->wwwroot . '/mod/socialwiki/home.php?id=' . $PAGE->cm->id);
     }
 
+    private function print_favorite_pages() {
+        global $USER;
+        $swid = $this->subwiki->id;
+        if($favs = socialwiki_get_user_favorites($USER->id, $swid)) {
+            echo "<h2>Favorites:</h2>";
+            echo $this->generate_table_view($favs, "user_favorites_table");
+        }
+    }
+
     /**
      * Prints a list of pages the user created
      *
@@ -1628,9 +1646,8 @@ class page_socialwiki_home extends page_socialwiki {
      *
      */
 	
-    private function print_userpages_content() {
-        global $CFG, $OUTPUT, $USER;
-		
+    private function print_userpages_content() {	
+        global $USER;
         $swid = $this->subwiki->id;
 
         $pages = array();
@@ -1639,7 +1656,8 @@ class page_socialwiki_home extends page_socialwiki {
             foreach ($contribs as $contrib) {
                 array_push($pages, socialwiki_get_page($contrib->pageid));
             }
-            $this->generate_table_view($pages);
+            echo "<h2>User Created Pages:</h2>";
+            echo $this->generate_table_view($pages, "user_content_table");
         } else {
             echo get_string('nocontribs', 'socialwiki');
         }
@@ -1748,6 +1766,7 @@ class page_socialwiki_home extends page_socialwiki {
 
         $pages = socialwiki_get_page_list($this->subwiki->id);
 
+        echo "<h2>All Pages</h2>";
         $this->generate_table_view($pages);
 
     }
