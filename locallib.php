@@ -1563,6 +1563,17 @@ function socialwiki_numlikes($pageid){
 	return count($DB->get_records_sql($sql,array($pageid)));
 }
 
+function socialwiki_get_liked_pages($userid, $subwikiid, $limit=1000) {
+    $likes = socialwiki_getlikes($userid, $subwikiid);
+
+    $pages = array();
+    foreach ($likes as $l) {
+        if($limit-- === 0) {break;}
+        array_push($pages, socialwiki_get_page($l->pageid));
+    }
+    return $pages;
+}
+
 //return all the pages the user likes
 function socialwiki_getlikes($userid,$subwikiid){
 global $DB;

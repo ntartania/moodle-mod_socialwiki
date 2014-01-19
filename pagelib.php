@@ -1612,6 +1612,7 @@ class page_socialwiki_home extends page_socialwiki {
     function print_review_page() {
         // $this->print_page_list_content();
         $this->print_favorite_pages();
+        $this->print_recent_likes();
         $this->print_userpages_content();
     }
 
@@ -1636,6 +1637,15 @@ class page_socialwiki_home extends page_socialwiki {
         if($favs = socialwiki_get_user_favorites($USER->id, $swid)) {
             echo "<h2>Favorites:</h2>";
             echo $this->generate_table_view($favs, "user_favorites_table");
+        }
+    }
+
+    private function print_recent_likes() {
+        global $USER;
+        $swid = $this->subwiki->id;
+        if($likes = socialwiki_get_liked_pages($USER->id, $swid)) {
+            echo "<h2>Recent Likes</h2>";
+            echo $this->generate_table_view($likes, "user_likes_table");
         }
     }
 
