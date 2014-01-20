@@ -1570,7 +1570,7 @@ class page_socialwiki_home extends page_socialwiki {
         if($this->tab === self::REVIEW_TAB) {
             $this->print_review_page();
         } else if ($this->tab === self::EXPLORE_TAB) {
-            echo "this is the explore tab";
+            $this->print_explore_page();
         } else {
             echo "ERROR RENDERING PAGE... Invalid tab option";
         }
@@ -1616,6 +1616,11 @@ class page_socialwiki_home extends page_socialwiki {
         $this->print_userpages_content();
     }
 
+    function print_explore_page() {
+        $this->print_page_list_content();
+        $this->print_updated_content();
+    }
+
     function set_view($option) {
         $this->view = $option;
     }
@@ -1644,7 +1649,7 @@ class page_socialwiki_home extends page_socialwiki {
         global $USER;
         $swid = $this->subwiki->id;
         if($likes = socialwiki_get_liked_pages($USER->id, $swid)) {
-            echo "<h2>Recent Likes</h2>";
+            echo "<h2>Recent Likes:</h2>";
             echo $this->generate_table_view($likes, "user_likes_table");
         }
     }
@@ -1776,9 +1781,11 @@ class page_socialwiki_home extends page_socialwiki {
 
         $pages = socialwiki_get_page_list($this->subwiki->id);
 
-        echo "<h2>All Pages</h2>";
-        $this->generate_table_view($pages);
-
+        if ($pages) {
+            echo "<h2>All Pages:</h2>";
+            echo $this->generate_table_view($pages, "page_list_table");
+        }
+        
     }
 
     /**
@@ -1812,9 +1819,8 @@ class page_socialwiki_home extends page_socialwiki {
         $swid = $this->subwiki->id;
 
         if ($pages = socialwiki_get_updated_pages_by_subwiki($swid)) {
-            $table = $this->generate_table_view($pages);
-        } else {
-            echo get_string('noupdatedpages', 'socialwiki');
+            echo "<h2>Recently Updated:</h2>";
+            echo $table = $this->generate_table_view($pages);
         }
     }
 	
