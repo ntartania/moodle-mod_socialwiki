@@ -518,6 +518,24 @@ function socialwiki_get_page_list($swid) {
     return $records;
 }
 
+function get_topics($swid) {
+    $records = socialwiki_get_page_list($swid);
+    $pages = array();
+
+    foreach ($records as $r) {
+        if (!array_key_exists($r->title, $pages)) {
+            $pages[$r->title] = array();
+            $pages[$r->title]["Views"] = 0;
+            $pages[$r->title]["Likes"] = 0;
+            $pages[$r->title]["Versions"] = 0;
+        }
+        $pages[$r->title]["Views"] += intval($r->pageviews);
+        $pages[$r->title]["Likes"] += intval(socialwiki_numlikes($r->id));
+        $pages[$r->title]["Versions"]++;
+    }
+    return $pages;
+}
+
 /**
  * Return a list of orphaned wikis for one specific subwiki
  * @global object
@@ -1527,6 +1545,14 @@ function socialwiki_get_followers($userid,$subwikiid){
 	return count($DB->get_records_select('socialwiki_follows',$select,array($userid, $subwikiid)));
 }
 
+function socialwiki_page_likes($pageid){
+    global $DB;
+    $sql = 'SELECT *
+            FROM {socialwiki_likes}
+            WHERE pageid=?';
+    return $DB->record_exists_sql($sql,array($pageid));
+}
+
 //returns true if the user likes the page
 function socialwiki_liked($userid,$pageid){
 global $DB;
@@ -1655,6 +1681,17 @@ function socialwiki_get_children($pageid){
 		  FROM {socialwiki_pages}
 		  WHERE parent=?';
 	return $DB->get_records_sql($sql,array($pageid));
+}
+
+function socialwiki_get_subwiki_users($swid) {
+    Global $PAGE;
+    $context = get_context_instance(CONTEXT_MODULE, $PAGE->cm->id);
+    $users=get_enrolled_users($context);
+    $uids = array();
+    foreach ($users as $u) {
+        array_push($uids, $u->id);
+    }
+    return $uids;
 }
 
 //returns an array with all the parent and child pages 
@@ -1887,6 +1924,7 @@ function socialwiki_order_pages_using_peers($peers,$pages,$scale){
 	return 0;
  }
 
+
 //class that describes the similarity between the current user and another student in the activity
 class peer{
 	public $trust=0; //trust indicator value
@@ -1895,7 +1933,7 @@ class peer{
 	public $followsim=0; //the similarity between the people the user and peer are following
 	public $popularity;	//percent popularity
 	public $score;
-	function __construct($id,$swid,$currentuser,$numusers,$scale){
+	function __construct($id,$swid,$currentuser,$numusers,$scale=null){
 		Global $USER;
 		$this->id=$id;
 		$depth=socialwiki_follow_depth($USER->id,$this->id,$swid);
