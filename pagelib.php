@@ -1511,6 +1511,7 @@ class page_socialwiki_history extends page_socialwiki {
  */
 class page_socialwiki_home extends page_socialwiki {
 
+    
     /**
      * @var int wiki view option
      */
@@ -1520,6 +1521,8 @@ class page_socialwiki_home extends page_socialwiki {
 
     const REVIEW_TAB = 0;
     const EXPLORE_TAB = 1;
+    const TOPICS_TAB = 2;
+    const PEOPLE_TAB = 3;
 
     function __construct($wiki, $subwiki, $cm, $t = 0) {
         parent::__construct($wiki, $subwiki, $cm);
@@ -1532,7 +1535,11 @@ class page_socialwiki_home extends page_socialwiki {
      *                      1 - Explore Tab
      */
     public function set_tab($tab_id) {
-        if($tab_id === self::REVIEW_TAB || $tab_id === self::EXPLORE_TAB) {
+        if ($tab_id === self::REVIEW_TAB || 
+            $tab_id === self::EXPLORE_TAB || 
+            $tab_id === self::TOPICS_TAB ||
+            $tab_id === self::PEOPLE_TAB) 
+        {
             $this->tab = $tab_id;
         }
     }
@@ -1571,6 +1578,10 @@ class page_socialwiki_home extends page_socialwiki {
             $this->print_review_page();
         } else if ($this->tab === self::EXPLORE_TAB) {
             echo "this is the explore tab";
+        } else if ($this->tab === self::TOPICS_TAB) {
+            $this->print_topics_tab();
+        } else if ($this->tab === self::PEOPLE_TAB) {
+            $this->print_people_tab();
         } else {
             echo "ERROR RENDERING PAGE... Invalid tab option";
         }
@@ -1603,8 +1614,10 @@ class page_socialwiki_home extends page_socialwiki {
     function generate_home_nav($selected_index = 0) {
         global $PAGE;
         $navlinks = array(
-            "Review"  => "home.php?id=".$PAGE->cm->id."&tabid=".self::REVIEW_TAB,
+            "Manage"  => "home.php?id=".$PAGE->cm->id."&tabid=".self::REVIEW_TAB,
             "Explore" => "home.php?id=".$PAGE->cm->id."&tabid=".self::EXPLORE_TAB,
+            "Topics" => "home.php?id=".$PAGE->cm->id."&tabid=".self::TOPICS_TAB,
+            "People" => "home.php?id=".$PAGE->cm->id."&tabid=".self::PEOPLE_TAB,
         );
         return $this->generate_nav($navlinks, $this->tab);
     }
@@ -1614,6 +1627,23 @@ class page_socialwiki_home extends page_socialwiki {
         $this->print_favorite_pages();
         $this->print_recent_likes();
         $this->print_userpages_content();
+    }
+
+    function print_topics_tab() {
+        global $CFG, $USER;
+        require_once($CFG->dirroot . "/mod/socialwiki/table/topicsTable.php");
+        $topicsTable = new TopicsTable($this->subwiki->id, $USER->id);
+        echo "<h2>Topics:</h2>";
+        echo $topicsTable->get_all_topics();
+    }
+
+    function print_people_tab() {
+        global $CFG, $USER;
+        require_once($CFG->dirroot . "/mod/socialwiki/table/userTable.php");
+
+        $userTable = new UserTable($this->subwiki->id, $USER->id);
+        echo "<h2>Users:</h2>";
+        echo $userTable->get_all_users();
     }
 
     function set_view($option) {
