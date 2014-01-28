@@ -1282,7 +1282,7 @@ function socialwiki_get_wiki_page_id($pageid, $id) {
     global $DB;
     return $DB->get_record('socialwiki_versions', array('pageid' => $pageid, 'id' => $id));
 }
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function socialwiki_print_page_content($page, $context, $subwikiid) {
     global $OUTPUT, $CFG, $PAGE;
 
@@ -1304,11 +1304,13 @@ function socialwiki_print_page_content($page, $context, $subwikiid) {
     $html = file_rewrite_pluginfile_urls($page->cachedcontent, 'pluginfile.php', $context->id, 'mod_socialwiki', 'attachments', $subwikiid);
     $html = format_text($html, FORMAT_MOODLE, array('overflowdiv'=>true, 'allowid'=>true));
 	$wikioutput = $PAGE->get_renderer('mod_socialwiki');
-	
+	////////////////This is where the page content, from the title down, is rendered!!
 	echo $wikioutput->viewing_area($page->title, $html, $page);
-    //echo $OUTPUT->box($html);
+	////////
 
-    if (!empty($CFG->usetags)) {
+    //echo $OUTPUT->box($html);
+//remove tags
+ /*   if (!empty($CFG->usetags)) {
         $tags = tag_get_tags_array('socialwiki_pages', $page->id);
         echo $OUTPUT->container_start('socialwiki-tags');
         echo '<span class="socialwiki-tags-title">'.get_string('tags').': </span>';
@@ -1319,7 +1321,7 @@ function socialwiki_print_page_content($page, $context, $subwikiid) {
         }
         echo join($links, ", ");
         echo $OUTPUT->container_end();
-    }
+    }*/
 
     socialwiki_increment_pageviews($page);
 }
@@ -1582,6 +1584,40 @@ function socialwiki_get_author($pageid){
 	return $DB->get_record_sql($sql,array($pageid));
 }
 
+//return user ids of all users who favorite this page
+function socialwiki_get_favorites($pageid, $swid){
+    global $DB;
+    $sql='SELECT *
+          FROM {socialwiki_likes}
+          WHERE pageid=?';
+
+    $results = $DB->get_records_sql($sql,array($pageid),0,1000);
+    $favorites = array();
+    foreach($results as $r) {
+        if(socialwiki_is_user_favorite($r->userid, $pageid, $swid)){
+            array_push($favorites, socialwiki_get_user_info($r->userid));
+        }
+    }
+    return $favorites;
+}
+
+function socialwiki_is_user_favorite($userid, $pageid, $swid) {
+    $liked_pages = socialwiki_getlikes($userid, $swid);
+    $p = socialwiki_get_page($pageid);
+
+    foreach($liked_pages as $page_id) {
+        $page = socialwiki_get_page($page_id->pageid);
+        // echo "Created: $page->timecreated<br/>";
+        // echo "Name: $page->title<br/>";
+        if($page->title == $p->title) {
+            if($page->timemodified > $p->timemodified) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 //returns the id of the parent page
 function socialwiki_get_parent($pageid){
 	Global $DB;
@@ -1655,6 +1691,17 @@ function socialwiki_get_teachers($contextid){
 	return $DB->get_records_sql($sql,array($contextid));
 }
 
+//checks if the user is a teacher
+function socialwiki_is_teacher($context,$uid){
+	$teachers=socialwiki_get_teachers($context);
+	foreach($teachers as $teacher){
+		if($uid==$teacher->id){
+			return true;
+		}
+	}
+	return false;
+}
+
 //returns an array of the users peers
 function socialwiki_get_peers($swid,$scale){
 	Global $PAGE,$USER;
@@ -1668,6 +1715,14 @@ function socialwiki_get_peers($swid,$scale){
 		}
 	}
 	return $peers;
+}
+
+function socialwiki_get_user_count($swid) {
+    Global $PAGE,$USER;
+    $context = get_context_instance(CONTEXT_MODULE, $PAGE->cm->id);
+    $users=get_enrolled_users($context);
+    $numusers=count($users)-1;
+    return $numusers;
 }
 
 //returns an array of pages chosen based on peers likes and follows
@@ -1831,6 +1886,14 @@ class peer{
 		$this->popularity=socialwiki_get_followers($id,$swid)/$numusers;
 		$this->set_follow_sim($currentuser,$swid);
 		$this->set_like_sim($currentuser,$swid);
+        if($scale == null) {
+            $scale = array(
+                'trust' => 1,
+                'like' => 1,
+                'follow' => 1,
+                'popular' => 1
+            );
+        }
 		$this->set_score($scale);
 	}
 	
