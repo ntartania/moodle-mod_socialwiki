@@ -499,22 +499,21 @@ class mod_socialwiki_renderer extends plugin_renderer_base {
         return $this->output->container($this->output->render($select), 'midpad colourtext');
     }
 
-//todo: UPDATE THE HOME MENU
-    function menu_home($cmid, $currentselect) {
-        $options = array('userpages', 'orphaned','pagelist', 'updatedpages','teacherpages','recommended');
-        $items = array();
-        foreach ($options as $opt) {
-            $items[] = get_string($opt, 'socialwiki');
-        }
-        $selectoptions = array();
-        foreach ($items as $key => $item) {
-            $selectoptions[$key + 1] = $item;
-        }
-        $select = new single_select(new moodle_url('/mod/socialwiki/home.php', array('id' => $cmid)), 'option', $selectoptions, $currentselect);
-        $select->label = get_string('homemenu', 'socialwiki') . ': ';
-        return $this->output->container($this->output->render($select), 'midpad colourtext');
-    }
-	
+    // function menu_home($cmid, $currentselect) {
+    //     $options = array('userpages', 'orphaned','pagelist', 'updatedpages','teacherpages','recommended');
+    //     $items = array();
+    //     foreach ($options as $opt) {
+    //         $items[] = get_string($opt, 'socialwiki');
+    //     }
+    //     $selectoptions = array();
+    //     foreach ($items as $key => $item) {
+    //         $selectoptions[$key + 1] = $item;
+    //     }
+    //     $select = new single_select(new moodle_url('/mod/socialwiki/home.php', array('id' => $cmid)), 'option', $selectoptions, $currentselect);
+    //     $select->label = get_string('homemenu', 'socialwiki') . ': ';
+    //     return $this->output->container($this->output->render($select), 'midpad colourtext');
+    // }
+
     public function socialwiki_files_tree($context, $subwiki) {
         return $this->render(new socialwiki_files_tree($context, $subwiki));
     }
