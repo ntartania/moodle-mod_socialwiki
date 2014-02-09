@@ -1566,9 +1566,11 @@ class page_socialwiki_home extends page_socialwiki {
 
         $user_header = "<div>";
         $user_header .= $OUTPUT->user_picture(socialwiki_get_user_info($USER->id), array('size'=>100,));
-        $user_header .= "<h2 style='text-align: left; margin-left: 25px;'>".fullname($USER)."</h2>";
+        $user_header .= "<h2 class='home_user_name'>".fullname($USER)."</h2>";
         $user_header .= "</div>";
         echo $user_header;
+
+        echo $this->generate_follow_data();
 
         echo "<div>";
         echo $this->generate_home_nav();
@@ -1587,6 +1589,17 @@ class page_socialwiki_home extends page_socialwiki {
         }
 
 		echo $this->wikioutput->content_area_end();
+    }
+
+    function generate_follow_data() {
+        global $USER;
+        $followers = socialwiki_get_followers($USER->id, $this->subwiki->id);
+        $following = count(socialwiki_get_follows($USER->id, $this->subwiki->id));
+
+        $followdata  = html_writer::start_tag('h2',array('class'=>'followdata'));
+        $followdata .= html_writer::tag('span', "Followers: $followers | Following: $following", array('class' => 'label label-default'));
+        $followdata .= html_writer::end_tag('h2');
+        return $followdata;
     }
 
     function generate_nav($nav_link_array, $selected_index) {
