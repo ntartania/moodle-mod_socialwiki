@@ -1293,8 +1293,8 @@ select[multiple].input-lg {
 .label {
   display: inline;
   padding: .2em .6em .3em;
-  font-size: 75%;
-  font-weight: bold;
+  font-size: 90%;
+  font-weight: 500;
   line-height: 1;
   color: #ffffff;
   text-align: center;
@@ -1316,7 +1316,7 @@ select[multiple].input-lg {
   top: -1px;
 }
 .label-default {
-  background-color: #999999;
+  background-color: rgb(66, 139, 202);
 }
 .label-default[href]:hover,
 .label-default[href]:focus {
