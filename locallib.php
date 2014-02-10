@@ -621,6 +621,43 @@ function socialwiki_increment_pageviews($page) {
     $DB->update_record('socialwiki_pages', $page);
 }
 
+/**
+ * Increase page view number for given user
+ * If this is the first time the user has viewed the page, a new entry will be added
+ * @param User $user - Object representing the user who viewed the page
+ * @param Page $page - Object representing the page that was viewed by the user
+ */
+function socialwiki_increment_user_views($userid, $pageid) {
+    global $DB;
+
+    $sql = "SELECT *
+            FROM {socialwiki_user_views}
+            WHERE userid = ? AND pageid = ?";
+
+    $result = $DB->get_record('socialwiki_user_views', array('userid'=>$userid,'pageid'=>$pageid));
+    if (!$result) {
+        $DB->insert_record(
+            "socialwiki_user_views",
+            array('userid' => $userid, 'pageid' => $pageid, 'latestview' => time(), 'viewcount' => 1),
+            $returnid=true,
+            $bulk=false
+        );
+    } else {
+        $user_view = array(
+            'id' => $result->id,
+            'userid' => $result->userid,
+            'pageid' => $result->pageid,
+            'latestview' => time(),
+            'viewcount' => $result->viewcount+1,
+        );
+        $DB->update_record(
+            "socialwiki_user_views",
+            $user_view,
+            $bulk=false
+        );
+    }
+}
+
 //----------------------------------------------------------
 //----------------------------------------------------------
 
@@ -1302,7 +1339,7 @@ function socialwiki_get_wiki_page_id($pageid, $id) {
 }
 
 function socialwiki_print_page_content($page, $context, $subwikiid) {
-    global $OUTPUT, $CFG, $PAGE;
+    global $OUTPUT, $CFG, $PAGE, $USER;
 
     if ($page->timerendered + SOCIALWIKI_REFRESH_CACHE_TIME < time()) {
         $content = socialwiki_refresh_cachedcontent($page);
@@ -1340,6 +1377,7 @@ function socialwiki_print_page_content($page, $context, $subwikiid) {
     }
 
     socialwiki_increment_pageviews($page);
+    socialwiki_increment_user_views($USER->id, $page->id);
 }
 
 /**
