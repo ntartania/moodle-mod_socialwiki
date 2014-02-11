@@ -420,7 +420,7 @@ abstract class page_socialwiki {
         
         $table_markup .= "<div class='yui3-js-endable'>";
         $table_markup .= $table->get_table($table_id);
-        $table_markup .= "<div id='$table_id'></div>";
+        $table_markup .= "<div id='$table_id' class='table_region'></div>";
         $table_markup .= "</div>";
 
         return $table_markup;
@@ -1140,7 +1140,7 @@ class page_socialwiki_search extends page_socialwiki {
 		if(count($pages)>0){
 			$this->generate_table_view($pages);
 		}else{
-			echo'<h3 socialwiki_titleheader>No Pages Found</h3>';
+			echo"<h3 class='table_region' socialwiki_titleheader>No Pages Found</h3>";
 		}
 
 	}
@@ -1153,7 +1153,7 @@ class page_socialwiki_search extends page_socialwiki {
 		if(count($pages)>0){
             $this->generate_table_view($pages);
         }else{
-            echo'<h3 socialwiki_titleheader>No Pages Found</h3>';
+            echo"<h3 class='table_region' socialwiki_titleheader>No Pages Found</h3>";
         }
 	}
 }
@@ -1678,9 +1678,11 @@ class page_socialwiki_home extends page_socialwiki {
 
         $user_header = "<div>";
         $user_header .= $OUTPUT->user_picture(socialwiki_get_user_info($USER->id), array('size'=>100,));
-        $user_header .= "<h2 style='text-align: left; margin-left: 25px;'>".fullname($USER)."</h2>";
+        $user_header .= "<h2 class='home_user_name'>".fullname($USER)."</h2>";
         $user_header .= "</div>";
         echo $user_header;
+
+        echo $this->generate_follow_data();
 
         echo "<div>";
         echo $this->generate_home_nav();
@@ -1699,6 +1701,17 @@ class page_socialwiki_home extends page_socialwiki {
         }
 
 		echo $this->wikioutput->content_area_end();
+    }
+
+    function generate_follow_data() {
+        global $USER;
+        $followers = socialwiki_get_followers($USER->id, $this->subwiki->id);
+        $following = count(socialwiki_get_follows($USER->id, $this->subwiki->id));
+
+        $followdata  = html_writer::start_tag('h2',array('class'=>'followdata'));
+        $followdata .= html_writer::tag('span', "Followers: $followers | Following: $following", array('class' => 'label label-default'));
+        $followdata .= html_writer::end_tag('h2');
+        return $followdata;
     }
 
     function generate_nav($nav_link_array, $selected_index) {
@@ -1791,7 +1804,7 @@ class page_socialwiki_home extends page_socialwiki {
         global $USER;
         $swid = $this->subwiki->id;
         if($favs = socialwiki_get_user_favorites($USER->id, $swid)) {
-            echo "<h2>Favorites:</h2>";
+            echo "<h2 class='table_region'>Favorites:</h2>";
             echo $this->generate_table_view($favs, "user_favorites_table");
         }
     }
@@ -1800,7 +1813,7 @@ class page_socialwiki_home extends page_socialwiki {
         global $USER;
         $swid = $this->subwiki->id;
         if($likes = socialwiki_get_liked_pages($USER->id, $swid)) {
-            echo "<h2>Recent Likes:</h2>";
+            echo "<h2 class='table_region'>Recent Likes:</h2>";
             echo $this->generate_table_view($likes, "user_likes_table");
         }
     }
@@ -1822,10 +1835,10 @@ class page_socialwiki_home extends page_socialwiki {
             foreach ($contribs as $contrib) {
                 array_push($pages, socialwiki_get_page($contrib->pageid));
             }
-            echo "<h2>User Created Pages:</h2>";
+            echo "<h2 class='table_region'>User Created Pages:</h2>";
             echo $this->generate_table_view($pages, "user_content_table");
         } else {
-            echo get_string('nocontribs', 'socialwiki');
+            echo html_writer::tag('div',get_string('nocontribs', 'socialwiki'),array('class'=>'table_region'));
         }
     }
 
@@ -1934,7 +1947,7 @@ class page_socialwiki_home extends page_socialwiki {
 
 
         if ($pages) {
-            echo "<h2>All Pages:</h2>";
+            echo "<h2 class='table_region'>All Pages:</h2>";
             echo $this->generate_table_view($pages, "page_list_table");
         }
         
@@ -1971,8 +1984,7 @@ class page_socialwiki_home extends page_socialwiki {
         $swid = $this->subwiki->id;
 
         if ($pages = socialwiki_get_updated_pages_by_subwiki($swid)) {
-
-            echo "<h2>Recently Updated:</h2>";
+            echo "<h2 class='table_region'>Recently Updated:</h2>";
             echo $table = $this->generate_table_view($pages);
         }
     }

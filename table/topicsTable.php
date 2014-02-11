@@ -50,7 +50,7 @@ class TopicsTable extends socialwiki_table {
         
         $table_markup .= "<div class='yui3-js-endable'>";
         $table_markup .= $table->get_table($table_id);
-        $table_markup .= "<div id='$table_id'></div>";
+        $table_markup .= "<div id='$table_id' class='table_region'></div>";
         $table_markup .= "</div>";
 
         return $table_markup;
