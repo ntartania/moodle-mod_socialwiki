@@ -523,7 +523,7 @@ class page_socialwiki_view extends page_socialwiki {
 	$theliker .= html_writer::end_tag('button');
 
 	$likess = socialwiki_numlikes($this->page->id);
-	$theliker .= html_writer::tag('br');
+	$theliker .= html_writer::tag('br', '');
 
 	$theliker .= '(';
 	$theliker .= html_writer::start_tag('span', array ('id' => 'numlikes')); //span updated asynchronously after ajax request
@@ -1702,9 +1702,9 @@ class page_socialwiki_home extends page_socialwiki {
     }
 
     function generate_nav($nav_link_array, $selected_index) {
-        $navtag .= "<ul class='nav nav-tabs'>\n";
+        $navtag = "<ul class='nav nav-tabs'>\n";
 
-        $end_tag  = "</ul>\n";
+        $end_nav  = "</ul>\n";
 
 
         $nav_links = "";

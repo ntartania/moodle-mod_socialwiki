@@ -1626,7 +1626,7 @@ function socialwiki_get_user_favorites($userid, $swid) {
     $results = socialwiki_getlikes($userid,$swid);
     $favorites = array();
     foreach($results as $r) {
-        if(socialwiki_is_user_favorite($r->userid, $pageid, $swid)){
+        if(socialwiki_is_user_favorite($userid, $r->pageid, $swid)){
             array_push($favorites, socialwiki_get_page($r->pageid));
         }
     }
