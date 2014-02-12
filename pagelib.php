@@ -1872,7 +1872,7 @@ class page_socialwiki_home extends page_socialwiki {
 
         if ($pages = socialwiki_get_updated_pages_by_subwiki($swid)) {
             echo "<h2 class='table_region'>Recently Updated:</h2>";
-            echo $table = $this->generate_table_view($pages);
+            echo $table = $this->generate_table_view($pages, "updated_pages_table");
         }
     }
 	
