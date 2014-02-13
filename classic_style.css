@@ -90,9 +90,9 @@ font-style:italic;
 .socialwiki_likebutton
 {
 line-height: 20px;
-font-size: 2em;
+font-size: 1.5em;
 font-weight: bold;
-color:blue;
+color:gray;
 }
 
 /*this is in fact used just to display the author in the bottom of a page (should be renamed)*/

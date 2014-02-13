@@ -330,10 +330,11 @@ abstract class page_socialwiki {
     /**
      * Generates a table view for a list of pages
      * @param  Array $pages - a list
+     * @param $table_id : the id under which the table will appear in the page.
      * @return [type]
      */
 
-    protected function generate_table_view($pages, $table_id = "dtable") {
+    protected function generate_table_view($pages, $table_id) {
         global $CFG, $PAGE, $USER;
         require_once($CFG->dirroot . "/mod/socialwiki/locallib.php");
         require_once($CFG->dirroot . "/mod/socialwiki/sortableTable/sortableTable.php");
@@ -442,6 +443,7 @@ class page_socialwiki_view extends page_socialwiki {
     function __construct($wiki, $subwiki, $cm) {
         global $PAGE;
 	parent::__construct($wiki, $subwiki, $cm);
+    //js code for the ajax-powered like button
 	$PAGE->requires->js(new moodle_url("/mod/socialwiki/likeajax.js"));
     }
 
@@ -1138,7 +1140,7 @@ class page_socialwiki_search extends page_socialwiki {
 		$peers=socialwiki_get_peers($this->subwiki->id,$scale);
 		$pages=socialwiki_order_pages_using_peers($peers,$this->search_result,$scale);
 		if(count($pages)>0){
-			$this->generate_table_view($pages);
+			echo $this->generate_table_view($pages, 'some_table');
 		}else{
 			echo"<h3 class='table_region' socialwiki_titleheader>No Pages Found</h3>";
 		}
@@ -1151,7 +1153,7 @@ class page_socialwiki_search extends page_socialwiki {
 		$pages=socialwiki_order_by_likes($this->search_result);
 		
 		if(count($pages)>0){
-            $this->generate_table_view($pages);
+            echo $this->generate_table_view($pages, 'popular_table');
         }else{
             echo"<h3 class='table_region' socialwiki_titleheader>No Pages Found</h3>";
         }
@@ -1953,8 +1955,10 @@ class page_socialwiki_home extends page_socialwiki {
 
 
         if ($pages) {
+            //echo "<div >";
             echo "<h2 class='table_region'>All Pages:</h2>";
             echo $this->generate_table_view($pages, "page_list_table");
+            //echo "</div>";
         }
         
     }
@@ -1970,7 +1974,7 @@ class page_socialwiki_home extends page_socialwiki {
         $swid = $this->subwiki->id;
 
         if ($orphanedpages = socialwiki_get_orphaned_pages($swid)) {
-            $this->generate_table_view($pages);
+           echo $this->generate_table_view($pages, 'orphanedpages_table');
         } else {
             echo get_string('noorphanedpages', 'socialwiki');
         }
@@ -1989,9 +1993,17 @@ class page_socialwiki_home extends page_socialwiki {
 
         $swid = $this->subwiki->id;
 
-        if ($pages = socialwiki_get_updated_pages_by_subwiki($swid)) {
+        //echo "AYAAAA";
+        $pages = socialwiki_get_updated_pages_by_subwiki($swid);
+
+        if ($pages) {
+            //echo "AYOOOOOOOOOOOOO";
+            //echo "<div class='table_region'>";
             echo "<h2 class='table_region'>Recently Updated:</h2>";
-            echo $table = $this->generate_table_view($pages, "updated_pages_table");
+            echo $this->generate_table_view($pages, 'updated_pages_table');
+            //echo "</div>";
+        } else {
+            echo get_string('norecentactivity', 'socialwiki');
         }
     }
 	
@@ -2010,7 +2022,7 @@ class page_socialwiki_home extends page_socialwiki {
 			$user = socialwiki_get_user_info($teacher->id);
 			$pages = socialwiki_get_pages_from_userid($teacher->id,$this->subwiki->id);
 
-			$this->generate_table_view($pages);
+			$this->generate_table_view($pages, 'teacher_table');
 		}
     }
 	/**
@@ -2022,7 +2034,7 @@ class page_socialwiki_home extends page_socialwiki {
 
 		$pages = socialwiki_get_recommended_pages($USER->id,$this->subwiki->id);
 		if(count($pages)>0){
-			$this->generate_table_view($pages);
+			$this->generate_table_view($pages, 'recommended_table');
 		}else{
 	       echo '<h3 socialwiki_titleheader>No Pages To Recommend</h3>';
 		}
