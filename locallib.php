@@ -2044,8 +2044,11 @@ class peer{
 		WHERE (userid=? OR userid=?) AND subwikiid=?';
 		$data=$DB->get_record_sql($sql,array($this->id,$userid,$swid));
 
-		//get the similarity between follows and divide by unique follows 
-		$this->likesim=($data->total-$data->different)/$data->different;
+		//get the similarity between likes and divide by unique likes 
+        if ($data->different !=0){
+            $this->likesim=($data->total-$data->different)/$data->different;    
+        }
+		
 	}
 	//sets peer's score to sum of scores times there weight
 	function set_score($scale){
