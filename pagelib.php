@@ -1767,8 +1767,14 @@ class page_socialwiki_home extends page_socialwiki {
         require_once($CFG->dirroot . "/mod/socialwiki/table/userTable.php");
 
         $userTable = new UserTable($this->subwiki->id, $USER->id);
-        echo "<h2>Users:</h2>";
-        echo $userTable->get_all_users();
+        echo '<a id="Ifollow"/><h2>People You Follow:</h2>';
+        echo $userTable->get_followed_users_table();
+
+        echo '<a id="myfollowers"/><h2>People Following you:</h2>';
+        echo $userTable->get_followers_table();
+
+        echo "<h2>All Users:</h2>";
+        echo $userTable->get_all_users_table();
     }
 
     function print_explore_page() {
@@ -2942,7 +2948,7 @@ class page_socialwiki_manage extends page_socialwiki{
 		
 		if (count($follows)==0){
 			$html.=$OUTPUT->container_start('socialwiki_manageheading');
-			$html.= $OUTPUT->heading('You are not following anyone',3,'colourtext');
+			$html.= $OUTPUT->heading(get_string('youfollownobody', 'socialwiki'),3,'colourtext');
 			$html.=$OUTPUT->container_end();
 		}else{
 			//display all the users being followed by the current user
