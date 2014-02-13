@@ -173,6 +173,7 @@ function socialwiki_get_last_version($pageid) {
     return socialwiki_get_current_version($pageid);
 }
 
+
 /**
  * Get page section
  * @param int $pageid
@@ -1585,6 +1586,13 @@ function socialwiki_get_followers($userid,$subwikiid){
 	return count($DB->get_records_select('socialwiki_follows',$select,array($userid, $subwikiid)));
 }
 
+//retursn the number of poeple following the user
+function socialwiki_get_follower_users($userid,$subwikiid){
+    Global $DB;
+    $select='usertoid=? AND subwikiid=?';
+    return $DB->get_records_select('socialwiki_follows',$select,array($userid, $subwikiid));
+}
+
 function socialwiki_page_likes($pageid){
     global $DB;
     $sql = 'SELECT *
@@ -1968,24 +1976,33 @@ function socialwiki_order_pages_using_peers($peers,$pages,$scale){
 
 //class that describes the similarity between the current user and another student in the activity
 class peer{
-	public $trust=0; //trust indicator value
+	public $trust=0; //trust indicator value = 1/distance or 0
 	public $id; //the user id
 	public $likesim=0; //the similarity between likes of the peer and user
 	public $followsim=0; //the similarity between the people the user and peer are following
 	public $popularity;	//percent popularity
+    public $depth; //social distance: 1 for I'm following this user, 2 for friend of a friend, etc.
 	public $score;
+
 	function __construct($id,$swid,$currentuser,$numusers,$scale=null){
 		Global $USER;
 		$this->id=$id;
-		$depth=socialwiki_follow_depth($USER->id,$this->id,$swid);
-		if($depth ==0){
-			$this->trust=0;
-		}else{
-			$this->trust=1/$depth;
-		}
-		$this->popularity=socialwiki_get_followers($id,$swid)/$numusers;
-		$this->set_follow_sim($currentuser,$swid);
-		$this->set_like_sim($currentuser,$swid);
+        if ($id==$currentuser){
+            $this->depth = -1;
+            $this->trust=1;
+            $this->followsim =1;
+        } else{
+            $this->depth=socialwiki_follow_depth($USER->id,$this->id,$swid);
+            if($this->depth ==0){
+                $this->trust=0;
+            }else{
+                $this->trust=1/$this->depth;
+            }
+            $this->set_follow_sim($currentuser,$swid);
+            $this->set_like_sim($currentuser,$swid);    
+        }
+        $this->popularity=socialwiki_get_followers($id,$swid)/$numusers;
+		
         if($scale == null) {
             $scale = array(
                 'trust' => 1,
@@ -1997,6 +2014,11 @@ class peer{
 		$this->set_score($scale);
 	}
 	
+
+    function is_me(){
+        Global $USER;
+        return ($USER->id==$this->id);
+    }
 	/*
 	 *sets the follow similarity to the 
 	 *@userid the current users id

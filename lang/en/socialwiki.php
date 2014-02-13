@@ -313,8 +313,13 @@ $string['likes'] = "Likes";
 $string['views'] = "Views";
 $string['contributers'] = '# of Contributers';
 
-$string['popularity'] = 'Author Popularity';
+$string['popularity'] = 'Followers';
 $string['trust'] = 'Trust Score';
 $string['likesim'] = 'Like Similarity';
 $string['followsim'] = 'Follow Similarity';
 $string['favorite'] = "Favorited By";
+$string['name'] = "Name";
+$string['distance'] = "Social Distance";
+
+$string['youhavenofollowers']= "You Have no Followers.";
+$string['youfollownobody']= "You don't follow anybody.";
