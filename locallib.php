@@ -1337,7 +1337,7 @@ function socialwiki_get_wiki_page_id($pageid, $id) {
     global $DB;
     return $DB->get_record('socialwiki_versions', array('pageid' => $pageid, 'id' => $id));
 }
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function socialwiki_print_page_content($page, $context, $subwikiid) {
     global $OUTPUT, $CFG, $PAGE, $USER;
 
@@ -1359,11 +1359,13 @@ function socialwiki_print_page_content($page, $context, $subwikiid) {
     $html = file_rewrite_pluginfile_urls($page->cachedcontent, 'pluginfile.php', $context->id, 'mod_socialwiki', 'attachments', $subwikiid);
     $html = format_text($html, FORMAT_MOODLE, array('overflowdiv'=>true, 'allowid'=>true));
 	$wikioutput = $PAGE->get_renderer('mod_socialwiki');
-	
+	////////////////This is where the page content, from the title down, is rendered!!
 	echo $wikioutput->viewing_area($page->title, $html, $page);
-    //echo $OUTPUT->box($html);
+	////////
 
-    if (!empty($CFG->usetags)) {
+    //echo $OUTPUT->box($html);
+//remove tags
+ /*   if (!empty($CFG->usetags)) {
         $tags = tag_get_tags_array('socialwiki_pages', $page->id);
         echo $OUTPUT->container_start('socialwiki-tags');
         echo '<span class="socialwiki-tags-title">'.get_string('tags').': </span>';
@@ -1374,7 +1376,7 @@ function socialwiki_print_page_content($page, $context, $subwikiid) {
         }
         echo join($links, ", ");
         echo $OUTPUT->container_end();
-    }
+    }*/
 
     socialwiki_increment_pageviews($page);
     socialwiki_increment_user_views($USER->id, $page->id);
@@ -1632,7 +1634,7 @@ function socialwiki_get_liked_pages($userid, $subwikiid, $limit=1000) {
 
     $pages = array();
     foreach ($likes as $l) {
-        if($limit-- === 0) {break;}
+        if($limit-- == 0) {break;}
         array_push($pages, socialwiki_get_page($l->pageid));
     }
     return $pages;
@@ -1662,12 +1664,13 @@ function socialwiki_get_user_favorites($userid, $swid) {
     $results = socialwiki_getlikes($userid,$swid);
     $favorites = array();
     foreach($results as $r) {
-        if(socialwiki_is_user_favorite($r->userid, $pageid, $swid)){
+        if(socialwiki_is_user_favorite($userid, $r->pageid, $swid)){
             array_push($favorites, socialwiki_get_page($r->pageid));
         }
     }
     return $favorites;
 }
+
 
 //return user ids of all users who favorite this page
 function socialwiki_get_favorites($pageid, $swid){

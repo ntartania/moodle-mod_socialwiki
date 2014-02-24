@@ -259,6 +259,7 @@ $string['uploadfiletitle'] = 'Attachments';
 $string['versionerror'] = 'Version ID does not exist';
 $string['versionnum'] = 'Version #{$a}';
 $string['version'] = 'Version';
+$string['versions'] = 'Versions';
 $string['view'] = 'View';
 $string['viewallhistory'] = 'View all history';
 $string['viewperpage'] = 'Show {$a} versions per page';
