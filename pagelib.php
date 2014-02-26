@@ -1780,8 +1780,9 @@ class page_socialwiki_home extends page_socialwiki {
     }
 
     function print_explore_page() {
-        $this->print_page_list_content();
         $this->print_updated_content();
+	$this->print_page_list_content();
+       // $this->print_updated_content();
     }
 
     function set_view($option) {
