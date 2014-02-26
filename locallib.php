@@ -468,7 +468,7 @@ function socialwiki_get_linked_from_pages($pageid) {
 }
 
 /**
- * Get pages which user have been edited
+ * Get pages which user has edited
  * @param int $swid
  * @param int $userid
  */
@@ -519,7 +519,7 @@ function socialwiki_get_page_list($swid) {
     return $records;
 }
 
-function get_topics($swid) {
+function socialwiki_get_topics($swid) {
     $records = socialwiki_get_page_list($swid);
     $pages = array();
 
@@ -1050,7 +1050,9 @@ function socialwiki_is_page_section_locked($pageid, $userid, $section = null) {
  * Inserts or updates a wiki_locks record.
  */
 function socialwiki_set_lock($pageid, $userid, $section = null, $insert = false) {
-    global $DB;
+    //TODO:no more locking needed !
+
+   /* global $DB;
 
     if (socialwiki_is_page_section_locked($pageid, $userid, $section)) {
         return false;
@@ -1064,7 +1066,7 @@ function socialwiki_set_lock($pageid, $userid, $section = null, $insert = false)
         $DB->update_record('socialwiki_locks', array('id' => $lock->id, 'lockedat' => time() + SOCIALLOCK_TIMEOUT));
     } else if ($insert) {
         $DB->insert_record('socialwiki_locks', array('pageid' => $pageid, 'sectionname' => $section, 'userid' => $userid, 'lockedat' => time() + 30));
-    }
+    }*/
 
     return true;
 }
@@ -1073,6 +1075,8 @@ function socialwiki_set_lock($pageid, $userid, $section = null, $insert = false)
  * Deletes wiki_locks that are not in use. (F.Ex. after submitting the changes). If no userid is present, it deletes ALL the wiki_locks of a specific page.
  */
 function socialwiki_delete_locks($pageid, $userid = null, $section = null, $delete_from_db = true, $delete_section_and_page = false) {
+    return true;
+    /*
     global $DB;
 
     $params = array('pageid' => $pageid);
@@ -1093,16 +1097,17 @@ function socialwiki_delete_locks($pageid, $userid = null, $section = null, $dele
         }
     } else {
         $DB->set_field('socialwiki_locks', 'lockedat', time(), $params);
-    }
+    }*/
 }
 
 /**
  * Deletes wiki_locks that expired 1 hour ago.
  */
 function socialwiki_delete_old_locks() {
-    global $DB;
+    return true;
+   /* global $DB;
 
-    $DB->delete_records_select('socialwiki_locks', "lockedat < ?", array(time() - 3600));
+    $DB->delete_records_select('socialwiki_locks', "lockedat < ?", array(time() - 3600));*/
 }
 
 /**
@@ -1593,6 +1598,7 @@ function socialwiki_get_follower_users($userid,$subwikiid){
     return $DB->get_records_select('socialwiki_follows',$select,array($userid, $subwikiid));
 }
 
+
 function socialwiki_page_likes($pageid){
     global $DB;
     $sql = 'SELECT *
@@ -1657,6 +1663,21 @@ global $DB;
 	return $DB->get_records_sql($sql,array($userid,$subwikiid));
 }
 
+/**
+ *returns an array of all the people that like a page
+ *@param int $userid the users id
+ */
+function socialwiki_get_likers($pageid, $swid){
+    global $DB;
+    $sql='SELECT userid
+          FROM {socialwiki_likes}
+          WHERE pageid=? and subwikiid=?';
+      $res=  $DB->get_records_sql($sql,array($pageid, $swid),0,1000);
+
+    return array_map(function($a){return $a->userid;}, $res);
+}
+
+
 //get page's author
 function socialwiki_get_author($pageid){
 	global $DB;
@@ -1682,16 +1703,11 @@ function socialwiki_get_user_favorites($userid, $swid) {
 
 //return user ids of all users who favorite this page
 function socialwiki_get_favorites($pageid, $swid){
-    global $DB;
-    $sql='SELECT *
-          FROM {socialwiki_likes}
-          WHERE pageid=?';
-
-    $results = $DB->get_records_sql($sql,array($pageid),0,1000);
+    $results = socialwiki_get_likers($pageid, $swid);
     $favorites = array();
     foreach($results as $r) {
-        if(socialwiki_is_user_favorite($r->userid, $pageid, $swid)){
-            array_push($favorites, socialwiki_get_user_info($r->userid));
+        if(socialwiki_is_user_favorite($r, $pageid, $swid)){
+            array_push($favorites, socialwiki_get_user_info($r));
         }
     }
     return $favorites;
@@ -1721,6 +1737,29 @@ function socialwiki_get_parent($pageid){
 		  FROM {socialwiki_pages}
 		  WHERE id=?';
 	return $DB->get_record_sql($sql,array($pageid));
+}
+
+/*get all contributors: traverse the parent links to the root*/
+function socialwiki_get_contributors($pageid){
+    Global $DB;
+    if ($pageid == NULL) {
+        return array();
+    } else {
+        $sql='SELECT userid, parent
+              FROM {socialwiki_pages}
+              WHERE id=?';
+        $result = $DB->get_record_sql($sql,array($pageid));
+
+        $contribs = socialwiki_get_contributors($result->parent); //recursion
+        if (!in_array($result->userid, $contribs)){
+            
+            $contribs[]=$result->userid;    
+        }
+        
+    return $contribs;
+
+    }
+
 }
 
 //returns the children of a page
@@ -1812,13 +1851,13 @@ function socialwiki_is_teacher($context,$uid){
 //returns an array of the users peers
 function socialwiki_get_peers($swid,$scale){
 	Global $PAGE,$USER;
-	$context = get_context_instance(CONTEXT_MODULE, $PAGE->cm->id);
-	$users=get_enrolled_users($context);
+	//$context = get_context_instance(CONTEXT_MODULE, $PAGE->cm->id);
+	//$users=get_enrolled_users($context);
 	$peers= array();
-	$numusers=count($users)-1;
+	//$numusers=count($users)-1;
 	foreach ($users as $user){
 		if($user->id != $USER->id){
-			$peers[]=new peer($user->id,$swid,$USER->id,$numusers,$scale);
+			$peers[]=new peer($user->id,$swid,$USER->id,$scale);
 		}
 	}
 	return $peers;
@@ -1827,6 +1866,14 @@ function socialwiki_get_peers($swid,$scale){
 function socialwiki_get_user_count($swid) {
     Global $PAGE,$USER;
     $context = get_context_instance(CONTEXT_MODULE, $PAGE->cm->id);
+    $users=get_enrolled_users($context);
+    $numusers=count($users)-1;
+    return $numusers;
+}
+
+function socialwiki_get_user_count_with_cmid($swid, $cmid) {
+    Global $PAGE,$USER;
+    $context = get_context_instance(CONTEXT_MODULE, $cmid);
     $users=get_enrolled_users($context);
     $numusers=count($users)-1;
     return $numusers;
@@ -1984,15 +2031,15 @@ class peer{
     public $depth; //social distance: 1 for I'm following this user, 2 for friend of a friend, etc.
 	public $score;
 
-	function __construct($id,$swid,$currentuser,$numusers,$scale=null){
-		Global $USER;
+	function __construct($id,$swid,$currentuser,$scale=null){
+		//Global $USER;
 		$this->id=$id;
         if ($id==$currentuser){
             $this->depth = -1;
             $this->trust=1;
             $this->followsim =1;
         } else{
-            $this->depth=socialwiki_follow_depth($USER->id,$this->id,$swid);
+            $this->depth=socialwiki_follow_depth($currentuser,$this->id,$swid);
             if($this->depth ==0){
                 $this->trust=0;
             }else{
@@ -2001,7 +2048,7 @@ class peer{
             $this->set_follow_sim($currentuser,$swid);
             $this->set_like_sim($currentuser,$swid);    
         }
-        $this->popularity=socialwiki_get_followers($id,$swid)/$numusers;
+        $this->popularity=socialwiki_get_followers($id,$swid); //not dividing
 		
         if($scale == null) {
             $scale = array(
