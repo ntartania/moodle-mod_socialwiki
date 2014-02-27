@@ -68,4 +68,6 @@ switch($tabletype){
 if ($t!=null)
 	echo $t->get_as_HTML();
 else 
+
 	echo '<table><tr><td>No Data Here.</td></tr></table>';
+

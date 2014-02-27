@@ -1749,6 +1749,7 @@ function socialwiki_get_contributors($pageid){
               FROM {socialwiki_pages}
               WHERE id=?';
         $result = $DB->get_record_sql($sql,array($pageid));
+
 	
 	$maybe= ($result==null);
 	if(isset($result->parent)){
@@ -1760,6 +1761,7 @@ function socialwiki_get_contributors($pageid){
 	} else {
 		return array();
 	}
+
         
     return $contribs;
 
