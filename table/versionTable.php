@@ -5,6 +5,10 @@ require_once($CFG->dirroot . "/mod/socialwiki/locallib.php");
 require_once($CFG->dirroot . "/mod/socialwiki/sortableTable/sortableTable.php");
 require_once($CFG->dirroot . "/mod/socialwiki/table/table.php");
 
+const MAX = 'max';
+const MIN = 'min';
+const AVG = 'avg';
+const SUM = 'sum';
 //$tabletype = required_param('typeid', PARAM_TEXT);
 
 
@@ -20,6 +24,7 @@ class versionTable extends socialwiki_table {
 	//$uid and swid in parent class
 	private $allpeers; //maps peerid to peer object for all peers
 	private $allpages; // maps pageid to page object, with additional field $p->likers containing array of likers (peerids)
+	private $combiner; // way of combining user trust indicators
 	//private $headers;
 
 
@@ -31,21 +36,57 @@ class versionTable extends socialwiki_table {
 		"Follow Similarity",
 	);*/
 
-	public function __construct($uid, $swid, $pages, $headers) {
+	public function __construct($uid, $swid, $pages, $headers, $combiner=AVG) {
 		parent::__construct($uid, $swid, $headers);
 		//$this->allpages = $pages;
 		$this->get_all_likers($pages); //get all peers involved, store info in $this->allpages and this->allpeers
 		// get_table_data(); ?
+		$this->combiner = $combiner;
 
 	}
 
 	public function set_headers($h){
 		$this->headers= $h;
 	}
+
+	public function set_trust_combiner($c){
+		$this->combiner =$c;
+	}
 	/*private getPeerfromId($pid){
 		return $allpeers[$pid];
 	}*/
 
+	public function get_as_HTML($tableid = 'a_table'){
+		
+		$t ="<table id=".$tableid." class='datatable'>";
+		$tabledata = $this->get_table_data();
+		//headers
+		$t .= "<thead><tr>";
+		foreach ($this->headers as $h){
+			if(in_array($h, 
+				array_map(
+					function($s){return get_string($s, 'socialwiki');}, 
+					array("followsim", "likesim", "popularity", "distance")
+					)
+					)){
+				$t .= "<th>".$this->combiner.' '.$h."</th>";
+			} else{
+				$t .= "<th>".$h."</th>";
+			}
+		}
+        $t .= "</tr></thead><tbody>";    
+
+		foreach ($tabledata as $row){
+			$t .= "<tr>";
+			foreach ($row as $k=>$val){
+				$t .= "<td>".$val."</td>";
+			}
+			$t .= "</tr>";
+		}
+
+		$t .= "</tbody></table>"; 
+		return $t;
+	}
 	/**
 	* get table data structure from spec:
 	* @param pages: a selected list of pages
@@ -111,7 +152,7 @@ class versionTable extends socialwiki_table {
             $favorites = socialwiki_get_favorites($page->id, $swid);
             $favdiv = $this->make_multi_user_div($favorites);
 
-            $combiner = "max "; //TODO: make changeable, make constants
+            $combiner = $this->combiner; //TODO: make changeable, make constants
 
             /*trust indicators*/
             $peerpop = $this->combine_indicators($page, $combiner, "peerpopularity");
@@ -134,8 +175,9 @@ class versionTable extends socialwiki_table {
                 get_string('networkdistance','socialwiki') => "$distance"
                 );
         ////////// add trust values
-
-            $table[] = array_intersect_key($row, array_flip($this->headers)); // filter to get only the requested headers
+ 			$table[] = array_intersect_key($row, array_flip($this->headers)); // filter to get only the requested headers
+ 			
+            
         }
         
         /*$table_markup = "";
@@ -170,8 +212,49 @@ class versionTable extends socialwiki_table {
     /** combines trust indicators obtained from the peers who like a page
     *
     */
-    private function combine_indicators($a, $b,$c){
-    	return 0.5;
+    private function combine_indicators($page, $reducer,$indicator){
+    	$uservals = array();
+    	foreach($page->likers as $u){
+    		$peer = $this->allpeers[$u];
+    	
+    		$score= 0; // meant to stand out if errors come up
+    		switch($indicator){
+    			case "followsimilarity":
+    				$score = $peer->followsim;
+    				break;
+    			case "likesimilarity":
+    				$score = $peer->likesim;
+    				break;
+	    		case "peerpopularity":
+    				$score = $peer->popularity;
+    				break;
+    			case "networkdistance":
+       				$score = $peer->depth;
+	  				break;
+	    	}
+	    	$uservals[] = $score;
+	    }
+
+	    if (count($uservals)==0) return 0;
+
+	    switch($reducer){
+    		case "max":
+    			return max($uservals);
+    			
+    		case "min":
+    			return min($uservals);
+    			
+	    	case "avg":
+	    		$len = count($uservals);
+    			return (array_reduce($uservals, function($a,$b){return $a+$b;})/$len);
+    			
+    		case "sum":
+       			return array_reduce($uservals, function($a,$b){return $a+$b;});
+	  			
+	    }
+
+
+    	return 0.99; //kludge: just an error value
     }
     /** from list of pages, get list of users that like any of the pages, with all their relevant info
     * adds the pages to $this->allpages and the peers to the existing list of peers
@@ -246,43 +329,52 @@ class versionTable extends socialwiki_table {
 	// factory method
 	//=======================================================================
 
-    public static function makeFavouritesTable($uid, $swid){
+    public static function makeFavouritesTable($uid, $swid, $combiner=AVG){
     	if($favs = socialwiki_get_user_favorites($uid, $swid)) {
             $headers = versionTable::getHeaders('mystuff');
-            return new versionTable($uid, $swid,$favs, $headers);
+            return new versionTable($uid, $swid,$favs, $headers, $combiner);
         } else {
             return null;
         }
     }
 
-    public static function makeRecentLikesTable($uid, $swid){
+    public static function makeRecentLikesTable($uid, $swid, $combiner=AVG){
     	$likes = socialwiki_get_liked_pages($uid, $swid);
     	if(!empty($likes)){
         	$headers = versionTable::getHeaders('mystuff');
-    		return new versionTable($uid, $swid,$likes, $headers);
+    		return new versionTable($uid, $swid,$likes, $headers, $combiner);
     	} else {
     		return null;
     	}
     }
 
-    public static function makeNewPageVersionsTable($uid, $swid){
+    public static function make_A_User_Faves_table($userid, $swid, $targetuser, $combiner=AVG){
+    	if($favs = socialwiki_get_user_favorites($targetuser, $swid)) {
+            $headers = versionTable::getHeaders('version');
+            return new versionTable($userid, $swid,$favs, $headers, $combiner);
+        } else {
+            return null;
+        }
+    }
+
+    public static function makeNewPageVersionsTable($uid, $swid, $combiner=AVG){
     	$pages = socialwiki_get_updated_pages_by_subwiki($swid);
 
         if ($pages) {
             
          	$headers = versionTable::getHeaders('version');
             
- 		   	return new versionTable($uid, $swid,$pages, $headers);
+ 		   	return new versionTable($uid, $swid,$pages, $headers, $combiner);
  		}
  		return null;
     }
 
- 	public static function makeAllVersionsTable($uid, $swid){
+ 	public static function makeAllVersionsTable($uid, $swid, $combiner=AVG){
  	    $pages = socialwiki_get_page_list($swid);
 
         if (!empty($pages)) {
             $headers = versionTable::getHeaders('mystuff');
-            return new versionTable($uid, $swid, $pages, $headers);
+            return new versionTable($uid, $swid, $pages, $headers, $combiner);
         }
     }
 

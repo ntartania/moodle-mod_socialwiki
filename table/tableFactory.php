@@ -28,27 +28,39 @@ require_once($CFG->dirroot . '/mod/socialwiki/table/topicsTable.php');
 require_once($CFG->dirroot . '/mod/socialwiki/table/versionTable.php');
 
 $tabletype = required_param('type', PARAM_TEXT);
-//allowed values: faves, recentlikes, newpageversions, allpageversions, followedusers, followers, allusers, alltopics
+//allowed values: faves, recentlikes, newpageversions, allpageversions, followedusers, followers, allusers, alltopics, userfaves
 $userid = required_param('userid', PARAM_INT);
 $swid = required_param('swid', PARAM_INT);
-$courseid = required_param('courseid', PARAM_INT);
-$cmid = required_param('cmid', PARAM_INT);
+$courseid = optional_param('courseid',0, PARAM_INT);
+$cmid = optional_param('cmid',0, PARAM_INT);
+$targetuser = optional_param('targetuser', 0, PARAM_INT); 
+$trustcombiner = optional_param('trustcombiner', '', PARAM_TEXT); //max, min, sum, avg
+//when we view another user's page
 
 
 
 $t = null;
 switch($tabletype){
 	case "faves":
-		$t= versionTable::makeFavouritesTable($userid, $swid);
+		$t= versionTable::makeFavouritesTable($userid, $swid );
+		if ($trustcombiner!='')
+			$t->set_trust_combiner($trustcombiner);
 		break;
 	case "recentlikes":
 		$t= versionTable::makeRecentLikesTable($userid, $swid);
+		if ($trustcombiner!='')
+			$t->set_trust_combiner($trustcombiner);
 		break;
 	case "newpageversions":
 		$t= versionTable::makeNewPageVersionsTable($userid, $swid);
+		if ($trustcombiner!='')
+			$t->set_trust_combiner($trustcombiner);
 		break;
 	case "allpageversions":
 		$t= versionTable::makeAllVersionsTable($userid, $swid);
+		if ($trustcombiner!='')
+			$t->set_trust_combiner($trustcombiner);
+
 		break;
 	case "followedusers":
 		$t = UserTable::make_followed_users_table($userid, $swid);
@@ -61,6 +73,11 @@ switch($tabletype){
 		break;
 	case "alltopics":
 		$t = TopicsTable::make_all_topics_table($userid, $swid, $courseid, $cmid);
+		break;
+	case "userfaves": //faves by another user
+		$t = versionTable::make_A_User_Faves_table($userid, $swid, $targetuser);
+		if ($trustcombiner!='')
+			$t->set_trust_combiner($trustcombiner);
 		break;
 	default:
 		echo "error in tablefactory";

@@ -2979,9 +2979,20 @@ class page_socialwiki_manage extends page_socialwiki{
  */
 
 class page_socialwiki_viewuserpages extends page_socialwiki{
+    function __construct($wiki, $subwiki, $cm) {
+        Global $PAGE, $CFG;
+        parent::__construct($wiki, $subwiki, $cm);
+        
+        /*$PAGE->requires->js(new moodle_url("/mod/socialwiki/likeajax_home.js"));
+        require_once($CFG->dirroot . "/mod/socialwiki/table/table.php");
+        require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
+        require_once($CFG->dirroot . "/mod/socialwiki/table/userTable.php");
+        require_once($CFG->dirroot . "/mod/socialwiki/table/topicsTable.php");*/
+    }
 
 	function print_content(){
-		Global $OUTPUT,$CFG,$USER,$PAGE;
+		Global $OUTPUT,$CFG,$USER,$PAGE, $COURSE;
+        echo '<script> var userid='.$USER->id.', swid='.$this->subwiki->id.', courseid ='.$COURSE->id.' ,cmid='.$PAGE->cm->id.';</script>'; // pass variables to JS
 		$likes=socialwiki_getlikes($this->uid,$this->subwiki->id);
 		$user = socialwiki_get_user_info($this->uid);
 		$scale=array('like'=>1,'trust'=>1,'follow'=>1,'popular'=>1);
@@ -3013,24 +3024,24 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
 			$table->attributes['class'] = 'peer_table colourtext';
 			$table->align = array('left');
 			$table->data=array();
-			$table->data[]=array('FOLLOW DISTANCE:',$peer->trust==0? 0:1/$peer->trust);
-			$table->data[]=array('TRUST:',$peer->trust);
+			$table->data[]=array('FOLLOW DISTANCE:',$peer->depth);//trust==0? 0:1/$peer->trust);
+			//$table->data[]=array('TRUST:',$peer->trust);
 			$table->data[]=array('FOLLOW SIMILARITY:',$peer->followsim);
 			$table->data[]=array('LIKE SIMILARITY:',$peer->likesim);
 			$table->data[]=array('PEER POPULARITY:',$peer->popularity);
-			$table->data[]=array('TOTAL:',$peer->score);
+			//$table->data[]=array('TOTAL:',$peer->score);
 			$html.=html_writer::table($table);
 			$html.=$OUTPUT->container_end();
 		}
 		
 		//START OF USER LIKES OUTPUT
 		$html.=$OUTPUT->container_start('socialwiki_manageheading');
-		$html.='<br/><br/><br/>'. $OUTPUT->heading('LIKES',2,'colourtext');
+		/*$html.='<br/><br/><br/>'. $OUTPUT->heading('LIKES',2,'colourtext');
 		$html.=$OUTPUT->container_end();
 		if (count($likes)==0){
 			$html.=$OUTPUT->container_start('socialwiki_manageheading');
 			$html.= $OUTPUT->heading('They have not liked any pages', 3, "colourtext");
-			$html.=$OUTPUT->container_end();
+			
 		}else{
 			//display all the pages the current user likes
 			$html .= $OUTPUT->container_start('socialwiki_likelist');
@@ -3039,8 +3050,11 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
 				$html.=html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title.' (ID:'.$page->id.')',array('class'=>'socialwiki_link'));
 				$html .= "<br/><br/>";
 			}
-			$html .= $OUTPUT->container_end();
-		}
+        }*/
+        $html .= '<script></script>';
+        $html .= '<h2 class="table_region">Favourite Pages</h2><div class="asyncload" tabletype="userfaves" ></div>';
+		$html .= $OUTPUT->container_end();
+		
 		$html.=$this->wikioutput->content_area_end();
 		echo $html;
 	}
