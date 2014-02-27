@@ -114,7 +114,9 @@ if ($option == get_string('save', 'socialwiki')) {
 
             redirect($CFG->wwwroot . '/mod/socialwiki/view.php?pageid=' . $pageid);
         } else {
+            
             $wikipage = new page_socialwiki_edit($wiki, $subwiki, $cm, $makenew);
+                        
             $wikipage->set_page($page);
             $wikipage->set_upload($option == get_string('upload', 'socialwiki'));
         }
@@ -124,6 +126,7 @@ if ($option == get_string('save', 'socialwiki')) {
         $wikipage->set_overridelock(true);
     }
 }
+
 
 if ($version >= 0) {
     $wikipage->set_versionnumber($version);
@@ -145,6 +148,9 @@ if (!empty($contentformat)) {
     $wikipage->set_format($contentformat);
 }
 $wikipage->print_header();
+
 $wikipage->print_content();
 
 $wikipage->print_footer();
+
+

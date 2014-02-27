@@ -92,10 +92,17 @@ if(pattern1.test(document.URL)||!pattern3.test(document.URL)){
 
 $(document).ready(function() {
 	$(".phptree").css("display", "none");
+
+	$("#table_searchresults").dataTable({
+            "sScrollY": "200px",
+            "bPaginate": false,
+            "bScrollCollapse": true,
+            });
 	
-	if(!pattern4.test(document.URL)){
+	//removed the weight sliders
+	/*if(!pattern4.test(document.URL)){
 		weightSliders("socialwiki_content_area");
-	}
+	}*/
 	//only display tree if in tree view
    if(pattern1.test(document.URL)||!pattern3.test(document.URL)){
 		//add weight sliders

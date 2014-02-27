@@ -2,14 +2,14 @@
 global $CFG;
 
 require_once($CFG->dirroot . '/mod/socialwiki/locallib.php');
-require_once($CFG->dirroot . '/mod/socialwiki/sortableTable/sortableTable.php');
+//require_once($CFG->dirroot . '/mod/socialwiki/sortableTable/sortableTable.php');
 require_once($CFG->dirroot . '/mod/socialwiki/table/table.php');
 
 
 class UserTable extends socialwiki_table {
 	private $columns;
-	private $uid;
-	private $swid;
+	//private $uid;
+	//private $swid;
 
 	private $col_names = array(
 		"Name",					//TODO: make these all "getString()"
@@ -19,10 +19,13 @@ class UserTable extends socialwiki_table {
 		"Follow Similarity",
 	);
 
-	public function __construct($swid, $uid) {
-		parent::__construct($this->col_names);
-		$this->uid = $uid;
-		$this->swid = $swid;
+	public function __construct($uid, $swid, $ids, $headers) {
+		parent::__construct($uid,$swid, $headers);
+		$this->userlist = $ids;
+
+		$this->headers = array_map(function($h){return get_string($h, 'socialwiki');}, $headers);
+//		$this->uid = $uid;
+//		$this->swid = $swid;
 	}
 
 	/***
@@ -44,51 +47,52 @@ class UserTable extends socialwiki_table {
 	/**
 	*returns all users except 'me'
 	*/
-	public function get_all_users_table() {
-		$ids = socialwiki_get_subwiki_users($this->swid);
-		$me = $this->uid;
+	public static function make_all_users_table($me, $swid) {
+		$ids = socialwiki_get_subwiki_users($swid);
+		//$me = $this->uid;
 
 		$ids = array_filter($ids, function($i) use ($me){return ($i != $me);});
-		$h = array("name", "distance","popularity", "likesim", "followsim");
-		return $this->make_table($ids, "all_user_table", $h);
+		$h = array("name", "networkdistance","popularity", "likesim", "followsim");
+		return new UserTable($me, $swid, $ids, $h);
+		//return $this->make_table($ids, "all_user_table", $h);
 	}
 
 	/**
-	*returns all users I follow
+	*returns a UserTable with all users I follow
 	*/
-	public function get_followed_users_table() {
-		$ids = socialwiki_get_follows($this->uid, $this->swid);
+	public static function make_followed_users_table($uid, $swid) {
+		$ids = socialwiki_get_follows($uid, $swid);
 		// this returns an array of arrays where the keys are the user ids, each one associated with a pair 
 		// "usertoid"=>"uid"
 		$ids = array_keys($ids);
 		if (empty($ids)){
-			return '<h3>'.get_String('youfollownobody', 'socialwiki').'</h3>';
+			return null;//'<h3>'.get_String('youfollownobody', 'socialwiki').'</h3>';
 		}
 		$h = array("name", "popularity", "likesim", "followsim");
-		return $this->make_table($ids, 'followed_user_table', $h);
+		return new UserTable($uid, $swid, $ids, $h);
+		//return $this->make_table($ids, 'followed_user_table', $h);
 	}
 
 	/**
-	*returns a table with all my followers
+	*returns a UserTable with all my followers
 	*/
-	public function get_followers_table() {
-		$ids = socialwiki_get_follower_users($this->uid, $this->swid);
+	public static function make_followers_table($uid, $swid) {
+		$ids = socialwiki_get_follower_users($uid, $swid);
 		if (empty($ids)){
-			return '<h3>'.get_String('youhavenofollowers', 'socialwiki').'</h3>';
+			return null;
+			//return '<h3>'.get_String('youhavenofollowers', 'socialwiki').'</h3>';
 		}
 
 		$h = array("name", "popularity", "likesim", "followsim");
-		return $this->make_table($ids, 'followers_user_table', $h);
+		//return $this->make_table($ids, 'followers_user_table', $h);
+		return new UserTable($uid, $swid, $ids, $h);
 	}
 
 
-	//get peers from user ids, with all relevant info // note : not used at the moment
-	private function getPeers($ids){		
-		$number_of_users = socialwiki_get_user_count($this->swid);
-	
-		return array_map(function ($i){return new peer($i, $this->swid, $this->uid, $number_of_users, null);}, $ids);
-	}
-
+	/*to be done 
+	public function get_table_data(){
+		return array(array('NOT IMPLEMENTED'));
+	}*/
 	
 	/**
 	*build the table data structure as an array of rows, each row being a head=>value pair
@@ -97,23 +101,25 @@ class UserTable extends socialwiki_table {
 	* @param $ids a list of user ids
 	* @param $headers an array of strings among: "name", "distance", "popularity", "likesim", "followsim"
 	*/
-	private function get_table_data($ids, $headers){
+	public function get_table_data(){
 		Global $CFG;
 
-		$number_of_users = socialwiki_get_user_count($this->swid);
+		$ids = $this->userlist;
+		$headers = $this->headers;
+		//$number_of_users = socialwiki_get_user_count($this->swid); //total number of users is used with followers data
 		$me = $this->uid;
 		$swid = $this->swid;
 		$www = $CFG->wwwroot;
 
 		//define function to build a row from a user
-		$build_function = function ($id) use ($headers, $me, $swid, $www, $number_of_users){ //include headers variable as it indicates which headers are needed
+		$build_function = function ($id) use ($headers, $me, $swid, $www){ //include headers variable as it indicates which headers are needed
 
 
 			$user = socialwiki_get_user_info($id);
 			$name = "<a style='margin:0;' class='socialwiki_link' href='".$www."/mod/socialwiki/viewuserpages.php?userid=".$user->id."&subwikiid=".$swid."'>".fullname($user)."</a>";
 
 			//echo 'New Peer: '.$id;
-			$peer = new peer($id, $swid, $me, $number_of_users, null);
+			$peer = new peer($id, $swid, $me, null);
 			switch ($peer->depth) {
     			case 0:
         			$following = "Not in your network";
@@ -127,20 +133,18 @@ class UserTable extends socialwiki_table {
 			    default:
         			$following = "Distant Connection";
 			        break;
-			}
-
-			
+			}	
 			
 			$rowdata = array(
-				"name" => $name,	
-				"distance" => $following,//"$peer->depth",
-				"popularity" => $peer->popularity*$number_of_users,
-				"likesim" => "$peer->likesim",
-				"followsim" => "$peer->followsim",
+				get_string('name', 'socialwiki') => $name,	
+				get_string('popularity', 'socialwiki') => $peer->popularity,
+            	get_string('likesim', 'socialwiki') => substr("$peer->likesim",0, 4),
+            	get_string('followsim', 'socialwiki') => substr("$peer->followsim",0, 4),
+                get_string('networkdistance', 'socialwiki') => $following
 			);            
 
 			foreach ($headers as $key){
-				$row[get_string($key, 'socialwiki')] =$rowdata[$key];
+				$row[$key] =$rowdata[$key];
 			}
 			
 			return $row;
@@ -155,6 +159,7 @@ class UserTable extends socialwiki_table {
 
 	}
 
+	/*
 	//make Sortable Table from a list of ids, with given column headers
 	private function make_table($ids, $table_id, $headers) {
 		//get data for the table
@@ -175,6 +180,6 @@ class UserTable extends socialwiki_table {
 
         return $table_markup;
 	}
-
+	*/
 
 }

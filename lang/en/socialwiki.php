@@ -173,6 +173,7 @@ $string['nohistory'] = 'There is no history for this page';
 $string['nomanagecommentpermission'] = 'Manage comments permission needed';
 $string['nomanagewikipermission'] = 'Manage wiki permission needed';
 $string['noorphanedpages'] = 'There are no orphaned pages';
+$string['norecentactivity'] = 'No recent activity';
 $string['nooverridelockpermission'] = 'Override lock permission needed';
 $string['norated']='This page has not been rated yet, be the first!';
 $string['norating'] = 'No rating';
@@ -312,6 +313,8 @@ $string['updated'] = 'Updated';
 $string['likes'] = "Likes";
 $string['views'] = "Views";
 $string['contributers'] = '# of Contributers';
+$string['networkdistance'] = 'Social Distance';
+$string['contributors'] = 'Contributors'; 
 
 $string['popularity'] = 'Followers';
 $string['trust'] = 'Trust Score';
@@ -323,3 +326,5 @@ $string['distance'] = "Social Distance";
 
 $string['youhavenofollowers']= "You Have no Followers.";
 $string['youfollownobody']= "You don't follow anybody.";
+$string['nopagesfound']= "No Pages Found";
+$string['searchresultsfor']= 'Search results for';
