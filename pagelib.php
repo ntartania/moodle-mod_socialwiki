@@ -2979,11 +2979,12 @@ class page_socialwiki_manage extends page_socialwiki{
  */
 
 class page_socialwiki_viewuserpages extends page_socialwiki{
-    function __construct($wiki, $subwiki, $cm) {
+    function __construct($wiki, $subwiki, $cm, $targetuser) {
         Global $PAGE, $CFG;
         parent::__construct($wiki, $subwiki, $cm);
-        
-        /*$PAGE->requires->js(new moodle_url("/mod/socialwiki/likeajax_home.js"));
+        $this->uid = $targetuser;
+        $PAGE->requires->js(new moodle_url("/mod/socialwiki/ajax_userpage.js"));
+        /*
         require_once($CFG->dirroot . "/mod/socialwiki/table/table.php");
         require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
         require_once($CFG->dirroot . "/mod/socialwiki/table/userTable.php");
@@ -2992,7 +2993,7 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
 
 	function print_content(){
 		Global $OUTPUT,$CFG,$USER,$PAGE, $COURSE;
-        echo '<script> var userid='.$USER->id.', swid='.$this->subwiki->id.', courseid ='.$COURSE->id.' ,cmid='.$PAGE->cm->id.';</script>'; // pass variables to JS
+        echo '<script> var userid='.$USER->id.', targetuser='.$this->uid.' ,swid='.$this->subwiki->id.', courseid ='.$COURSE->id.' ,cmid='.$PAGE->cm->id.';</script>'; // pass variables to JS
 		$likes=socialwiki_getlikes($this->uid,$this->subwiki->id);
 		$user = socialwiki_get_user_info($this->uid);
 		$scale=array('like'=>1,'trust'=>1,'follow'=>1,'popular'=>1);

@@ -351,6 +351,7 @@ class versionTable extends socialwiki_table {
     public static function make_A_User_Faves_table($userid, $swid, $targetuser, $combiner=AVG){
     	if($favs = socialwiki_get_user_favorites($targetuser, $swid)) {
             $headers = versionTable::getHeaders('version');
+            $headers = array_diff($headers, array(get_string('favorite','socialwiki')));
             return new versionTable($userid, $swid,$favs, $headers, $combiner);
         } else {
             return null;

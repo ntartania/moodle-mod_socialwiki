@@ -16,7 +16,7 @@ $( document ).ready(function()
         $(this).append('<img id ="waiting" src="img/160.GIF"/>');
         
         var thediv= $(this); //TODO:fix
-        $.get('table/tableFactory.php?type='+$(this).attr('tabletype')+"&userid="+userid+"&swid="+swid+"&cmid="+cmid+"&courseid="+courseid , function(data) //gets table in html format pageid from pagelib.php: <script>var pageid =... </script>
+        $.get('table/tableFactory.php?type='+$(this).attr('tabletype')+"&userid="+userid+"&swid="+swid+"&targetuser="+targetuser+"&cmid="+cmid+"&courseid="+courseid , function(data) //gets table in html format pageid from pagelib.php: <script>var pageid =... </script>
             {
               //  alert("got response"+data);
             //this.hide?
