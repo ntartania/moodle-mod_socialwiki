@@ -1712,7 +1712,7 @@ function socialwiki_get_favorites($pageid, $swid){
     $favorites = array();
     foreach($results as $r) {
         if(socialwiki_is_user_favorite($r, $pageid, $swid)){
-            array_push($favorites, socialwiki_get_user_info($r));
+            array_push($favorites, $r);
         }
     }
     return $favorites;

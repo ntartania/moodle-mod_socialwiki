@@ -79,21 +79,7 @@ class versionTable extends socialwiki_table {
 
             //////get all contributors
             $contributors = socialwiki_get_contributors($page->id);
-            
-            $firstctr = fullname(socialwiki_get_user_info(array_pop($contributors)));
-            $num = count ($contributors);
-            if ($num ==1 ){
-            	$firstctr .= " and 1 other";
-            } else if ($num >1){
-            	$firstctr .= " and ".$num." others.";
-            }
-                                
-            $ctr = "";
-            foreach($contributors as $c) {
-                    $ctr .= fullname(socialwiki_get_user_info($c)).'\n';
-            }
-           
-            $contrib_string = "<a title='$ctr'>$firstctr</a>";
+            $contrib_string= $this->make_multi_user_div($contributors);
 
             //$followlink;
             $likelink;
@@ -123,25 +109,7 @@ class versionTable extends socialwiki_table {
 
             /////////// favorites
             $favorites = socialwiki_get_favorites($page->id, $swid);
-
-            $fav = "";
-
-
-            $firstfav = "";
-
-
-            if(count($favorites) > 0) {
-                $firstfav = fullname(array_shift($favorites));
-                if(count($favorites) > 0) {
-                    $firstfav .= " and ".count($favorites)." others";
-                    
-                    foreach($favorites as $f) {
-                        $fav .= fullname($f).'\n';
-                    }
-                }
-            }
-
-            $favdiv = "<a href='#' title='$fav'>$firstfav</a>";
+            $favdiv = $this->make_multi_user_div($favorites);
 
             $combiner = "max "; //TODO: make changeable, make constants
 
@@ -180,6 +148,25 @@ class versionTable extends socialwiki_table {
         return $table;
     }
 
+    private function make_multi_user_div($contributors){
+    	Global $CFG;
+    		$idfirst = array_pop($contributors);
+    	    $firstctr = fullname(socialwiki_get_user_info($idfirst));
+            $num = count ($contributors);
+            if ($num ==1 ){
+            	$firstctr .= " and 1 other";
+            } else if ($num >1){
+            	$firstctr .= " and ".$num." others.";
+            }
+                                
+            $ctr = "Others:&#013";
+            foreach($contributors as $c) {
+                    $ctr .= fullname(socialwiki_get_user_info($c)).'&#013'; //that's a newline
+            }
+            $href= "href='".$CFG->wwwroot."/mod/socialwiki/viewuserpages.php?userid=".$idfirst."&subwikiid=".$this->swid."'";
+            return "<a class='socialwiki_link' ".$href ." title='$ctr'>$firstctr</a>"; 
+
+    }
     /** combines trust indicators obtained from the peers who like a page
     *
     */
