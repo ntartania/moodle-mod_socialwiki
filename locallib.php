@@ -1595,7 +1595,12 @@ function socialwiki_get_followers($userid,$subwikiid){
 function socialwiki_get_follower_users($userid,$subwikiid){
     Global $DB;
     $select='usertoid=? AND subwikiid=?';
-    return $DB->get_records_select('socialwiki_follows',$select,array($userid, $subwikiid));
+    $results = $DB->get_records_select('socialwiki_follows',$select,array($userid, $subwikiid));
+    return array_map(function($obj){
+            if (isset($obj->id)) 
+                return $obj->id;
+            return null;
+            }, $results);
 }
 
 
@@ -1786,6 +1791,18 @@ function socialwiki_get_subwiki_users($swid) {
     $uids = array();
     foreach ($users as $u) {
         array_push($uids, $u->id);
+    }
+    return $uids;
+}
+
+function socialwiki_get_active_subwiki_users($swid) {    //TODO: change so we only get pages of this subwiki
+    Global $DB;
+    $sql = 'SELECT DISTINCT userid
+            FROM {socialwiki_user_views}';
+    $users = $DB->get_records_sql($sql);
+    $uids = array();
+    foreach ($users as $u) {
+        $uids[] = $u->userid;
     }
     return $uids;
 }

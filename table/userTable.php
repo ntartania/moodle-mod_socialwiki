@@ -48,7 +48,7 @@ class UserTable extends socialwiki_table {
 	*returns all users except 'me'
 	*/
 	public static function make_all_users_table($me, $swid) {
-		$ids = socialwiki_get_subwiki_users($swid);
+		$ids = socialwiki_get_active_subwiki_users($swid);
 		//$me = $this->uid;
 
 		$ids = array_filter($ids, function($i) use ($me){return ($i != $me);});
@@ -114,7 +114,8 @@ class UserTable extends socialwiki_table {
 		//define function to build a row from a user
 		$build_function = function ($id) use ($headers, $me, $swid, $www){ //include headers variable as it indicates which headers are needed
 
-
+			//echo "error here:";
+			//var_dump($id);
 			$user = socialwiki_get_user_info($id);
 			$name = "<a style='margin:0;' class='socialwiki_link' href='".$www."/mod/socialwiki/viewuserpages.php?userid=".$user->id."&subwikiid=".$swid."'>".fullname($user)."</a>";
 
