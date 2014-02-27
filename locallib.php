@@ -1754,12 +1754,13 @@ function socialwiki_get_contributors($pageid){
 	$maybe= ($result==null);
 	if(isset($result->parent)){
 	        $contribs = socialwiki_get_contributors($result->parent); //recursion
-        	if (!in_array($result->userid, $contribs)){
-            
-        	    $contribs[]=$result->userid;//->userid;    
-        	}
+       } else {
+       $contribs = array();
+       } 
+	if (isset($result->userid) && !in_array($result->userid, $contribs)){
+              $contribs[]=$result->userid;//->userid;    
 	} else {
-		return array();
+		return $contribs;
 	}
 
         
