@@ -3005,15 +3005,41 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
 		$html='';
 		$html.=$this->wikioutput->content_area_begin();
 		//USER INFO OUTPUT
+        $html.=$OUTPUT->container_start('userinfo');
+        //$html.= '<table class="userinfotable"><tr><td>';
 		$html.=$OUTPUT->heading(fullname($user),1,'colourtext');
-		$html.=$OUTPUT->container_start('userinfo');
 		$html.=$OUTPUT->user_picture($user,array('size'=>100,));
-		//add link to follow or unfollow the user
-		if(!socialwiki_is_following($USER->id,$user->id,$this->subwiki->id)&&$USER->id!=$this->uid){
-			$html.=html_writer::link($CFG->wwwroot.'/mod/socialwiki/follow.php?user2='.$user->id.'&from='.urlencode($PAGE->url->out()).'&swid='.$this->subwiki->id,'follow',array('class'=>'socialwiki_followlink socialwiki_link'));
-		}else if($USER->id!=$this->uid){
-			$html.=html_writer::link($CFG->wwwroot.'/mod/socialwiki/follow.php?user2='.$user->id.'&from='.urlencode($PAGE->url->out()).'&swid='.$this->subwiki->id,'Unfollow',array('class'=>'socialwiki_unfollowlink socialwiki_link'));
-		}
+        //$html.= '</td>';
+
+        //////// make button to follow/unfollow
+
+        if(!socialwiki_is_following($USER->id,$user->id,$this->subwiki->id)&&$USER->id!=$this->uid){
+            $icon = new moodle_url('/mod/socialwiki/img/icons/man-plus.png');
+            $text = 'Follow';
+            $tip = 'click to follow this user';            
+        } else if($USER->id!=$this->uid) {
+        //show like link
+            $icon = new moodle_url('/mod/socialwiki/img/icons/man-minus.png');
+            $text = 'Unfollow';
+            $tip = 'click to unfollow this user';
+        }
+        $followaction = $CFG->wwwroot.'/mod/socialwiki/follow.php';//?user2='.$user->id; //.'&from='.'&swid='.$this->subwiki->id; // 'swid'=>$this->subwiki->id
+
+        $theliker = html_writer::start_tag( 'form', array( 'style'=>"display: inline",  'action'=>$followaction, "method"=>"get"));
+        $theliker .= '<input type ="hidden" name="user2" value="'.$user->id.'"/>';
+        $theliker .= '<input type ="hidden" name="from" value="http://localhost/moodle/mod/socialwiki/viewuserpages.php?userid='.$user->id.'&subwikiid='.$this->subwiki->id.'"/>';
+        $theliker .= '<input type ="hidden" name="swid" value="'.$this->subwiki->id.'"/>';
+        $theliker .= html_writer::start_tag('button', array('class'=> 'socialwiki_followbutton', 'id'=> 'followlink', 'title'=>$tip));  
+        $theliker .= html_writer::tag('img', '', array('src'=>$icon));
+        $theliker .= $text;
+        $theliker .= html_writer::end_tag('button');
+        $theliker .= html_writer::end_tag('form');
+        
+        // ** result placed in table below **
+        
+        //////////////////////////
+        ///////////////////
+
 		$html.=$OUTPUT->container_end();
 		
 		//don't show peer scores if user is viewing themselves
@@ -3025,7 +3051,9 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
 			$table->attributes['class'] = 'peer_table colourtext';
 			$table->align = array('left');
 			$table->data=array();
-			$table->data[]=array('FOLLOW DISTANCE:',$peer->depth);//trust==0? 0:1/$peer->trust);
+            $row1 = new html_table_row(array('FOLLOW DISTANCE:',$peer->depth, $theliker));
+            $row1->cells[2]->rowspan=3;
+			$table->data[]=$row1;// /trust==0? 0:1/$peer->trust);
 			//$table->data[]=array('TRUST:',$peer->trust);
 			$table->data[]=array('FOLLOW SIMILARITY:',$peer->followsim);
 			$table->data[]=array('LIKE SIMILARITY:',$peer->likesim);

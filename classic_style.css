@@ -57,6 +57,10 @@ color:black !important;
 	width: 100%
 }
 
+table.peer_table td {
+	padding: 3px 10px;
+}
+
 .relation_line
 {
 background-color:black !important;
