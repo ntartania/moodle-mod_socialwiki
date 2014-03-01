@@ -43,22 +43,22 @@ $t = null;
 switch($tabletype){
 	case "faves":
 		$t= versionTable::makeFavouritesTable($userid, $swid );
-		if ($trustcombiner!='')
+		if ($trustcombiner!='' and $t!= null)
 			$t->set_trust_combiner($trustcombiner);
 		break;
 	case "recentlikes":
 		$t= versionTable::makeRecentLikesTable($userid, $swid);
-		if ($trustcombiner!='')
+		if ($trustcombiner!='' and $t!= null)
 			$t->set_trust_combiner($trustcombiner);
 		break;
 	case "newpageversions":
 		$t= versionTable::makeNewPageVersionsTable($userid, $swid);
-		if ($trustcombiner!='')
+		if ($trustcombiner!='' and $t!= null)
 			$t->set_trust_combiner($trustcombiner);
 		break;
 	case "allpageversions":
 		$t= versionTable::makeAllVersionsTable($userid, $swid);
-		if ($trustcombiner!='')
+		if ($trustcombiner!='' and $t!= null)
 			$t->set_trust_combiner($trustcombiner);
 
 		break;
@@ -76,7 +76,7 @@ switch($tabletype){
 		break;
 	case "userfaves": //faves by another user
 		$t = versionTable::make_A_User_Faves_table($userid, $swid, $targetuser);
-		if ($trustcombiner!='')
+		if ($trustcombiner!='' and $t!= null)
 			$t->set_trust_combiner($trustcombiner);
 		break;
 	default:

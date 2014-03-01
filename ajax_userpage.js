@@ -5,30 +5,46 @@
 //page is loaded after dom is ready. YUI table rendering must happen before this code is executed...
 //$( window ).load(function()
 
-        
+//combinemethod is an attribute of the enclosing div.
+
+
 
 
 $( document ).ready(function()
 {
+    // add handler to change combine method
+    $(".combiner").change(function(){
+        $(this).parent().trigger( "refreshevent");
+    });
+
     $(".asyncload").on("refreshevent", function(){
         //alert("refreshevent");
-        $(this).empty();
-        $(this).append('<img id ="waiting" src="img/160.GIF"/>');
+
+        $(this).children(":last").replaceWith('<img id ="waiting" src="img/160.GIF"/>');
+        //$(this).append();
         
+        var combineMethod = $(this).find("option:selected").text();
         var thediv= $(this); //TODO:fix
-        $.get('table/tableFactory.php?type='+$(this).attr('tabletype')+"&userid="+userid+"&swid="+swid+"&targetuser="+targetuser+"&cmid="+cmid+"&courseid="+courseid , function(data) //gets table in html format pageid from pagelib.php: <script>var pageid =... </script>
+
+        $.get('table/tableFactory.php?type='+$(this).attr('tabletype')
+                +"&userid="+userid
+                +"&swid="+swid
+                +"&targetuser="+targetuser
+                +"&cmid="+cmid
+                +"&courseid="+courseid 
+                + "&trustcombiner="+combineMethod, function(data) //gets table in html format pageid from pagelib.php: <script>var pageid =... </script>
             {
               //  alert("got response"+data);
             //this.hide?
-            var stuff = $(data);
+            var ajaxtable = $(data);
+            
             //alert("ok0");
-            thediv.empty();
-            thediv.append(stuff);
+            thediv.children(":last").replaceWith(ajaxtable);
             
             //alert("ok1");
             
 
-            thediv.children(":first").dataTable({
+            thediv.children(":last").dataTable({
             "sScrollY": "200px",
             "bPaginate": false,
             "bScrollCollapse": true,
@@ -81,3 +97,4 @@ $( document ).ready(function()
     // every link of class "unlikelink"
 
 });
+

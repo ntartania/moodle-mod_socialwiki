@@ -95,6 +95,10 @@ abstract class page_socialwiki {
 
     protected $style;
 
+
+    public static function getCombineForm(){
+        return '<form action="">For each page version show: <select class="combiner"><option value="max" selected="selected">max</option><option value="min">min</option><option value="avg">avg</option><option value="sum">sum</option></select> of trust indicator values.</form>';
+    }
     /**
      * page_socialwiki constructor
      *
@@ -1691,7 +1695,8 @@ class page_socialwiki_home extends page_socialwiki {
     function print_header() {
         parent::print_header();
     }
-	
+
+
     function print_content() {
         global $CFG, $PAGE, $USER, $OUTPUT, $COURSE;
 
@@ -1787,7 +1792,8 @@ class page_socialwiki_home extends page_socialwiki {
         $this->print_recent_likes();
         //$userTable = UserTable::make_followed_users_table( $USER->id, $this->subwiki->id);
         echo '<a id="Ifollow" href="#"></a><h2>People You Follow:</h2>';
-        echo "<div class='tableregion asyncload' tabletype='followedusers'></div>";
+        
+        echo "<div class='tableregion asyncload' tabletype='followedusers'><table></table></div>";
         /*if ($userTable == null){
             echo '<h3>'.get_String('youfollownobody', 'socialwiki').'</h3>';
         } else {
@@ -1804,7 +1810,8 @@ class page_socialwiki_home extends page_socialwiki {
        // $topicsTable =  TopicsTable::make_all_topics_table($USER->id,$this->subwiki->id);
         echo "<h2>All pages:</h2>";
        //echo $topicsTable->get_as_HTML();
-        echo "<div class='tableregion asyncload' tabletype='alltopics'></div>";
+
+        echo "<div class='tableregion asyncload' tabletype='alltopics'><table></table></div>";
     }
 
     function print_people_tab() {
@@ -1815,7 +1822,7 @@ class page_socialwiki_home extends page_socialwiki {
 
         //$userTable2 = UserTable::make_followers_table($USER->id, $this->subwiki->id);
         echo '<a id="myfollowers" href="#"></a><h2>People Following you:</h2>';
-        echo "<div class='tableregion asyncload' tabletype='followers'></div>";
+        echo "<div class='tableregion asyncload' tabletype='followers'><table></table></div>";
         /*if ($userTable2 == null){
             echo '<h3>'.get_String('youhavenofollowers', 'socialwiki').'</h3>';
         } else {
@@ -1824,7 +1831,7 @@ class page_socialwiki_home extends page_socialwiki {
         
         //$userTable3 = UserTable::make_all_users_table($USER->id, $this->subwiki->id);
         echo "<h2>All Active Users:</h2>";
-        echo "<div class='tableregion asyncload' tabletype='allusers'></div>";
+        echo "<div class='tableregion asyncload' tabletype='allusers'><table></table></div>";
         //echo $userTable3->get_as_HTML();
     }
 
@@ -1871,7 +1878,7 @@ class page_socialwiki_home extends page_socialwiki {
 
         //$swid = $this->subwiki->id;
         //echo '<script> var userid='.$USER->id.', swid='.$this->subwiki->id.';</script>' MOVED TO ABOVE
-        echo "<h2>Favorites:</h2> <div class='tableregion asyncload' tabletype='faves'></div>";
+        echo "<h2>Favorites:</h2> <div class='tableregion asyncload' tabletype='faves'><table></table></div>";
         //WILL BE RENDERED BY JAVASCRIPT in likeajax.js
         /*
         if($favs = socialwiki_get_user_favorites($USER->id, $swid)) {
@@ -1885,7 +1892,7 @@ class page_socialwiki_home extends page_socialwiki {
     }
 
     private function print_recent_likes() {
-         echo "<h2>Recent Likes:</h2> <div class='tableregion asyncload' tabletype='recentlikes'></div>";
+         echo "<h2>Recent Likes:</h2> <div class='tableregion asyncload' tabletype='recentlikes'><table></table></div>";
          /*
         global $USER;
         $swid = $this->subwiki->id;
@@ -1932,7 +1939,7 @@ class page_socialwiki_home extends page_socialwiki {
         global $OUTPUT,$CFG, $USER;
 
         echo "<h2 class='table_region'>All Page Versions:</h2>";
-        echo "<div class='tableregion asyncload' tabletype='allpageversions'></div>";
+        echo "<div class='tableregion asyncload' tabletype='allpageversions'>".page_socialwiki::getCombineForm()."<table></table></div>";
         /*$pages = socialwiki_get_page_list($this->subwiki->id);
 
         if (!empty($pages)) {
@@ -1957,7 +1964,7 @@ class page_socialwiki_home extends page_socialwiki {
     private function print_updated_content() {
 
             echo "<h2 class='table_region'>New Page Versions:</h2>";
-            echo "<div class='tableregion asyncload' tabletype='newpageversions'></div>";
+            echo "<div class='tableregion asyncload' tabletype='newpageversions'>".page_socialwiki::getCombineForm()."<table></table></div>";
 
     }
 	
@@ -3081,7 +3088,8 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
 			}
         }*/
         $html .= '<script></script>';
-        $html .= '<h2 class="table_region">Favourite Pages</h2><div class="asyncload" tabletype="userfaves" ></div>';
+        $combineform = page_socialwiki::getCombineForm();//<br><input id="showLocalSR" type="checkbox"> Show articles I already have.</form>';
+        $html .= '<h2 class="table_region">Favourite Pages</h2><div class="asyncload" tabletype="userfaves" >'.$combineform.'<table></table></div>';
 		$html .= $OUTPUT->container_end();
 		
 		$html.=$this->wikioutput->content_area_end();

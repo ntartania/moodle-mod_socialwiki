@@ -10,25 +10,46 @@
 
 $( document ).ready(function()
 {
+    $(".combiner").change(function(){
+        $(this).parent().trigger( "refreshevent");
+    });
+
     $(".asyncload").on("refreshevent", function(){
         //alert("refreshevent");
-        $(this).empty();
-        $(this).append('<img id ="waiting" src="img/160.GIF"/>');
+
+        $(this).children(":last").replaceWith('<img id ="waiting" src="img/160.GIF"/>');
+        //$(this).append();
+        var combining = false;
+        var combineMethod = '';
+
+        var combineoption = $(this).find("option:selected");
+        if ( combineoption.length ){
+            combineMethod=combineoption.text();
+            combining=true;
+        }
+        
         
         var thediv= $(this); //TODO:fix
-        $.get('table/tableFactory.php?type='+$(this).attr('tabletype')+"&userid="+userid+"&swid="+swid+"&cmid="+cmid+"&courseid="+courseid , function(data) //gets table in html format pageid from pagelib.php: <script>var pageid =... </script>
+        var theurl = 'table/tableFactory.php?type='+$(this).attr('tabletype')
+                    +"&userid="+userid
+                    +"&swid="+swid
+                    +"&cmid="+cmid
+                    +"&courseid="+courseid ;
+        if (combining){
+            theurl = theurl + "&trustcombiner="+combineMethod
+        }
+
+        $.get(theurl, function(data) //gets table in html format pageid from pagelib.php: <script>var pageid =... </script>
             {
-              //  alert("got response"+data);
-            //this.hide?
-            var stuff = $(data);
+             var ajaxtable = $(data);
+            
             //alert("ok0");
-            thediv.empty();
-            thediv.append(stuff);
+            thediv.children(":last").replaceWith(ajaxtable);
             
             //alert("ok1");
             
 
-            thediv.children(":first").dataTable({
+            thediv.children(":last").dataTable({
             "sScrollY": "200px",
             "bPaginate": false,
             "bScrollCollapse": true,

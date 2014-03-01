@@ -169,10 +169,10 @@ class versionTable extends socialwiki_table {
                 get_string('likes', 'socialwiki') => "$likes",
                 get_string('views', 'socialwiki') => "$views",
                 get_string('favorite','socialwiki') => $favdiv,
-            	get_string('popularity','socialwiki') => "$peerpop",
-            	get_string('likesim','socialwiki') => "$likesim",
-            	get_string('followsim','socialwiki') => "$followsim",
-                get_string('networkdistance','socialwiki') => "$distance"
+            	get_string('popularity','socialwiki') => substr("$peerpop",0, 4),
+            	get_string('likesim','socialwiki') => substr("$likesim",0, 4),
+            	get_string('followsim','socialwiki') => substr("$followsim",0, 4),
+                get_string('networkdistance','socialwiki') => substr("$distance",0, 4)
                 );
         ////////// add trust values
  			$table[] = array_intersect_key($row, array_flip($this->headers)); // filter to get only the requested headers
@@ -374,7 +374,7 @@ class versionTable extends socialwiki_table {
  	    $pages = socialwiki_get_page_list($swid);
 
         if (!empty($pages)) {
-            $headers = versionTable::getHeaders('mystuff');
+            $headers = versionTable::getHeaders('version');
             return new versionTable($uid, $swid, $pages, $headers, $combiner);
         }
     }
