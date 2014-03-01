@@ -229,7 +229,7 @@ class versionTable extends socialwiki_table {
     				$score = $peer->popularity;
     				break;
     			case "networkdistance":
-       				$score = $peer->depth;
+       				$score = max(0,$peer->depth);
 	  				break;
 	    	}
 	    	$uservals[] = $score;
