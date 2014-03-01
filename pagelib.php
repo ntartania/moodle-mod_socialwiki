@@ -3034,7 +3034,7 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
 
         $theliker = html_writer::start_tag( 'form', array( 'style'=>"display: inline",  'action'=>$followaction, "method"=>"get"));
         $theliker .= '<input type ="hidden" name="user2" value="'.$user->id.'"/>';
-        $theliker .= '<input type ="hidden" name="from" value="http://localhost/moodle/mod/socialwiki/viewuserpages.php?userid='.$user->id.'&subwikiid='.$this->subwiki->id.'"/>';
+        $theliker .= '<input type ="hidden" name="from" value="'.$CFG->wwwroot.'/mod/socialwiki/viewuserpages.php?userid='.$user->id.'&subwikiid='.$this->subwiki->id.'"/>';
         $theliker .= '<input type ="hidden" name="swid" value="'.$this->subwiki->id.'"/>';
         $theliker .= html_writer::start_tag('button', array('class'=> 'socialwiki_followbutton', 'id'=> 'followlink', 'title'=>$tip));  
         $theliker .= html_writer::tag('img', '', array('src'=>$icon));
