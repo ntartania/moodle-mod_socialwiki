@@ -1594,11 +1594,14 @@ function socialwiki_get_followers($userid,$subwikiid){
 //retursn the number of poeple following the user
 function socialwiki_get_follower_users($userid,$subwikiid){
     Global $DB;
-    $select='usertoid=? AND subwikiid=?';
-    $results = $DB->get_records_select('socialwiki_follows',$select,array($userid, $subwikiid));
+    $sql='SELECT userfromid 
+          FROM {socialwiki_follows}
+          WHERE usertoid=? AND subwikiid= ?';
+    $results = $DB->get_records_sql($sql,array($userid, $subwikiid));
+    var_dump($results);
     return array_map(function($obj){
-            if (isset($obj->id)) 
-                return $obj->id;
+            if (isset($obj->userfromid)) 
+                return $obj->userfromid;
             return null;
             }, $results);
 }

@@ -54,6 +54,11 @@ $( document ).ready(function()
             "bPaginate": false,
             "bScrollCollapse": true,
             });
+
+            var oTable = $('div.dataTables_scrollBody>table.display', ui.panel).dataTable();
+            if ( oTable.length > 0 ) {
+                oTable.fnAdjustColumnSizing();
+            }
             //alert("ok3");
             //this.show?
             $(".socialwiki_unlikeimg").click(function()
