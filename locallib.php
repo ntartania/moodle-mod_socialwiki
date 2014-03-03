@@ -1598,7 +1598,7 @@ function socialwiki_get_follower_users($userid,$subwikiid){
           FROM {socialwiki_follows}
           WHERE usertoid=? AND subwikiid= ?';
     $results = $DB->get_records_sql($sql,array($userid, $subwikiid));
-    var_dump($results);
+    //var_dump($results);
     return array_map(function($obj){
             if (isset($obj->userfromid)) 
                 return $obj->userfromid;
