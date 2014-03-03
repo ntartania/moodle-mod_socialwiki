@@ -89,7 +89,7 @@ function xmldb_socialwiki_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2013071600, 'socialwiki');
     }
     
-    $revision = 2014020800;
+    $revision = 2014021100;
     if ($oldversion < $revision) {
         $table = new xmldb_table('socialwiki_user_views');
 
