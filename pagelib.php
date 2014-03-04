@@ -97,7 +97,7 @@ abstract class page_socialwiki {
 
 
     public static function getCombineForm(){
-        return '<form action="">For each page version show: <select class="combiner"><option value="max" selected="selected">max</option><option value="min">min</option><option value="avg">avg</option><option value="sum">sum</option></select> of trust indicator values.</form>';
+        return '<form class="combineform" action="">For each page version show: <select class="combiner"><option value="max" selected="selected">max</option><option value="min">min</option><option value="avg">avg</option><option value="sum">sum</option></select> of trust indicator values.</form>';
     }
     /**
      * page_socialwiki constructor
@@ -151,7 +151,7 @@ abstract class page_socialwiki {
         
         //var_dump($html);
         //echo $html;
-        echo $OUTPUT->header();
+        echo $OUTPUT->header(); 
         
 
 
@@ -1836,6 +1836,7 @@ class page_socialwiki_home extends page_socialwiki {
     }
 
     function print_explore_page() {
+        $this->print_followed_content();
         $this->print_updated_content();
         $this->print_page_list_content();
     }
@@ -1871,6 +1872,10 @@ class page_socialwiki_home extends page_socialwiki {
     ////////////////////////////////////////////
 
     
+    public function print_followed_content() {
+        echo "<h2>From Users You Follow:</h2> <div class='tableregion asyncload' tabletype='versionsfollowed'>".page_socialwiki::getCombineForm()."<table></table></div>";
+
+    }
 
 
     public function print_favorite_pages() {

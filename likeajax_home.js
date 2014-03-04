@@ -48,17 +48,25 @@ $( document ).ready(function()
             
             //alert("ok1");
             
+            if (thediv.find("thead").length==0){ //hide combineform if there's no table
+                thediv.children(".combineform").hide(); //the combineform
+            }
 
-            var oTable = thediv.children(":last").dataTable({
+            thediv.children(":last").dataTable({
             "sScrollY": "200px",
             "bPaginate": false,
             "bScrollCollapse": true,
             });
 
              
-            if ( oTable.length > 0 ) {
-                oTable.fnAdjustColumnSizing();
+            if (thediv.find("tr").size()<12){ //hide search thingy for tables with less than 12 rows
+                thediv.find(".dataTables_filter").hide();
             }
+
+            
+            /*if ( oTable.length > 0 ) {
+                oTable.fnAdjustColumnSizing();
+            }*/
             //alert("ok3");
             //this.show?
             thediv.find(".socialwiki_unlikeimg").click(function()

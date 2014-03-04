@@ -1551,14 +1551,27 @@ function socialwiki_get_linked_pages($pageid) {
  * Get updated pages from wiki
  * @param int $pageid
  */
-function socialwiki_get_updated_pages_by_subwiki($swid) {
+function socialwiki_get_updated_pages_by_subwiki($swid, $userid='', $filterUnseen=true) {
     global $DB, $USER;
 
     $sql = "SELECT *
             FROM {socialwiki_pages}
-            WHERE subwikiid = ? AND timemodified > ?
-            ORDER BY timemodified DESC";
-    return $DB->get_records_sql($sql, array($swid, $USER->lastlogin));
+            WHERE subwikiid = ? AND timemodified > ?";
+    $params = array($swid);
+    if (isset($USER->lastlogin)){
+        $params[]= $USER->lastlogin;
+    } else {
+        $params[]=0; //on first login, everything is new.
+    }
+    if ($filterUnseen){
+        $sql = $sql. ' AND id IN 
+                      (SELECT pageid FROM {socialwiki_user_views} 
+                       WHERE userid=?)';
+        $params[]=$userid;
+    }
+    return $DB->get_records_sql($sql,$params);
+
+    
 }
 
 /**
@@ -1673,6 +1686,25 @@ function socialwiki_get_liked_pages($userid, $subwikiid, $limit=1000) {
     return $pages;
 }
 
+
+function socialwiki_get_pages_from_followed($userid, $subwikiid, $filterUnseen= true){ //pages liked by those $userid follows
+    global $DB;
+
+    $sql = 'SELECT DISTINCT l.pageid 
+            FROM {socialwiki_follows} AS f INNER JOIN {socialwiki_likes} AS l
+            ON f.usertoid=l.userid 
+            WHERE f.userfromid=? AND l.subwikiid=? AND f.subwikiid=?';
+    $params = array($userid,$subwikiid,$subwikiid);
+    if ($filterUnseen){
+        $sql = $sql. 'AND NOT EXISTS 
+                      (SELECT 1 FROM {socialwiki_user_views} AS v 
+                       WHERE v.userid=? and v.pageid=l.pageid)';
+        $params[]=$userid;
+    }
+    $results= $DB->get_records_sql($sql,$params);
+    return array_map(function($a){return socialwiki_get_page($a->pageid);}, $results);
+
+}
 //return all the pages the user likes
 function socialwiki_getlikes($userid,$subwikiid){
 global $DB;
