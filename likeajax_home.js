@@ -49,19 +49,19 @@ $( document ).ready(function()
             //alert("ok1");
             
 
-            thediv.children(":last").dataTable({
+            var oTable = thediv.children(":last").dataTable({
             "sScrollY": "200px",
             "bPaginate": false,
             "bScrollCollapse": true,
             });
 
-            var oTable = $('div.dataTables_scrollBody>table.display', ui.panel).dataTable();
+             
             if ( oTable.length > 0 ) {
                 oTable.fnAdjustColumnSizing();
             }
             //alert("ok3");
             //this.show?
-            $(".socialwiki_unlikeimg").click(function()
+            thediv.find(".socialwiki_unlikeimg").click(function()
                 {   // pageid is encoded in the alt attribute
                 var pageid = $(this).attr("alt").substring(10); //get the part of the id after "unlikeimg_"
                   // get url [, no data], success
@@ -72,7 +72,7 @@ $( document ).ready(function()
         
                     });
                 });
-            $(".socialwiki_likeimg").click(function()
+            thediv.find(".socialwiki_likeimg").click(function()
                 {
             // get url [, no data], success
                 var pageid = $(this).attr("alt").substring(8); //get the part of the alt after "likeimg_"

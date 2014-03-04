@@ -750,7 +750,7 @@ class page_socialwiki_edit extends page_socialwiki {
 
 
         //delete old locks (> 1 hour)
-        socialwiki_delete_old_locks();
+        //socialwiki_delete_old_locks();
         $version = socialwiki_get_current_version($this->page->id);
         $format = $version->contentformat;
 

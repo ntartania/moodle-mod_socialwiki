@@ -513,10 +513,21 @@ function socialwiki_get_missing_or_empty_pages($swid) {
  * Get pages list in wiki
  * @param int $swid sub wiki id
  */
-function socialwiki_get_page_list($swid) {
+function socialwiki_get_page_list($swid, $filter_0_likes=true) {
     global $DB;
-    $records = $DB->get_records('socialwiki_pages', array('subwikiid' => $swid), 'title ASC');
-    return $records;
+    
+    if ($filter_0_likes){
+
+
+        $sql = "SELECT DISTINCT p.* FROM {socialwiki_pages} AS p INNER JOIN {socialwiki_likes} AS l ON p.id=l.pageid WHERE p.subwikiid=?";
+        $records = $DB->get_records_sql($sql, array("subwikiid"=>$swid));
+        return $records;
+    } else {
+     $records = $DB->get_records('socialwiki_pages', array('subwikiid' => $swid), 'title ASC');    
+     return $records;
+    }
+    
+    
 }
 
 function socialwiki_get_topics($swid) {
