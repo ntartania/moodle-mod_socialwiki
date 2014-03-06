@@ -517,7 +517,17 @@ class page_socialwiki_view extends page_socialwiki {
 	$thetitle = html_writer::start_tag('h1');
 	$thetitle .= format_string($this->page->title);
 	$thetitle .= html_writer::end_tag('h1');
-	
+
+    $like_userids = socialwiki_get_likers($this->page->id, $this->subwiki->id);
+    $like_users = "";
+
+    foreach ($like_userids as $value) {
+        $like_users .= html_writer::tag("p",fullname(socialwiki_get_user_info($value)));
+    }
+
+    if (empty($like_users)) {
+        $like_users = html_writer::tag("p","No Users Like This Page");
+    }
 
 	if(socialwiki_liked($this->uid, $this->page->id)) {
 		//hide ĺike link 
@@ -545,6 +555,8 @@ class page_socialwiki_view extends page_socialwiki {
 	$likess = socialwiki_numlikes($this->page->id);
 	$theliker .= html_writer::tag('br', '');
 
+    $theliker .= html_writer::start_tag('span', array('id'=>'likes_link'));
+
 	$theliker .= '(';
 	$theliker .= html_writer::start_tag('span', array ('id' => 'numlikes')); //span updated asynchronously after ajax request
 	$theliker .= "$likess";
@@ -556,6 +568,10 @@ class page_socialwiki_view extends page_socialwiki {
 //	$theliker .= "($likess";
 		$theliker .= ' likes)';	
 	}
+
+    $theliker .= html_writer::end_tag('span');
+    $like_modal = html_writer::tag('div', $like_users, array('style'=>'margin: 10px 10px 10px 10px;'));
+    $theliker .= Modal::get_html($like_modal, "likes_modal", "likes_link", "Likes:");
 
 	$t = new html_table();
 

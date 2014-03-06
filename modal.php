@@ -22,8 +22,6 @@ class Modal
 	public function __construct($contents, $modal_id, $link_id, $title = null, $data = array())
 	{
 		global $PAGE;
-		$PAGE->requires->jquery_plugin('ui');
-		$PAGE->requires->jquery_plugin('ui-css');
 
 		$this->data = $data;
 		$this->contents = $contents;
