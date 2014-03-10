@@ -16,6 +16,17 @@
 
 @import url("bootstrap.css");
 
+.userinfo {
+	text-align: center;
+}
+
+.profile_picture {
+	margin: 10px !important;
+}
+
+.username {
+	margin-bottom: 10px;
+}
 
 .tabtree ul {
     text-align: left;

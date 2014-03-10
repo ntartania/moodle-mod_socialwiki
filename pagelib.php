@@ -35,6 +35,8 @@
 
 require_once($CFG->dirroot . '/mod/socialwiki/edit_form.php');
 require_once($CFG->dirroot . '/tag/lib.php');
+require_once($CFG->dirroot . "/mod/socialwiki/modal.php");
+
 
 /**
  * Class page_socialwiki contains the common code between all pages
@@ -515,7 +517,17 @@ class page_socialwiki_view extends page_socialwiki {
 	$thetitle = html_writer::start_tag('h1');
 	$thetitle .= format_string($this->page->title);
 	$thetitle .= html_writer::end_tag('h1');
-	
+
+    $like_userids = socialwiki_get_likers($this->page->id, $this->subwiki->id);
+    $like_users = "";
+
+    foreach ($like_userids as $value) {
+        $like_users .= html_writer::tag("p",fullname(socialwiki_get_user_info($value)));
+    }
+
+    if (empty($like_users)) {
+        $like_users = html_writer::tag("p","No Users Like This Page");
+    }
 
 	if(socialwiki_liked($this->uid, $this->page->id)) {
 		//hide ĺike link 
@@ -543,6 +555,8 @@ class page_socialwiki_view extends page_socialwiki {
 	$likess = socialwiki_numlikes($this->page->id);
 	$theliker .= html_writer::tag('br', '');
 
+    $theliker .= html_writer::start_tag('span', array('id'=>'likes_link'));
+
 	$theliker .= '(';
 	$theliker .= html_writer::start_tag('span', array ('id' => 'numlikes')); //span updated asynchronously after ajax request
 	$theliker .= "$likess";
@@ -554,6 +568,10 @@ class page_socialwiki_view extends page_socialwiki {
 //	$theliker .= "($likess";
 		$theliker .= ' likes)';	
 	}
+
+    $theliker .= html_writer::end_tag('span');
+    $like_modal = html_writer::tag('div', $like_users, array('style'=>'margin: 10px 10px 10px 10px;'));
+    $theliker .= Modal::get_html($like_modal, "likes_modal", "likes_link", "Likes:");
 
 	$t = new html_table();
 
@@ -1651,7 +1669,6 @@ class page_socialwiki_history extends page_socialwiki {
  */
 class page_socialwiki_home extends page_socialwiki {
 
-    
     /**
      * @var int wiki view option
      */
@@ -1747,8 +1764,14 @@ class page_socialwiki_home extends page_socialwiki {
         $following = count(socialwiki_get_follows($USER->id, $this->subwiki->id));
 
         $followdata  = html_writer::start_tag('h2',array('class'=>'followdata'));
-        $followdata .= html_writer::tag('span', "Followers: $followers | Following: $following", array('class' => 'label label-default'));
+        $followdata .= html_writer::start_tag('span', array('class' => 'label label-default'));
+        $followdata .= html_writer::tag('span', "Followers: $followers", array("href"=>"#", "id"=>"followers-button"));
+        $followdata .= " | ";
+        $followdata .= html_writer::tag('span', "Following: $following", array("href"=>"#", "id"=>"following-button"));
+        $followdata .= html_writer::end_tag('span');
         $followdata .= html_writer::end_tag('h2');
+        $followdata .= Modal::get_html("<div class='asyncload' tabletype='followers'><table></table></div>", "followers-modal", "followers-button", "Followers", array());
+        $followdata .= Modal::get_html("<div class='asyncload' tabletype='followedusers'><table></table></div>", "following-modal", "following-button", "Following", array());
         return $followdata;
     }
 
@@ -2998,16 +3021,20 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
         parent::__construct($wiki, $subwiki, $cm);
         $this->uid = $targetuser;
         $PAGE->requires->js(new moodle_url("/mod/socialwiki/ajax_userpage.js"));
-        /*
-        require_once($CFG->dirroot . "/mod/socialwiki/table/table.php");
-        require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
-        require_once($CFG->dirroot . "/mod/socialwiki/table/userTable.php");
-        require_once($CFG->dirroot . "/mod/socialwiki/table/topicsTable.php");*/
+        
+        // require_once($CFG->dirroot . "/mod/socialwiki/table/table.php");
+        // require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
+        // require_once($CFG->dirroot . "/mod/socialwiki/table/userTable.php");
+        // require_once($CFG->dirroot . "/mod/socialwiki/table/topicsTable.php");
     }
 
 	function print_content(){
 		Global $OUTPUT,$CFG,$USER,$PAGE, $COURSE;
-        echo '<script> var userid='.$USER->id.', targetuser='.$this->uid.' ,swid='.$this->subwiki->id.', courseid ='.$COURSE->id.' ,cmid='.$PAGE->cm->id.';</script>'; // pass variables to JS
+
+
+        // pass variables to JS
+        echo '<script> var userid='.$USER->id.', targetuser='.$this->uid.' ,swid='.$this->subwiki->id.', courseid ='.$COURSE->id.' ,cmid='.$PAGE->cm->id.';</script>';
+
 		$likes=socialwiki_getlikes($this->uid,$this->subwiki->id);
 		$user = socialwiki_get_user_info($this->uid);
 		$scale=array('like'=>1,'trust'=>1,'follow'=>1,'popular'=>1);
@@ -3015,17 +3042,8 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
 		$numpeers=count(get_enrolled_users($context))-1;
 		//get this user's peer score
 		$peer= new peer($user->id,$this->subwiki->id,$USER->id,$numpeers,$scale);
-		
-		$html='';
-		$html.=$this->wikioutput->content_area_begin();
-		//USER INFO OUTPUT
-        $html.=$OUTPUT->container_start('userinfo');
-        //$html.= '<table class="userinfotable"><tr><td>';
-		$html.=$OUTPUT->heading(fullname($user),1,'colourtext');
-		$html.=$OUTPUT->user_picture($user,array('size'=>100,));
-        //$html.= '</td>';
 
-        //////// make button to follow/unfollow
+        // make button to follow/unfollow
 
         if(!socialwiki_is_following($USER->id,$user->id,$this->subwiki->id)&&$USER->id!=$this->uid){
             $icon = new moodle_url('/mod/socialwiki/img/icons/man-plus.png');
@@ -3039,7 +3057,7 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
         }
         $followaction = $CFG->wwwroot.'/mod/socialwiki/follow.php';//?user2='.$user->id; //.'&from='.'&swid='.$this->subwiki->id; // 'swid'=>$this->subwiki->id
 
-        $theliker = html_writer::start_tag( 'form', array( 'style'=>"display: inline",  'action'=>$followaction, "method"=>"get"));
+        $theliker  = html_writer::start_tag( 'form', array('action'=>$followaction, "method"=>"get"));
         $theliker .= '<input type ="hidden" name="user2" value="'.$user->id.'"/>';
         $theliker .= '<input type ="hidden" name="from" value="'.$CFG->wwwroot.'/mod/socialwiki/viewuserpages.php?userid='.$user->id.'&subwikiid='.$this->subwiki->id.'"/>';
         $theliker .= '<input type ="hidden" name="swid" value="'.$this->subwiki->id.'"/>';
@@ -3049,34 +3067,50 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
         $theliker .= html_writer::end_tag('button');
         $theliker .= html_writer::end_tag('form');
         
+		$html='';
+		$html.=$this->wikioutput->content_area_begin();
+		//USER INFO OUTPUT
+        $html.=$OUTPUT->container_start('userinfo');
+        //$html.= '<table class="userinfotable"><tr><td>';
+        $html.=$OUTPUT->heading(fullname($user),1,'colourtext username');
+        $html.=$theliker;
+        //$html.='<br/>';
+		$html.=$OUTPUT->user_picture($user,array('size'=>100, 'class'=>'profile_picture'));
+        //$html.= '</td>';
+
+        
+        $followers = socialwiki_get_followers($user->id, $this->subwiki->id);
+        $following = count(socialwiki_get_follows($user->id, $this->subwiki->id));
+
+        $followdata  = html_writer::start_tag('h2',array('class'=>'followdata'));
+        $followdata .= html_writer::start_tag('span', array('class' => 'label label-default'));
+        $followdata .= html_writer::tag('span', "Followers: $followers", array("href"=>"#", "id"=>"followers-button"));
+        $followdata .= " | ";
+        $followdata .= html_writer::tag('span', "Following: $following", array("href"=>"#", "id"=>"following-button"));
+        $followdata .= html_writer::end_tag('span');
+        $followdata .= html_writer::end_tag('h2');
+        $followdata .= Modal::get_html("<div class='asyncload' tabletype='followers'><table></table></div>", "followers-modal", "followers-button", "Followers", array());
+        $followdata .= Modal::get_html("<div class='asyncload' tabletype='followedusers'><table></table></div>", "following-modal", "following-button", "Following", array());
+
+        $html .= html_writer::tag("div", $followdata, array("class"=>"userinfo"));
+
         // ** result placed in table below **
         
-        //////////////////////////
-        ///////////////////
-
-		$html.=$OUTPUT->container_end();
+		
 		
 		//don't show peer scores if user is viewing themselves
 		if($USER->id!=$user->id){
 			//PEER SCORES OUTPUT
-			$html.=$OUTPUT->container_start('peerinfo colourtext');
-			$table = new html_table();
-			$table->head = array('PEER SCORES');
-			$table->attributes['class'] = 'peer_table colourtext';
-			$table->align = array('left');
-			$table->data=array();
-            $row1 = new html_table_row(array('FOLLOW DISTANCE:',$peer->depth, $theliker));
-            $row1->cells[2]->rowspan=3;
-			$table->data[]=$row1;// /trust==0? 0:1/$peer->trust);
-			//$table->data[]=array('TRUST:',$peer->trust);
-			$table->data[]=array('FOLLOW SIMILARITY:',$peer->followsim);
-			$table->data[]=array('LIKE SIMILARITY:',$peer->likesim);
-			$table->data[]=array('PEER POPULARITY:',$peer->popularity);
-			//$table->data[]=array('TOTAL:',$peer->score);
-			$html.=html_writer::table($table);
-			$html.=$OUTPUT->container_end();
+            $html.=html_writer::start_tag('span', array('class' => 'label label-default userinfo', 'style'=>'text-align: center;'));
+            $html.='FOLLOW DISTANCE: '.$peer->depth." | ";
+			$html.='FOLLOW SIMILARITY: '.$peer->followsim.' | ';
+			$html.='LIKE SIMILARITY: '.$peer->likesim.' | ';
+			$html.='PEER POPULARITY: '.$peer->popularity;
+            $html.=html_writer::end_tag('span');
 		}
 		
+        $html.=$OUTPUT->container_end();
+        
 		//START OF USER LIKES OUTPUT
 		$html.=$OUTPUT->container_start('socialwiki_manageheading');
 		/*$html.='<br/><br/><br/>'. $OUTPUT->heading('LIKES',2,'colourtext');
