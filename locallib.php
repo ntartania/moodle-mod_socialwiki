@@ -182,7 +182,13 @@ function socialwiki_get_last_version($pageid) {
 function socialwiki_get_section_page($page, $section) {
 
     $version = socialwiki_get_current_version($page->id);
-    return socialwiki_parser_proxy::get_section($version->content, $version->contentformat, $section);
+    echo "logging in locallib.php line 185";
+    echo "content=".$version->content.":end";
+    echo "format=".$version->contentformat.":end";
+    echo "section:".$section;
+    $toreturn = socialwiki_parser_proxy::get_section($version->content, $version->contentformat, $section);
+    echo $toreturn;
+    return $toreturn;
 }
 
 /**
@@ -253,12 +259,15 @@ function socialwiki_get_first_page($subwikid, $module = null) {
 
 function socialwiki_save_section($wikipage, $sectiontitle, $sectioncontent, $userid) {
 
+    //echo "logging at locallib l 262 \n";
+    //var_dump($wikipage);
     $wiki = socialwiki_get_wiki_from_pageid($wikipage->id);
     $cm = get_coursemodule_from_instance('socialwiki', $wiki->id);
     $context = context_module::instance($cm->id);
 
     if (has_capability('mod/socialwiki:editpage', $context)) {
-        $version = socialwiki_get_current_version($wikipage->id);
+        //in socialwiki we have created a new page, thus here the urrent version must be for parent page!
+        $version = socialwiki_get_current_version($wikipage->parent); 
         $content = socialwiki_parser_proxy::get_section($version->content, $version->contentformat, $sectiontitle, true);
 
         $newcontent = $content[0] . $sectioncontent . $content[2];
@@ -1044,7 +1053,7 @@ function socialwiki_user_can_edit($subwiki) {
  * @return true if the combination of section and page is locked, FALSE otherwise.
  */
 function socialwiki_is_page_section_locked($pageid, $userid, $section = null) {
-    global $DB;
+    /*global $DB;
 
     $sql = "pageid = ? AND lockedat > ? AND userid != ?";
     $params = array($pageid, time(), $userid);
@@ -1054,7 +1063,8 @@ function socialwiki_is_page_section_locked($pageid, $userid, $section = null) {
         $params[] = $section;
     }
 
-    return $DB->record_exists_select('socialwiki_locks', $sql, $params);
+    return $DB->record_exists_select('socialwiki_locks', $sql, $params);*/
+    return false;
 }
 
 /**

@@ -47,10 +47,12 @@ $deleteuploads = optional_param('deleteuploads', 0, PARAM_RAW);
 $makenew = optional_param('makenew', 0, PARAM_INT);
 $newcontent = '';	
 
+//echo "logging edit.php line 50";
+//echo 'pageid'.$pageid. ' contentformat'. $contentformat. 'section'.$section.'version'.$version;
 
 //This doesn't seem to get called ever?
 if (!empty($newcontent) && is_array($newcontent)) {
-    echo "i'm called edit.php 53";
+    
     $newcontent = $newcontent['text'];
 }
 
@@ -87,20 +89,29 @@ if ($option == get_string('save', 'socialwiki')) {
     }
 	if ($makenew ==0)
 	{
-		$newpageid = socialwiki_create_page($subwiki->id, $page->title, $wiki->defaultformat, $USER->id, $page->id);
+        
+		$newpageid = socialwiki_create_page($subwiki->id, $page->title, $contentformat, $USER->id, $page->id);
 		$newpage = socialwiki_get_page($newpageid);
+        
 		$wikipage = new page_socialwiki_save($wiki, $subwiki, $cm, $makenew);
+        
 		$wikipage->set_page($newpage);
+        
         socialwiki_add_like($USER->id,$newpageid,$subwiki->id);
+
 	}
 	else
 	{
 		$wikipage = new page_socialwiki_save($wiki, $subwiki, $cm, $makenew);
 		$wikipage->set_page($page);
 	}
+    
     $wikipage->set_newcontent($newcontent);
+    
     $wikipage->set_upload(true);
     add_to_log($course->id, 'socialwiki', 'edit', "view.php?pageid=".$pageid, $pageid, $cm->id);
+    
+
 } else {
     if ($option == get_string('preview')) {
         if (!confirm_sesskey()) {
@@ -137,6 +148,7 @@ if (!empty($section)) {
     $wikipage->set_section($sectioncontent, $section);
 }
 
+
 if (!empty($attachments)) {
     $wikipage->set_attachments($attachments);
 }
@@ -149,6 +161,7 @@ if (!empty($contentformat)) {
     $wikipage->set_format($contentformat);
 }
 $wikipage->print_header();
+
 
 $wikipage->print_content();
 

@@ -651,7 +651,7 @@ class page_socialwiki_edit extends page_socialwiki {
         parent::__construct($wiki, $subwiki, $cm);
 	 	$this->makenew = $makenew;
         self::$attachmentoptions = array('subdirs' => false, 'maxfiles' => - 1, 'maxbytes' => $CFG->maxbytes, 'accepted_types' => '*');
-        $PAGE->requires->js_init_call('M.mod_socialwiki.renew_lock', null, true);
+        //$PAGE->requires->js_init_call('M.mod_socialwiki.renew_lock', null, true);
     }
 
     protected function print_pagetitle() {
@@ -668,11 +668,11 @@ class page_socialwiki_edit extends page_socialwiki {
 
     function print_header() {
         global $OUTPUT, $PAGE;
-        $PAGE->requires->data_for_js('socialwiki', array('renew_lock_timeout' => SOCIALLOCK_TIMEOUT - 5, 'pageid' => $this->page->id, 'section' => $this->section));       
+        //$PAGE->requires->data_for_js('socialwiki', array('renew_lock_timeout' => SOCIALLOCK_TIMEOUT - 5, 'pageid' => $this->page->id, 'section' => $this->section));       
 	    parent::print_header();
         //$this->print_pagetitle();
         
-        print '<noscript>' . $OUTPUT->box(get_string('javascriptdisabledlocks', 'socialwiki'), 'errorbox') . '</noscript>';
+       // print '<noscript>' . $OUTPUT->box(get_string('javascriptdisabledlocks', 'socialwiki'), 'errorbox') . '</noscript>';
     }
 
     function print_content() {
@@ -2233,7 +2233,9 @@ class page_socialwiki_save extends page_socialwiki_edit {
             }
 
             if (isset($this->section)) {
+                echo "line 2236";
                 $save = socialwiki_save_section($this->page, $this->section, $data->newcontent, $USER->id);
+                echo "line 2238";
             } else {
                 $save = socialwiki_save_page($this->page, $data->newcontent, $USER->id);
             }

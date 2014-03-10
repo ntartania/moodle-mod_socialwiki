@@ -110,8 +110,8 @@ class mod_socialwiki_edit_form extends moodleform {
         }
 	//ends here
         
-        //$mform->addElement('', 'contentformat', $format);
-        //$mform->setType('contentformat', PARAM_ALPHANUMEXT);
+        $mform->addElement('hidden', 'contentformat', $format);
+        $mform->setType('contentformat', PARAM_ALPHANUMEXT);
 
 /*
        if (!empty($CFG->usetags)) {
