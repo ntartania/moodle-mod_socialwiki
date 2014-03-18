@@ -123,7 +123,7 @@ abstract class page_socialwiki {
 		$PAGE->requires->jquery();
         $this->style = socialwiki_get_currentstyle($wiki->id);
         $PAGE->requires->css(new moodle_url("/mod/socialwiki/".$this->style->style."_style.css"));
-        $PAGE->requires->css(new moodle_url("/mod/socialwiki/table/demo_table.css"));
+        // $PAGE->requires->css(new moodle_url("/mod/socialwiki/table/demo_table.css"));
         // the search box
         $PAGE->set_button(socialwiki_search_form($cm));
 	$this->set_uid($USER->id);
@@ -1743,19 +1743,22 @@ class page_socialwiki_home extends page_socialwiki {
     }
 
     function generate_follow_data() {
-        global $USER;
+        global $CFG, $USER, $COURSE, $PAGE;
+
+        $tableGen = new UserTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id);
+
         $followers = socialwiki_get_followers($USER->id, $this->subwiki->id);
         $following = count(socialwiki_get_follows($USER->id, $this->subwiki->id));
 
-        $followdata  = html_writer::start_tag('h2',array('class'=>'followdata'));
+        $followdata  = html_writer::start_tag('h2',array('class'=>'followdata', 'style'=>'text-align: left;'));
         $followdata .= html_writer::start_tag('span', array('class' => 'label label-default'));
         $followdata .= html_writer::tag('span', "Followers: $followers", array("href"=>"#", "id"=>"followers-button"));
         $followdata .= " | ";
         $followdata .= html_writer::tag('span', "Following: $following", array("href"=>"#", "id"=>"following-button"));
         $followdata .= html_writer::end_tag('span');
         $followdata .= html_writer::end_tag('h2');
-        $followdata .= Modal::get_html("<div class='asyncload' tabletype='followers'><table></table></div>", "followers-modal", "followers-button", "Followers", array());
-        $followdata .= Modal::get_html("<div class='asyncload' tabletype='followedusers'><table></table></div>", "following-modal", "following-button", "Following", array());
+        $followdata .= Modal::get_html($tableGen->followersTable(), "followers-modal", "followers-button", "Followers", array());
+        $followdata .= Modal::get_html($tableGen->followingTable(), "following-modal", "following-button", "Following", array());
         return $followdata;
     }
 
@@ -1818,24 +1821,24 @@ class page_socialwiki_home extends page_socialwiki {
     }
 
     function print_people_tab() {
-        global $CFG, $USER;
-        
+        global $CFG, $USER, $COURSE, $PAGE;
+        require_once($CFG->dirroot . "/mod/socialwiki/table/userTable.php");
+        $tableGen = new UserTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id);
+        echo $tableGen->allUsersTable();
 
+        // //$userTable2 = UserTable::make_followers_table($USER->id, $this->subwiki->id);
+        // echo '<a id="myfollowers" href="#"></a><h2>People Following you:</h2>';
+        // echo "<div class='tableregion asyncload' tabletype='followers'><table></table></div>";
+        // if ($userTable2 == null){
+        //     echo '<h3>'.get_String('youhavenofollowers', 'socialwiki').'</h3>';
+        // } else {
+        //     echo $userTable2->get_as_HTML();
+        // }
         
-
-        //$userTable2 = UserTable::make_followers_table($USER->id, $this->subwiki->id);
-        echo '<a id="myfollowers" href="#"></a><h2>People Following you:</h2>';
-        echo "<div class='tableregion asyncload' tabletype='followers'><table></table></div>";
-        /*if ($userTable2 == null){
-            echo '<h3>'.get_String('youhavenofollowers', 'socialwiki').'</h3>';
-        } else {
-            echo $userTable2->get_as_HTML();
-        }*/
-        
-        //$userTable3 = UserTable::make_all_users_table($USER->id, $this->subwiki->id);
-        echo "<h2>All Active Users:</h2>";
-        echo "<div class='tableregion asyncload' tabletype='allusers'><table></table></div>";
-        //echo $userTable3->get_as_HTML();
+        // //$userTable3 = UserTable::make_all_users_table($USER->id, $this->subwiki->id);
+        // echo "<h2>All Active Users:</h2>";
+        // echo "<div class='tableregion asyncload' tabletype='allusers'><table></table></div>";
+        // //echo $userTable3->get_as_HTML();
     }
 
     function print_explore_page() {

@@ -1562,6 +1562,15 @@ function socialwiki_get_follows($userid,$subwikiid){
 	return $DB->get_records_sql($sql,array($userid,$subwikiid));
 }
 
+function socialwiki_get_following($userid, $subwikiid)
+{
+    global $DB;
+    $sql='SELECT userfromid 
+          FROM {socialwiki_follows}
+          WHERE usertoid=? AND subwikiid=?';
+    return $DB->get_records_sql($sql,array($userid,$subwikiid));
+}
+
 /*
  *checks if a user is following another user
  *@param int $userfromid the user doing the following
@@ -2052,7 +2061,7 @@ class peer{
 	public $id; //the user id
 	public $likesim=0; //the similarity between likes of the peer and user
 	public $followsim=0; //the similarity between the people the user and peer are following
-	public $popularity;	//percent popularity
+	public $popularity;	//number of followers
     public $depth; //social distance: 1 for I'm following this user, 2 for friend of a friend, etc.
 	public $score;
 
