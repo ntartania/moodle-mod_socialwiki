@@ -1812,13 +1812,9 @@ class page_socialwiki_home extends page_socialwiki {
     }
 
     function print_topics_tab() {
-        //global $CFG, $USER;
-        //require_once($CFG->dirroot . "/mod/socialwiki/table/topicsTable.php");
-       // $topicsTable =  TopicsTable::make_all_topics_table($USER->id,$this->subwiki->id);
-        echo "<h2>All pages:</h2>";
-       //echo $topicsTable->get_as_HTML();
-
-        echo "<div class='tableregion asyncload' tabletype='alltopics'><table></table></div>";
+        global $CFG, $USER, $COURSE, $PAGE;
+        require_once($CFG->dirroot . "/mod/socialwiki/table/topicsTable.php");
+        PagesTable::makeTopicsTables($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id);
     }
 
     function print_people_tab() {
