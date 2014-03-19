@@ -60,7 +60,26 @@ class UserTable {
 	}
 
 	public function likesTable($page_id) {
+		$pages = socialwiki_get_likers($page_id, $this->swid);
+		$rows = $this->getRows($pages);
+		return $this->makeTable($rows, "likesTable");
+	}
+
+	public function viewsTable($page_id) {
+		$pages = socialwiki_get_user_views($page_id);
 		
+		$page_id_array = array();
+		foreach ($pages as $page) {
+			array_push($page_id_array, $page->userid);
+		}
+		$rows = $this->getRows($page_id_array);
+		return $this->makeTable($rows, "viewsTable");
+	}
+
+	public function contributersTable($page_id) {
+		$pages = socialwiki_get_contributors($page_id);
+		$rows = $this->getRows($pages);
+		return $this->makeTable($rows, "contributersTable");
 	}
 
 	private function getRows($users) {

@@ -36,6 +36,8 @@
 require_once($CFG->dirroot . '/mod/socialwiki/edit_form.php');
 require_once($CFG->dirroot . '/tag/lib.php');
 require_once($CFG->dirroot . "/mod/socialwiki/modal.php");
+require_once($CFG->dirroot . "/mod/socialwiki/table/userTable.php");
+
 
 
 /**
@@ -481,8 +483,8 @@ class page_socialwiki_view extends page_socialwiki {
     }
 	
 	protected function print_pagetitle() {
-        global $OUTPUT,$PAGE;
-		//$user = socialwiki_get_user_info($this->page->userid);
+    global $CFG, $USER, $COURSE, $PAGE, $OUTPUT;
+    	//$user = socialwiki_get_user_info($this->page->userid);
 		//$userlink = new moodle_url('/mod/socialwiki/viewuserpages.php', array('userid' => $user->id, 'subwikiid' => $this->page->subwikiid));
 		$html = '';
 
@@ -518,18 +520,7 @@ class page_socialwiki_view extends page_socialwiki {
 	$thetitle .= format_string($this->page->title);
 	$thetitle .= html_writer::end_tag('h1');
 
-    $like_userids = socialwiki_get_likers($this->page->id, $this->subwiki->id);
-    $like_users = "";
-
-    foreach ($like_userids as $value) {
-        $like_users .= html_writer::tag("p",fullname(socialwiki_get_user_info($value)));
-    }
-
-    if (empty($like_users)) {
-        $like_users = html_writer::tag("p","No Users Like This Page");
-    }
-
-	if(socialwiki_liked($this->uid, $this->page->id)) {
+    if(socialwiki_liked($this->uid, $this->page->id)) {
 		//hide ĺike link 
 		$theliker = html_writer::start_tag('button', array('class'=> 'socialwiki_likebutton', 'id'=> 'likelink', 'title'=>$liketip, 'style'=>'display:none'));	
 	} else {
@@ -570,9 +561,11 @@ class page_socialwiki_view extends page_socialwiki {
 	}
 
     $theliker .= html_writer::end_tag('span');
-    $like_modal = html_writer::tag('div', $like_users, array('style'=>'margin: 10px 10px 10px 10px;'));
-    $theliker .= Modal::get_html($like_modal, "likes_modal", "likes_link", "Likes:");
 
+    $userTable = new UserTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id);
+    $like_modal = $userTable->likesTable($this->page->id);
+    $theliker .= Modal::get_html($like_modal, "likes_modal", "likes_link", "Likes:");
+    echo $userTable->contributersTable($this->page->id);
 	$t = new html_table();
 
 	$row1 = array($thetitle, $theliker);

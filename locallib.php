@@ -622,6 +622,14 @@ function socialwiki_increment_pageviews($page) {
     $DB->update_record('socialwiki_pages', $page);
 }
 
+function socialwiki_get_user_views($page_id) {
+    global $DB;
+    $sql='SELECT * 
+          FROM {socialwiki_user_views}
+          WHERE pageid=?';
+    return $DB->get_records_sql($sql,array($page_id));
+}
+
 /**
  * Increase page view number for given user
  * If this is the first time the user has viewed the page, a new entry will be added
@@ -1671,10 +1679,10 @@ function socialwiki_get_liked_pages($userid, $subwikiid, $limit=1000) {
 //return all the pages the user likes
 function socialwiki_getlikes($userid,$subwikiid){
 global $DB;
-	$sql='SELECT pageid 
-		  FROM {socialwiki_likes}
-		  WHERE userid=? and subwikiid=?';
-	return $DB->get_records_sql($sql,array($userid,$subwikiid));
+    $sql='SELECT pageid 
+          FROM {socialwiki_likes}
+          WHERE userid=? and subwikiid=?';
+    return $DB->get_records_sql($sql,array($userid,$subwikiid));
 }
 
 /**
