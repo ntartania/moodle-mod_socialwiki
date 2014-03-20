@@ -15,14 +15,14 @@ class Modal
 	public static function get_html($contents, $modal_id, $link_id, $title = null, $data = array())
 	{
 		$modal = new Modal($contents, $modal_id, $link_id, $title, $data);
-		self::$counter++;
+		
 		return $modal->generateModal();
 	}
 
 	public function __construct($contents, $modal_id, $link_id=null, $title = null, $data = array())
 	{
 		global $PAGE;
-
+		self::$counter++;
 		$this->data = $data;
 		$this->contents = $contents;
 		$this->title = $title;
