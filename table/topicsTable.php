@@ -35,7 +35,7 @@ class PagesTable {
 		$rows = array();
 		foreach ($pages as $title => $page) {
 			$row = array(
-				"Title" => $title,
+				"Title" => $this->getTitleLink($title),
 				"Views" => $page["Views"],
 				"Likes" => $page["Likes"],
 				"Versions" => $page["Versions"],
@@ -53,5 +53,9 @@ class PagesTable {
 		}
 		echo "<div id=\"allPagesTable\"></div>";
 		$table->print_table("allPagesTable"); 
+	}
+
+	private function getTitleLink($title) {
+		return "<a href='search.php?searchstring=".$title."&courseid=".$this->courseid."&cmid=".$this->cmid."&option=2'>".$title."</a>";
 	}
 }

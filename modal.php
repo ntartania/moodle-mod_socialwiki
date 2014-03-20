@@ -19,7 +19,7 @@ class Modal
 		return $modal->generateModal();
 	}
 
-	public function __construct($contents, $modal_id, $link_id, $title = null, $data = array())
+	public function __construct($contents, $modal_id, $link_id=null, $title = null, $data = array())
 	{
 		global $PAGE;
 
@@ -27,7 +27,7 @@ class Modal
 		$this->contents = $contents;
 		$this->title = $title;
 		$this->modal_id = $modal_id;
-		$this->link_id = $link_id;
+		$this->link_id = isset($link_id) ? $link_id : $modal_id."_link".$counter;
 	}
 
 	public function generateModal()
@@ -41,6 +41,11 @@ class Modal
 		$html .= html_writer::end_tag("div");
 
 		return $html;
+	}
+
+	public function getLink()
+	{
+		return $this->link_id;
 	}
 
 	private function modalJS()
