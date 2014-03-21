@@ -565,7 +565,7 @@ class page_socialwiki_view extends page_socialwiki {
     $userTable = new UserTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id);
     $like_modal = $userTable->likesTable($this->page->id);
     $theliker .= Modal::get_html($like_modal, "likes_modal", "likes_link", "Likes:");
-    echo $userTable->contributersTable($this->page->id);
+    // echo $userTable->contributersTable($this->page->id);
 	$t = new html_table();
 
 	$row1 = array($thetitle, $theliker);
@@ -1805,22 +1805,15 @@ class page_socialwiki_home extends page_socialwiki {
     }
 
     function print_review_page() {
-        Global $USER;
-        // $this->print_page_list_content();
-        $this->print_favorite_pages();
-        $this->print_recent_likes();
-        //$userTable = UserTable::make_followed_users_table( $USER->id, $this->subwiki->id);
-        echo '<a id="Ifollow" href="#"></a><h2>People You Follow:</h2>';
-        
-        echo "<div class='tableregion asyncload' tabletype='followedusers'><table></table></div>";
-        /*if ($userTable == null){
-            echo '<h3>'.get_String('youfollownobody', 'socialwiki').'</h3>';
-        } else {
-            echo $userTable->get_as_HTML();
-        }*/
-
-        
-        //$this->print_userpages_content();*/
+        global $CFG, $USER, $COURSE, $PAGE;
+        require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
+        $table = new VersionTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id);
+        echo "<h3>Your Favorite Page Versions:</h3>";
+        echo $table->favoriteVersionTable();
+        echo "<h3>Page Versions You Like:</h3>";
+        echo $table->likedVersionsTable();
+        echo "<h3>Page Versions You Created</h3>";
+        echo $table->userCreatedTable();
     }
 
     function print_topics_tab() {
@@ -1851,8 +1844,15 @@ class page_socialwiki_home extends page_socialwiki {
     }
 
     function print_explore_page() {
-        $this->print_updated_content();
-        $this->print_page_list_content();
+        global $CFG, $USER, $COURSE, $PAGE;
+        require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
+        $table = new VersionTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id);
+        echo "<h3>Recommended Page Versions:</h3>";
+        echo $table->recomendedVersionTable();
+        echo "<h3>New Page Versions:</h3>";
+        echo $table->newVersionTable();
+        echo "<h3>All Page Versions:</h3>";
+        echo $table->allVersionsTable();
     }
 
     function set_view($option) {

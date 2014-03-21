@@ -12,14 +12,6 @@ class UserTable {
 	private $courseid;
 	private $swid;
 
-	private $col_names = array(
-		"Name",					//TODO: make these all "getString()"
-		"Social Distance",
-		"Number of Followers",
-		"Like Similarity",
-		"Follow Similarity",
-	);
-
 	public function __construct( $uid, $swid, $courseid, $cmid) {
 		$this->uid = $uid;
 		$this->swid = $swid;

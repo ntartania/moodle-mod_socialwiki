@@ -1529,6 +1529,17 @@ function socialwiki_build_tree($page, $node, &$keys) {
     return $content;
 }
 
+function socialwiki_get_latest_pages($swid, $limit = 10)
+{
+    global $DB;
+    $records = $DB->get_records('socialwiki_pages', array(), 'timecreated DESC');
+    $rtn = array();
+    for ($i = 0; $i < $limit; $i++) {
+        array_push($rtn, $records[$i]);
+    }
+    return $records;
+}
+
 /**
  * Get linked pages from page
  * @param int $pageid
@@ -1592,6 +1603,17 @@ function socialwiki_is_following($userfromid,$usertoid,$subwikiid)
 		  WHERE userfromid=? AND usertoid=? AND subwikiid= ?';
 		  
 	return $DB->record_exists_sql($sql,array($userfromid,$usertoid,$subwikiid));
+}
+
+function socialwiki_user_authored_pages($userid, $swid)
+{
+    $pages = socialwiki_get_page_list($swid);
+    foreach ($pages as $index => $page) {
+        if($page->userid != $userid) {
+            unset($pages[$index]);
+        }
+    }
+    return $pages;
 }
 
 //unfollow a user
