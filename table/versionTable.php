@@ -22,40 +22,69 @@ class VersionTable {
     }
 
     public function allVersionsTable() {
-        //get all topics
+        $table = SOCIALWIKI_TABLE_ALL_VERSIONS;
+        $t = socialwiki_table_is_enabled($this->uid, $table);
+        if($t->enabled == 0) {
+            return "";
+        }
         $pages = socialwiki_get_page_list($this->swid);
-        $rows = $this->getPageRows($pages);
+        $rows = $this->getPageRows($pages, $table);
         return $this->makeTable($rows, "allVersionsTable");
         // return $pages;
     }
 
     public function likedVersionsTable() {
+        $table = SOCIALWIKI_TABLE_LIKED_VERSIONS;
+        $t = socialwiki_table_is_enabled($this->uid, $table);
+        if($t->enabled == 0) {
+            return "";
+        }
         $pages = socialwiki_get_liked_pages($this->uid, $this->swid);
-        $rows = $this->getPageRows($pages);
+        $rows = $this->getPageRows($pages, $table);
         return $this->makeTable($rows, "likedVersionsTable");
     }
 
     public function favoriteVersionTable() {
+        $table = SOCIALWIKI_TABLE_FAVORITE_VERSIONS;
+        $t = socialwiki_table_is_enabled($this->uid, $table);
+        if($t->enabled == 0) {
+            return "";
+        }
         $pages = socialwiki_get_user_favorites($this->uid, $this->swid);
-        $rows = $this->getPageRows($pages);
+        $rows = $this->getPageRows($pages, $table);
         return $this->makeTable($rows, "favoritedVersionsTable");
     }
 
     public function userCreatedTable() {
+        $table = SOCIALWIKI_TABLE_USER_CREATED_VERSIONS;
+        $t = socialwiki_table_is_enabled($this->uid, $table);
+        if($t->enabled == 0) {
+            return "";
+        }
         $pages = socialwiki_user_authored_pages($this->uid, $this->swid);
-        $rows = $this->getPageRows($pages);
+        $rows = $this->getPageRows($pages, $table);
         return $this->makeTable($rows, "userCreatedTable");
     }
 
     public function newVersionTable() {
+        $table = SOCIALWIKI_TABLE_NEW_VERSIONS;
+        $t = socialwiki_table_is_enabled($this->uid, $table);
+        if($t->enabled == 0) {
+            return "";
+        }
         $pages = socialwiki_get_latest_pages($this->swid);
-        $rows = $this->getPageRows($pages);
+        $rows = $this->getPageRows($pages, $table);
         return $this->makeTable($rows, "newVersionTable");
     }
 
     public function recomendedVersionTable() {
+        $table = SOCIALWIKI_TABLE_RECOMENDED_VERSIONS;
+        $t = socialwiki_table_is_enabled($this->uid, $table);
+        if($t->enabled == 0) {
+            return "";
+        }
         $pages = socialwiki_get_recommended_pages($this->uid, $this->swid);
-        $rows = $this->getPageRows($pages);
+        $rows = $this->getPageRows($pages, $table);
         return $this->makeTable($rows, "recomendedVersionTable");
     }
 
@@ -67,7 +96,7 @@ class VersionTable {
 
     // }
 
-    private function getPageRows($pages) {
+    private function getPageRows($pages, $table_id) {
 
         $rows = array();
         foreach ($pages as $title => $page) {
@@ -79,30 +108,118 @@ class VersionTable {
                              //socialwiki_get_user_count($swid),
                              null);
 
-            $row = array(
-                "Title" => $this->makeUserColumn($page),
-                "Contributers" => fullname($author) . " and ".(count($contributors)-1)." others",
-                "Updated" => strftime('%d %b %Y', $page->timecreated),
-                "Likes" => socialwiki_numlikes($page->id),
-                "Views" => $page->pageviews,
-                "Favorited By" => count(socialwiki_get_favorites($page->id, $swid)),
-                "Author Popularity (Max)" => $this->combine_indicators($page, "max", "peerpopularity"),
-                "Like Similarity (Max)" => $this->combine_indicators($page, "max", "likesimilarity"),
-                "Follow Similarity (Max)" => $this->combine_indicators($page, "max", "followsimilarity"),
-                "Network Distance (Max)" => $this->combine_indicators($page, "max", "networkdistance"),
-                "Author Popularity (Min)" => $this->combine_indicators($page, "min", "peerpopularity"),
-                "Like Similarity (Min)" => $this->combine_indicators($page, "min", "likesimilarity"),
-                "Follow Similarity (Min)" => $this->combine_indicators($page, "min", "followsimilarity"),
-                "Network Distance (Min)" => $this->combine_indicators($page, "min", "networkdistance"),
-                "Author Popularity (Average)" => $this->combine_indicators($page, "avg", "peerpopularity"),
-                "Like Similarity (Average)" => $this->combine_indicators($page, "avg", "likesimilarity"),
-                "Follow Similarity (Average)" => $this->combine_indicators($page, "avg", "followsimilarity"),
-                "Network Distance (Average)" => $this->combine_indicators($page, "avg", "networkdistance"),
-                "Author Popularity (Sum)" => $this->combine_indicators($page, "sum", "peerpopularity"),
-                "Like Similarity (Sum)" => $this->combine_indicators($page, "sum", "likesimilarity"),
-                "Follow Similarity (Sum)" => $this->combine_indicators($page, "sum", "followsimilarity"),
-                "Network Distance (Sum)" => $this->combine_indicators($page, "sum", "networkdistance"),
-            );
+            $row = array();
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_TITLE);
+            if ($e->enabled == ENABLE) {
+                $row["Title"] = $this->makeUserColumn($page);
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_CONTRIBUTORS);
+            if ($e->enabled == ENABLE) {
+                $row["Contributers"] = fullname($author) . " and ".(count($contributors)-1)." others";
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_UPDATED);
+            if ($e->enabled == ENABLE) {
+                $row["Updated"] = strftime('%d %b %Y', $page->timecreated);
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_LIKES);
+            if ($e->enabled == ENABLE) {
+                $row["Likes"] = socialwiki_numlikes($page->id);
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_VIEWS);
+            if ($e->enabled == ENABLE) {
+                $row["Views"] = $page->pageviews;
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_FAVORITE);
+            if ($e->enabled == ENABLE) {
+                $row["Favorited By"] = count(socialwiki_get_favorites($page->id, $swid));
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_AUTHOR_POP_MAX);
+            if ($e->enabled == ENABLE) {
+                $row["Author Popularity (Max)"] = $this->combine_indicators($page, "max", "peerpopularity");
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_LIKE_SIM_MAX);
+            if ($e->enabled == ENABLE) {
+                $row["Like Similarity (Max)"] = $this->combine_indicators($page, "max", "likesimilarity");
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_FOLLOW_SIM_MAX);
+            if ($e->enabled == ENABLE) {
+                $row["Follow Similarity (Max)"] = $this->combine_indicators($page, "max", "followsimilarity");
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_NETWORK_DISTANCE_MAX);
+            if ($e->enabled == ENABLE) {
+                $row["Network Distance (Max)"] = $this->combine_indicators($page, "max", "networkdistance");
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_AUTHOR_POP_MIN);
+            if ($e->enabled == ENABLE) {
+                $row["Author Popularity (Min)"] = $this->combine_indicators($page, "min", "peerpopularity");
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_LIKE_SIM_MIN);
+            if ($e->enabled == ENABLE) {
+                $row["Like Similarity (Min)"] = $this->combine_indicators($page, "min", "likesimilarity");
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_FOLLOW_SIM_MIN);
+            if ($e->enabled == ENABLE) {
+                $row["Follow Similarity (Min)"] = $this->combine_indicators($page, "min", "followsimilarity");
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_NETWORK_DISTANCE_MIN);
+            if ($e->enabled == ENABLE) {
+                $row["Network Distance (Min)"] = $this->combine_indicators($page, "min", "networkdistance");
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_AUTHOR_POP_AVG);
+            if ($e->enabled == ENABLE) {
+                $row["Author Popularity (Average)"] = $this->combine_indicators($page, "avg", "peerpopularity");
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_LIKE_SIM_AVG);
+            if ($e->enabled == ENABLE) {
+                $row["Like Similarity (Average)"] = $this->combine_indicators($page, "avg", "likesimilarity");
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_FOLLOW_SIM_AVG);
+            if ($e->enabled == ENABLE) {
+                $row["Follow Similarity (Average)"] = $this->combine_indicators($page, "avg", "followsimilarity");
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_NETWORK_DISTANCE_AVG);
+            if ($e->enabled == ENABLE) {
+                $row["Network Distance (Average)"] = $this->combine_indicators($page, "avg", "networkdistance");
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_AUTHOR_POP_SUM);
+            if ($e->enabled == ENABLE) {
+                $row["Author Popularity (Sum)"] = $this->combine_indicators($page, "sum", "peerpopularity");
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_LIKE_SIM_SUM);
+            if ($e->enabled == ENABLE) {
+                $row["Like Similarity (Sum)"] = $this->combine_indicators($page, "sum", "likesimilarity");
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_FOLLOW_SIM_SUM);
+            if ($e->enabled == ENABLE) {
+                $row["Follow Similarity (Sum)"] = $this->combine_indicators($page, "sum", "followsimilarity");
+            }
+
+            $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_NETWORK_DISTANCE_SUM);
+            if ($e->enabled == ENABLE) {
+                $row["Network Distance (Sum)"] = $this->combine_indicators($page, "sum", "networkdistance");
+            }
+            
             array_push($rows, $row);
         }
         return $rows;
@@ -114,8 +231,7 @@ class VersionTable {
         foreach ($rows as $row) {
             $table->add_row($row);
         }
-        echo "<div id=\"$id\"></div>";
-        $table->print_table($id); 
+        return "<div id=\"$id\">".$table->get_table($id)."</div>";
     }
 
     /** combines trust indicators obtained from the peers who like a page

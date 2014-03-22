@@ -1677,7 +1677,7 @@ class page_socialwiki_home extends page_socialwiki {
 
 
     function __construct($wiki, $subwiki, $cm, $t = 0) {
-        Global $PAGE, $CFG;
+        Global $PAGE, $CFG, $USER;
         parent::__construct($wiki, $subwiki, $cm);
         $this->tab = $t;
         $PAGE->requires->js(new moodle_url("/mod/socialwiki/likeajax_home.js"));
@@ -1709,6 +1709,14 @@ class page_socialwiki_home extends page_socialwiki {
 
     function print_content() {
         global $CFG, $PAGE, $USER, $OUTPUT, $COURSE;
+
+        if(!socialwiki_has_table_defaults($USER->id)) {
+            socialwiki_set_default_tables($USER->id);
+        }
+
+        if(!socialwiki_has_column_defaults($USER->id)) {
+            socialwiki_get_default_columns($USER->id);
+        }
 
         require_capability(
             'mod/wiki:viewpage',
@@ -1808,12 +1816,25 @@ class page_socialwiki_home extends page_socialwiki {
         global $CFG, $USER, $COURSE, $PAGE;
         require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
         $table = new VersionTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id);
-        echo "<h3>Your Favorite Page Versions:</h3>";
-        echo $table->favoriteVersionTable();
-        echo "<h3>Page Versions You Like:</h3>";
-        echo $table->likedVersionsTable();
-        echo "<h3>Page Versions You Created</h3>";
-        echo $table->userCreatedTable();
+        
+        $fav_table = $table->favoriteVersionTable();
+        if(!empty($fav_table)) {
+            echo "<h3>Your Favorite Page Versions:</h3>";
+            echo $fav_table;
+        }
+        
+        $like_table = $table->likedVersionsTable();
+        if(!empty($like_table)) {
+            echo "<h3>Page Versions You Like:</h3>";
+            echo $like_table;
+        }
+        
+        $created_table = $table->userCreatedTable();
+        if(!empty($created_table)) {
+            echo "<h3>Page Versions You Created</h3>";
+            echo $created_table;
+        }
+        
     }
 
     function print_topics_tab() {
@@ -1847,12 +1868,24 @@ class page_socialwiki_home extends page_socialwiki {
         global $CFG, $USER, $COURSE, $PAGE;
         require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
         $table = new VersionTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id);
-        echo "<h3>Recommended Page Versions:</h3>";
-        echo $table->recomendedVersionTable();
-        echo "<h3>New Page Versions:</h3>";
-        echo $table->newVersionTable();
-        echo "<h3>All Page Versions:</h3>";
-        echo $table->allVersionsTable();
+
+        $rec_table = $table->recomendedVersionTable();
+        if(!empty($rec_table)) {
+            echo "<h3>Recommended Page Versions:</h3>";
+            echo $rec_table;
+        }
+        
+        $new_table = $table->newVersionTable();
+        if(!empty($new_table)) {
+            echo "<h3>New Page Versions:</h3>";
+            echo $new_table;
+        }
+        
+        $all_table = $table->allVersionsTable();
+        if(!empty($all_table)) {
+            echo "<h3>All Page Versions:</h3>";
+            echo $all_table;
+        }
     }
 
     function set_view($option) {
