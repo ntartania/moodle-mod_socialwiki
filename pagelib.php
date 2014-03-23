@@ -1673,6 +1673,7 @@ class page_socialwiki_home extends page_socialwiki {
     const EXPLORE_TAB = 1;
     const TOPICS_TAB = 2;
     const PEOPLE_TAB = 3;
+    const SETTINGS_TAB = 4;
 
 
 
@@ -1681,6 +1682,7 @@ class page_socialwiki_home extends page_socialwiki {
         parent::__construct($wiki, $subwiki, $cm);
         $this->tab = $t;
         $PAGE->requires->js(new moodle_url("/mod/socialwiki/likeajax_home.js"));
+        $PAGE->requires->js(new moodle_url("/mod/socialwiki/ticker.js"));
         require_once($CFG->dirroot . "/mod/socialwiki/table/table.php");
         require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
         require_once($CFG->dirroot . "/mod/socialwiki/table/userTable.php");
@@ -1696,7 +1698,8 @@ class page_socialwiki_home extends page_socialwiki {
         if ($tab_id === self::REVIEW_TAB || 
             $tab_id === self::EXPLORE_TAB || 
             $tab_id === self::TOPICS_TAB ||
-            $tab_id === self::PEOPLE_TAB) 
+            $tab_id === self::PEOPLE_TAB ||
+            $tab_id === self::SETTINGS_TAB)
         {
             $this->tab = $tab_id;
         }
@@ -1705,7 +1708,6 @@ class page_socialwiki_home extends page_socialwiki {
     function print_header() {
         parent::print_header();
     }
-
 
     function print_content() {
         global $CFG, $PAGE, $USER, $OUTPUT, $COURSE;
@@ -1729,8 +1731,17 @@ class page_socialwiki_home extends page_socialwiki {
 		
 		echo $this->wikioutput->content_area_begin();
 		//print the home page heading
-		echo $OUTPUT->heading('Social Wiki Home',1,"socialwiki_headingtitle colourtext");
+		
 
+        echo html_writer::start_tag('span', array('class'=>'ticker'));
+
+        //echo "<p class='test_p>0</p>";
+        echo $this->generate_ticker();
+
+        echo html_writer::end_tag('span');
+
+        echo html_writer::start_tag('span', array());
+        echo $OUTPUT->heading('Social Wiki Home',1,"socialwiki_headingtitle colourtext");
         $user_header = "<div>";
         $user_header .= $OUTPUT->user_picture(socialwiki_get_user_info($USER->id), array('size'=>100,));
         $user_header .= "<h2 class='home_user_name'>".fullname($USER)."</h2>";
@@ -1738,6 +1749,8 @@ class page_socialwiki_home extends page_socialwiki {
         echo $user_header;
 
         echo $this->generate_follow_data();
+        echo html_writer::end_tag('span');
+        
 
         echo "<div>";
         echo $this->generate_home_nav();
@@ -1752,11 +1765,49 @@ class page_socialwiki_home extends page_socialwiki {
             $this->print_topics_tab();
         } else if ($this->tab === self::PEOPLE_TAB) {
             $this->print_people_tab();
+        } else if ($this->tab === self::SETTINGS_TAB) {
+            $this->print_settings_tab();
         } else {
             echo "ERROR RENDERING PAGE... Invalid tab option";
         }
 
 		echo $this->wikioutput->content_area_end();
+    }
+
+    function generate_ticker() {
+        // print_r(socialwiki_get_updates_after_time(time()-(60*60*24)));
+        $data = socialwiki_get_updates_after_time(0);
+
+        $likes = $data["likes"];
+        $created = $data["created"];
+
+        $string = "<table class='ticker_table' data-time='".time()."'>";
+
+        while (!empty($likes)) {
+            if (empty($created)) {
+                $string .= $this->likes_ticker_item(array_pop($likes));
+            } else if (end($likes)->datetime <= end($created)->timecreated) {
+                $string .= $this->created_ticker_item(array_pop($created));
+            } else {
+                $string .= $this->likes_ticker_item(array_pop($likes));
+            }
+        }
+
+        while (!empty($created)) {
+            $string .= $this->created_ticker_item(array_pop($created));
+        }
+        return $string . "</table>";
+    }
+
+    function created_ticker_item($created) {
+        $line = fullname(socialwiki_get_user_info($created->userid)) . " created a new version of " . $created->title . ".";
+        return "<tr class='ticker_row'><td>".$line."<tr/><td/>";
+    }
+
+    function likes_ticker_item($like) {
+        $page = socialwiki_get_page($like->pageid);
+        $line = fullname(socialwiki_get_user_info($like->userid)) . " liked version " . $liked->pageid . " of " . $page->title . " (Version By " . fullname(socialwiki_get_user_info($page->userid)) . ").";
+        return "<tr class='ticker_row'><td>".$line."<tr/><td/>";
     }
 
     function generate_follow_data() {
@@ -1808,6 +1859,7 @@ class page_socialwiki_home extends page_socialwiki {
             "Explore" => "home.php?id=".$PAGE->cm->id."&tabid=".self::EXPLORE_TAB,
             "Pages" => "home.php?id=".$PAGE->cm->id."&tabid=".self::TOPICS_TAB,
             "People" => "home.php?id=".$PAGE->cm->id."&tabid=".self::PEOPLE_TAB,
+            "Settings" => "home.php?id=".$PAGE->cm->id."&tabid=".self::SETTINGS_TAB,
         );
         return $this->generate_nav($navlinks, $this->tab);
     }
@@ -1848,20 +1900,6 @@ class page_socialwiki_home extends page_socialwiki {
         require_once($CFG->dirroot . "/mod/socialwiki/table/userTable.php");
         $tableGen = new UserTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id);
         echo $tableGen->allUsersTable();
-
-        // //$userTable2 = UserTable::make_followers_table($USER->id, $this->subwiki->id);
-        // echo '<a id="myfollowers" href="#"></a><h2>People Following you:</h2>';
-        // echo "<div class='tableregion asyncload' tabletype='followers'><table></table></div>";
-        // if ($userTable2 == null){
-        //     echo '<h3>'.get_String('youhavenofollowers', 'socialwiki').'</h3>';
-        // } else {
-        //     echo $userTable2->get_as_HTML();
-        // }
-        
-        // //$userTable3 = UserTable::make_all_users_table($USER->id, $this->subwiki->id);
-        // echo "<h2>All Active Users:</h2>";
-        // echo "<div class='tableregion asyncload' tabletype='allusers'><table></table></div>";
-        // //echo $userTable3->get_as_HTML();
     }
 
     function print_explore_page() {
@@ -1886,6 +1924,12 @@ class page_socialwiki_home extends page_socialwiki {
             echo "<h3>All Page Versions:</h3>";
             echo $all_table;
         }
+    }
+
+    function print_settings_tab() {
+        echo "<H1>Settings</H1>";
+        $tables = socialwiki_get_all_tables();
+        $table_cols = socialwiki_get_all_table_columns();
     }
 
     function set_view($option) {

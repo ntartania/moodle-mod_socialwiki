@@ -231,9 +231,6 @@ function xmldb_socialwiki_upgrade($oldversion) {
 
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
-        } else {
-            $dbman->drop_table($table);
-            $dbman->create_table($table);
         }
 
         //socialwiki_user_table
@@ -284,13 +281,25 @@ function xmldb_socialwiki_upgrade($oldversion) {
 
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
-        } else {
-            $dbman->drop_table($table);
-            $dbman->create_table($table);
         }
 
         // Socialwiki savepoint reached.
         upgrade_mod_savepoint(true, $revision, 'socialwiki');
+    }
+
+    if ($oldversion < 2014032200) {
+
+        // Define field style to be added to socialwiki.
+        $table = new xmldb_table('socialwiki_likes');
+        $field = new xmldb_field('datetime', XMLDB_TYPE_INTEGER, '10', null, null, null, null, null);
+
+        // Conditionally launch add field style.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Socialwiki savepoint reached.
+        upgrade_mod_savepoint(true, 2014032200, 'socialwiki');
     }
 
     return true;

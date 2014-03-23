@@ -99,16 +99,7 @@ define('DISABLE', 0);
 function socialwiki_set_default_tables($user_id) {
     global $DB;
 
-    $tables = array(
-        SOCIALWIKI_TABLE_ALL_PAGES => ENABLE,
-        SOCIALWIKI_TABLE_ALL_USERS => ENABLE,
-        SOCIALWIKI_TABLE_RECOMENDED_VERSIONS => ENABLE,
-        SOCIALWIKI_TABLE_NEW_VERSIONS => ENABLE,
-        SOCIALWIKI_TABLE_USER_CREATED_VERSIONS => ENABLE,
-        SOCIALWIKI_TABLE_FAVORITE_VERSIONS => ENABLE,
-        SOCIALWIKI_TABLE_LIKED_VERSIONS => ENABLE,
-        SOCIALWIKI_TABLE_ALL_VERSIONS => DISABLE,
-    );
+    $tables = socialwiki_get_all_tables();
 
     foreach ($tables as $table => $enabled) {
         $record = new StdClass();
@@ -122,9 +113,21 @@ function socialwiki_set_default_tables($user_id) {
     return $insertid;
 }
 
-function socialwiki_get_default_columns($user_id) {
-    global $DB;
+function socialwiki_get_all_tables() {
+    $tables = array(
+        SOCIALWIKI_TABLE_ALL_PAGES => ENABLE,
+        SOCIALWIKI_TABLE_ALL_USERS => ENABLE,
+        SOCIALWIKI_TABLE_RECOMENDED_VERSIONS => ENABLE,
+        SOCIALWIKI_TABLE_NEW_VERSIONS => ENABLE,
+        SOCIALWIKI_TABLE_USER_CREATED_VERSIONS => ENABLE,
+        SOCIALWIKI_TABLE_FAVORITE_VERSIONS => ENABLE,
+        SOCIALWIKI_TABLE_LIKED_VERSIONS => ENABLE,
+        SOCIALWIKI_TABLE_ALL_VERSIONS => DISABLE,
+    );
+    return $tables;
+}
 
+function socialwiki_get_all_table_columns() {
     $tables = array(
         SOCIALWIKI_TABLE_ALL_VERSIONS => array(
             SOCIALWIKI_COLUMN_VERSION_TITLE => ENABLE,
@@ -284,6 +287,31 @@ function socialwiki_get_default_columns($user_id) {
             SOCIALWIKI_COLUMN_PAGE_VERSIONS => ENABLE,
         ),
     );
+
+    return $tables;
+}
+
+function socialwiki_get_updates_after_time($time)
+{
+    global $DB;
+    $sql = 'SELECT *
+            FROM {socialwiki_likes}
+            WHERE datetime >= ?
+            ORDER BY datetime';
+    $data = array();
+    $data["likes"] = $DB->get_records_sql($sql, array($time));
+    $sql = 'SELECT *
+            FROM {socialwiki_pages}
+            WHERE timecreated >= ?
+            ORDER BY timecreated';
+    $data["created"] = $DB->get_records_sql($sql, array($time));
+    return $data;
+}
+
+function socialwiki_get_default_columns($user_id) {
+    global $DB;
+
+    $tables = socialwiki_get_all_table_columns();
 
     foreach ($tables as $table => $columns) {
         foreach($columns as $column => $enabled) {
@@ -1955,6 +1983,7 @@ function socialwiki_add_like($userid,$pageid,$subwikiid){
 	$like->userid=$userid;
 	$like->pageid=$pageid;
 	$like->subwikiid=$subwikiid;
+    $like->datetime=time();
 	$DB->insert_record('socialwiki_likes',$like);
 }
 
