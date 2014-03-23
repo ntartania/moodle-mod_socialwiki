@@ -1806,7 +1806,7 @@ class page_socialwiki_home extends page_socialwiki {
 
     function likes_ticker_item($like) {
         $page = socialwiki_get_page($like->pageid);
-        $line = fullname(socialwiki_get_user_info($like->userid)) . " liked version " . $liked->pageid . " of " . $page->title . " (Version By " . fullname(socialwiki_get_user_info($page->userid)) . ").";
+        $line = fullname(socialwiki_get_user_info($like->userid)) . " liked version " . $like->pageid . " of " . $page->title . " (Version By " . fullname(socialwiki_get_user_info($page->userid)) . ").";
         return "<tr class='ticker_row'><td>".$line."<tr/><td/>";
     }
 
@@ -1867,7 +1867,7 @@ class page_socialwiki_home extends page_socialwiki {
     function print_review_page() {
         global $CFG, $USER, $COURSE, $PAGE;
         require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
-        $table = new VersionTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id);
+        $table = new VersionTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id, $this->view);
         
         $fav_table = $table->favoriteVersionTable();
         if(!empty($fav_table)) {
@@ -1905,7 +1905,7 @@ class page_socialwiki_home extends page_socialwiki {
     function print_explore_page() {
         global $CFG, $USER, $COURSE, $PAGE;
         require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
-        $table = new VersionTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id);
+        $table = new VersionTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id, $this->view);
 
         $rec_table = $table->recomendedVersionTable();
         if(!empty($rec_table)) {

@@ -2032,7 +2032,7 @@ function socialwiki_get_likers($pageid, $swid){
     $sql='SELECT userid
           FROM {socialwiki_likes}
           WHERE pageid=? and subwikiid=?';
-      $res=  $DB->get_records_sql($sql,array($pageid, $swid),0,1000);
+    $res=  $DB->get_records_sql($sql,array($pageid, $swid),0,1000);
 
     return array_map(function($a){return $a->userid;}, $res);
 }

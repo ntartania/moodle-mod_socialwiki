@@ -13,12 +13,14 @@ class VersionTable {
     private $cmid;
     private $courseid;
     private $swid;
+    private $view;
 
-    public function __construct( $uid, $swid, $courseid, $cmid) {
+    public function __construct( $uid, $swid, $courseid, $cmid, $view) {
         $this->uid = $uid;
         $this->swid = $swid;
         $this->courseid= $courseid;
         $this->cmid= $cmid;
+        $this->view = $view;
     }
 
     public function allVersionsTable() {
@@ -137,7 +139,7 @@ class VersionTable {
 
             $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_FAVORITE);
             if ($e->enabled == ENABLE) {
-                $row["Favorited By"] = count(socialwiki_get_favorites($page->id, $swid));
+                $row["Favorited By"] = count(socialwiki_get_favorites($page->id, $this->swid));
             }
 
             $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_AUTHOR_POP_MAX);
@@ -238,9 +240,12 @@ class VersionTable {
     *
     */
     private function combine_indicators($page, $reducer,$indicator){
+        $likers = socialwiki_get_likers($page->id, $this->swid);
+
         $uservals = array();
-        foreach($page->likers as $u){
-            $peer = $this->allpeers[$u];
+        foreach($likers as $user_id){
+            $user = socialwiki_get_user_info($user_id);
+            $peer = new Peer($user->id, $this->swid, $this->uid);
         
             $score= 0; // meant to stand out if errors come up
             switch($indicator){
@@ -277,8 +282,6 @@ class VersionTable {
                 return array_reduce($uservals, function($a,$b){return $a+$b;});
                 
         }
-
-
         return 0.99; //kludge: just an error value
     }
 
@@ -296,7 +299,7 @@ class VersionTable {
             $img = "hollowlike.png";
         }
         $liked_img = "<img style='width:22px; vertical-align:middle;' class='socialwiki_unlikeimg' src='".$CFG->wwwroot."/mod/socialwiki/img/icons/".$img."'></img>";
-        $likelink = "<a style='margin:0;' class='socialwiki_likelink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/like.php?pageid=".$page->id."&from=".urlencode($PAGE->url->out()."&option=$option")."'>".$liked_img."</a>";
+        $likelink = "<a style='margin:0;' class='socialwiki_likelink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/like.php?pageid=".$page->id."&from=".urlencode($PAGE->url->out()."&option=".$this->view)."'>".$liked_img."</a>";
         return $likelink;
     }
 
