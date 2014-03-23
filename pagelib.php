@@ -1927,9 +1927,32 @@ class page_socialwiki_home extends page_socialwiki {
     }
 
     function print_settings_tab() {
+        global $CFG, $USER;
+        require_once($CFG->dirroot . '/mod/socialwiki/settings_helper.php');
         echo "<H1>Settings</H1>";
-        $tables = socialwiki_get_all_tables();
-        $table_cols = socialwiki_get_all_table_columns();
+
+        echo "<hr>";
+
+        $manage_settings = "";
+
+        $manage_settings .= html_writer::start_tag('div', array('class'=>'socialwiki_home_settings'));
+        $tables = socialwiki_settings_helper();
+
+        foreach ($tables as $table_id => $table_data) {
+            $manage_settings .= html_writer::start_tag('div');
+            $checkbox = "<input type='checkbox' class='table_".$table_id."'";
+            $enabled_data = socialwiki_table_is_enabled($USER->id, $table_id);
+            if ($enabled_data->enabled == 1) {
+                $checkbox .= "checked='checked'";
+            }
+            $checkbox .= ">";
+            $manage_settings .= html_writer::tag('h3', $table_data["title"]." ".$checkbox);
+            $manage_settings .= html_writer::end_tag('div');
+        }
+
+        $manage_settings .= html_writer::end_tag('div');
+
+        echo $manage_settings;
     }
 
     function set_view($option) {

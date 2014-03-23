@@ -355,11 +355,39 @@ function socialwiki_table_is_enabled($user_id, $table_id)
         array('user_id' => $user_id, 'table_id' => $table_id));
 }
 
+function socialwiki_table_enable($user_id, $table_id) {
+    global $DB;
+    $table = socialwiki_table_is_enabled($user_id, $table_id);
+    $table->enabled=1;
+    $DB->update_record('socialwiki_table', $table);
+}
+
+function socialwiki_table_disable($user_id, $table_id) {
+    global $DB;
+    $table = socialwiki_table_is_enabled($user_id, $table_id);
+    $table->enabled=0;
+    $DB->update_record('socialwiki_table', $table);
+}
+
 function socialwiki_column_is_enabled($user_id, $table_id, $column_id)
 {
     global $DB;
     return $DB->get_record('socialwiki_column',
         array('user_id' => $user_id, 'table_id' => $table_id, 'column_id' => $column_id));
+}
+
+function socialwiki_column_enable($user_id, $table_id, $column_id) {
+    global $DB;
+    $table = socialwiki_column_is_enabled($user_id, $table_id, $column_id);
+    $table->enabled=1;
+    $DB->update_record('socialwiki_column', $table);
+}
+
+function socialwiki_column_disable($user_id, $table_id, $column_id) {
+    global $DB;
+    $table = socialwiki_column_is_enabled($user_id, $table_id, $column_id);
+    $table->enabled=0;
+    $DB->update_record('socialwiki_column', $table);
 }
 
 /**
