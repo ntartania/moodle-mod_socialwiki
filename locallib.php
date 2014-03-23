@@ -291,20 +291,20 @@ function socialwiki_get_all_table_columns() {
     return $tables;
 }
 
-function socialwiki_get_updates_after_time($time)
+function socialwiki_get_updates_after_time($time, $subwikiid)
 {
     global $DB;
     $sql = 'SELECT *
             FROM {socialwiki_likes}
-            WHERE datetime >= ?
+            WHERE datetime >= ? AND subwikiid = ?
             ORDER BY datetime';
     $data = array();
-    $data["likes"] = $DB->get_records_sql($sql, array($time));
+    $data["likes"] = $DB->get_records_sql($sql, array($time, $subwikiid));
     $sql = 'SELECT *
             FROM {socialwiki_pages}
-            WHERE timecreated >= ?
+            WHERE timecreated >= ? AND subwikiid =  ?
             ORDER BY timecreated';
-    $data["created"] = $DB->get_records_sql($sql, array($time));
+    $data["created"] = $DB->get_records_sql($sql, array($time, $subwikiid));
     return $data;
 }
 
@@ -1847,7 +1847,7 @@ function socialwiki_build_tree($page, $node, &$keys) {
 function socialwiki_get_latest_pages($swid, $limit = 10)
 {
     global $DB;
-    $records = $DB->get_records('socialwiki_pages', array(), 'timecreated DESC');
+    $records = $DB->get_records('socialwiki_pages', array("subwikiid"=>$swid), 'timecreated DESC');
     $rtn = array();
     for ($i = 0; $i < $limit; $i++) {
         array_push($rtn, $records[$i]);

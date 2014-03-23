@@ -1776,7 +1776,7 @@ class page_socialwiki_home extends page_socialwiki {
 
     function generate_ticker() {
         // print_r(socialwiki_get_updates_after_time(time()-(60*60*24)));
-        $data = socialwiki_get_updates_after_time(0);
+        $data = socialwiki_get_updates_after_time(0, $this->subwiki->id);
 
         $likes = $data["likes"];
         $created = $data["created"];
@@ -1867,7 +1867,7 @@ class page_socialwiki_home extends page_socialwiki {
     function print_review_page() {
         global $CFG, $USER, $COURSE, $PAGE;
         require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
-        $table = new VersionTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id, $this->view);
+        $table = new VersionTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id, $this->tab);
         
         $fav_table = $table->favoriteVersionTable();
         if(!empty($fav_table)) {
@@ -1905,7 +1905,7 @@ class page_socialwiki_home extends page_socialwiki {
     function print_explore_page() {
         global $CFG, $USER, $COURSE, $PAGE;
         require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
-        $table = new VersionTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id, $this->view);
+        $table = new VersionTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id, $this->tab);
 
         $rec_table = $table->recomendedVersionTable();
         if(!empty($rec_table)) {

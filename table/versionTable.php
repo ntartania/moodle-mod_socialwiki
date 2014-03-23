@@ -299,7 +299,7 @@ class VersionTable {
             $img = "hollowlike.png";
         }
         $liked_img = "<img style='width:22px; vertical-align:middle;' class='socialwiki_unlikeimg' src='".$CFG->wwwroot."/mod/socialwiki/img/icons/".$img."'></img>";
-        $likelink = "<a style='margin:0;' class='socialwiki_likelink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/like.php?pageid=".$page->id."&from=".urlencode($PAGE->url->out()."&option=".$this->view)."'>".$liked_img."</a>";
+        $likelink = "<a style='margin:0;' class='socialwiki_likelink socialwiki_link' href='".$CFG->wwwroot."/mod/socialwiki/like.php?pageid=".$page->id."&from=".urlencode($PAGE->url->out()."&tabid=".$this->view)."'>".$liked_img."</a>";
         return $likelink;
     }
 
