@@ -31,12 +31,20 @@ echo $string;
 // echo "<tr class='ticker_row'><td>".$time."<tr/><td/>";
 
 function created_ticker_item($created) {
-    $line = fullname(socialwiki_get_user_info($created->userid)) . " created a new version of " . $created->title . ".";
-    return "<tr class='ticker_row'><td>".$line."<tr/><td/>";
-}
+        global $CFG;
+        $line = html_writer::tag('a',
+            fullname(socialwiki_get_user_info($created->userid)) . " created a new version of " . $created->title . ".",
+            array('href'=>$CFG->wwwroot."/mod/socialwiki/view.php?pageid=".$created->id)
+        );
+        return "<tr class='ticker_row'><td>".$line."<tr/><td/>";
+    }
 
 function likes_ticker_item($like) {
+    global $CFG;
     $page = socialwiki_get_page($like->pageid);
-    $line = fullname(socialwiki_get_user_info($like->userid)) . " liked version " . $liked->pageid . " of " . $page->title . " (Version By " . fullname(socialwiki_get_user_info($page->userid)) . ").";
+    $line = html_writer::tag('a',
+        fullname(socialwiki_get_user_info($like->userid)) . " liked version " . $like->pageid . " of " . $page->title . " (Version By " . fullname(socialwiki_get_user_info($page->userid)) . ").",
+        array('href'=>$CFG->wwwroot."/mod/socialwiki/view.php?pageid=".$page->id)
+    );
     return "<tr class='ticker_row'><td>".$line."<tr/><td/>";
 }

@@ -485,7 +485,7 @@ class mod_socialwiki_renderer extends plugin_renderer_base {
 	
 	function menu_search($cmid, $currentselect,$searchstring) {
 		Global $COURSE;
-        $options = array('tree', 'list','popular');
+        $options = array('tree', 'list');
         $items = array();
         foreach ($options as $opt) {
             $items[] = get_string($opt, 'socialwiki');

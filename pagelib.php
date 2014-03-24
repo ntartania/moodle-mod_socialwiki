@@ -1122,8 +1122,9 @@ class page_socialwiki_search extends page_socialwiki {
         global $PAGE,$OUTPUT;
         require_capability('mod/socialwiki:viewpage', $this->modcontext, NULL, true, 'noviewpagepermission', 'socialwiki');
 		echo $this->wikioutput->content_area_begin();
+        // echo $this->view;
+        // $this->view = isset($this->view) ? $this->view : 1;
 		//echo $this->wikioutput->title_block("Search results for: ".$this->search_string." (".count($this->search_result)."&nbsptotal)");
-		 
 		switch ($this->view) {
 			case 1:
 				echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string);
@@ -1133,12 +1134,9 @@ class page_socialwiki_search extends page_socialwiki {
 				echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string);
 				$this->print_list();
 				break;
-			case 3:
-				echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string);
-				$this->print_popular();
-				break;
 			default:
-				echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string);
+                echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string);
+                // redirect(new moodle_url('/mod/socialwiki/search.php',array('searchstring'=>$searchstring,'courseid'=>$COURSE->id,'cmid'=>$cmid));
 				$this->print_tree();
         }
 		
@@ -1171,29 +1169,14 @@ class page_socialwiki_search extends page_socialwiki {
 	//print a list of pages ordered by peer votes
 	private function print_list(){
 		Global $CFG, $USER;
-		//$scale=array('follow'=>1,'like'=>1,'trust'=>1,'popular'=>1);
-		//$peers=socialwiki_get_peers($this->subwiki->id,$scale);
-		//$pages=socialwiki_order_pages_using_peers($peers,$this->search_result,$scale);
-        //echo "<div class='asyncload' tabletype='searchresults'>";
+
 		if(count($this->search_result)>0){
-            $restable = new versionTable($USER->id, $this->subwiki->id, $this->search_result, versionTable::getHeaders('version'));
-			echo $restable->get_as_HTML('table_searchresults');
+            $table = new VersionTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id, $this->view);
+			echo $table->genericTable($this->search_result);
 		}else{
 			echo"<h3 class='table_region' socialwiki_titleheader>".get_string('nopagesfound', 'socialwiki')."</h3>";
 		}
 
-	}
-	
-	//print the pages ordered by likes
-	private function print_popular(){
-		Global $CFG;
-		$pages=socialwiki_order_by_likes($this->search_result);
-		
-		if(count($pages)>0){
-            echo $this->generate_table_view($pages, 'popular_table');
-        }else{
-            echo"<h3 class='table_region' socialwiki_titleheader>No Pages Found</h3>";
-        }
 	}
 }
 
@@ -1775,6 +1758,7 @@ class page_socialwiki_home extends page_socialwiki {
     }
 
     function generate_ticker() {
+        
         // print_r(socialwiki_get_updates_after_time(time()-(60*60*24)));
         $data = socialwiki_get_updates_after_time(0);
 
@@ -1800,13 +1784,21 @@ class page_socialwiki_home extends page_socialwiki {
     }
 
     function created_ticker_item($created) {
-        $line = fullname(socialwiki_get_user_info($created->userid)) . " created a new version of " . $created->title . ".";
+        global $CFG;
+        $line = html_writer::tag('a',
+            fullname(socialwiki_get_user_info($created->userid)) . " created a new version of " . $created->title . ".",
+            array('href'=>$CFG->wwwroot."/mod/socialwiki/view.php?pageid=".$created->id)
+        );
         return "<tr class='ticker_row'><td>".$line."<tr/><td/>";
     }
 
     function likes_ticker_item($like) {
+        global $CFG;
         $page = socialwiki_get_page($like->pageid);
-        $line = fullname(socialwiki_get_user_info($like->userid)) . " liked version " . $like->pageid . " of " . $page->title . " (Version By " . fullname(socialwiki_get_user_info($page->userid)) . ").";
+        $line = html_writer::tag('a',
+            fullname(socialwiki_get_user_info($like->userid)) . " liked version " . $like->pageid . " of " . $page->title . " (Version By " . fullname(socialwiki_get_user_info($page->userid)) . ").",
+            array('href'=>$CFG->wwwroot."/mod/socialwiki/view.php?pageid=".$page->id)
+        );
         return "<tr class='ticker_row'><td>".$line."<tr/><td/>";
     }
 

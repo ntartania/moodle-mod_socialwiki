@@ -23,6 +23,11 @@ class VersionTable {
         $this->view = $view;
     }
 
+    public function genericTable($pages) {
+        $rows = $this->getPageRows($pages, SOCIALWIKI_TABLE_ALL_VERSIONS);
+        return $this->makeTable($rows, "allVersionsTable");
+    }
+
     public function allVersionsTable() {
         $table = SOCIALWIKI_TABLE_ALL_VERSIONS;
         $t = socialwiki_table_is_enabled($this->uid, $table);
