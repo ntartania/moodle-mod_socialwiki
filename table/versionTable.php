@@ -15,7 +15,7 @@ class VersionTable {
     private $swid;
     private $view;
 
-    public function __construct( $uid, $swid, $courseid, $cmid, $view) {
+    public function __construct( $uid, $swid, $courseid, $cmid, $view = "") {
         $this->uid = $uid;
         $this->swid = $swid;
         $this->courseid= $courseid;

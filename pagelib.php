@@ -3106,6 +3106,7 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
         parent::__construct($wiki, $subwiki, $cm);
         $this->uid = $targetuser;
         $PAGE->requires->js(new moodle_url("/mod/socialwiki/ajax_userpage.js"));
+        require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
         
         // require_once($CFG->dirroot . "/mod/socialwiki/table/table.php");
         // require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
@@ -3198,24 +3199,24 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
         
 		//START OF USER LIKES OUTPUT
 		$html.=$OUTPUT->container_start('socialwiki_manageheading');
-		/*$html.='<br/><br/><br/>'. $OUTPUT->heading('LIKES',2,'colourtext');
-		$html.=$OUTPUT->container_end();
-		if (count($likes)==0){
-			$html.=$OUTPUT->container_start('socialwiki_manageheading');
-			$html.= $OUTPUT->heading('They have not liked any pages', 3, "colourtext");
-			
-		}else{
-			//display all the pages the current user likes
-			$html .= $OUTPUT->container_start('socialwiki_likelist');
-			foreach($likes as $like){
-				$page=socialwiki_get_page($like->pageid);
-				$html.=html_writer::link($CFG->wwwroot.'/mod/socialwiki/view.php?pageid='.$page->id,$page->title.' (ID:'.$page->id.')',array('class'=>'socialwiki_link'));
-				$html .= "<br/><br/>";
-			}
-        }*/
-        $html .= '<script></script>';
-        $combineform = page_socialwiki::getCombineForm();//<br><input id="showLocalSR" type="checkbox"> Show articles I already have.</form>';
-        $html .= '<h2 class="table_region">Favourite Pages</h2><div class="asyncload" tabletype="userfaves" >'.$combineform.'<table></table></div>';
+		$userTable = new versionTable( $user->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id);
+        $fav_table = $userTable->favoriteVersionTable();
+        if(!empty($fav_table)) {
+            $html .= "<h3>Favorite Page Versions:</h3>";
+            $html .= $fav_table;
+        }
+        
+        $like_table = $userTable->likedVersionsTable();
+        if(!empty($like_table)) {
+            $html .= "<h3>Page Versions ".fullname($user)." Likes:</h3>";
+            $html .= $like_table;
+        }
+        
+        $created_table = $userTable->userCreatedTable();
+        if(!empty($created_table)) {
+            $html .= "<h3>Page Versions ".fullname($user)." Created:</h3>";
+            $html .= $created_table;
+        }
 		$html .= $OUTPUT->container_end();
 		
 		$html.=$this->wikioutput->content_area_end();
