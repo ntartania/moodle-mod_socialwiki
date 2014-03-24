@@ -81,7 +81,7 @@ class UserTable {
 			$user = socialwiki_get_user_info($user_id);
 			$peer = new peer($user_id, $this->swid, $this->uid);
 			array_push($rows, array(
-				"Name" => fullname($user),
+				"Name" => "<a href='".new moodle_url('/mod/socialwiki/viewuserpages.php', array('userid' => $user_id, 'subwikiid' => $this->swid))."''>".fullname($user)."</a>",
 				"Followers" => $peer->popularity,
 				"Social Distance" => $peer->depth,
 				"Like Similarity" => $peer->likesim,
