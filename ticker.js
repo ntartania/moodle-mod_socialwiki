@@ -8,7 +8,7 @@ $( document ).ready( function() {
 		request = $.ajax({
 	        url: "ticker.php",
 	        type: "post",
-	        data: {userid: userid, time: time}
+	        data: {userid: userid, time: time, swid: swid}
 	    });
 
 	    request.done(function (response, textStatus, jqXHR){
