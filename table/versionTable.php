@@ -24,8 +24,8 @@ class VersionTable {
     }
 
     public function genericTable($pages) {
-        $rows = $this->getPageRows($pages, SOCIALWIKI_TABLE_ALL_VERSIONS);
-        return $this->makeTable($rows, "allVersionsTable");
+        $rows = $this->getPageRows($pages, SOCIALWIKI_TABLE_GENERIC_VERSIONS);
+        return $this->makeTable($rows, "genericVersionsTable");
     }
 
     public function allVersionsTable() {

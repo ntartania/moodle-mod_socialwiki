@@ -31,7 +31,7 @@ class UserTable {
 
 	public function followingTable($user_id = null) {
 		$user_id = ($user_id) ? $user_id : $this->uid;
-		$users = socialwiki_get_follows($this->uid, $this->swid);
+		$users = socialwiki_get_follows($user_id, $this->swid);
 
 		$user_id_array = array();
 		foreach ($users as $user) {
@@ -44,7 +44,7 @@ class UserTable {
 
 	public function followersTable($user_id = null) {
 		$user_id = ($user_id) ? $user_id : $this->uid;
-		$users = socialwiki_get_following($this->uid, $this->swid);
+		$users = socialwiki_get_following($user_id, $this->swid);
 
 		$user_id_array = array();
 		foreach ($users as $user) {

@@ -58,6 +58,7 @@ define('SOCIALWIKI_TABLE_USER_CREATED_VERSIONS', 5);
 define('SOCIALWIKI_TABLE_FAVORITE_VERSIONS', 6);
 define('SOCIALWIKI_TABLE_LIKED_VERSIONS', 7);
 define('SOCIALWIKI_TABLE_ALL_VERSIONS', 8);
+define('SOCIALWIKI_TABLE_GENERIC_VERSIONS', 9);
 
 define('SOCIALWIKI_COLUMN_VERSION_TITLE', 1);
 define('SOCIALWIKI_COLUMN_VERSION_CONTRIBUTORS', 2);
@@ -93,6 +94,7 @@ define('SOCIALWIKI_COLUMN_PAGE_VIEWS', 28);
 define('SOCIALWIKI_COLUMN_PAGE_LIKES', 29);
 define('SOCIALWIKI_COLUMN_PAGE_VERSIONS', 30);
 
+define('ENABLE_LOCK', 2);
 define('ENABLE', 1);
 define('DISABLE', 0);
 
@@ -123,6 +125,7 @@ function socialwiki_get_all_tables() {
         SOCIALWIKI_TABLE_FAVORITE_VERSIONS => ENABLE,
         SOCIALWIKI_TABLE_LIKED_VERSIONS => ENABLE,
         SOCIALWIKI_TABLE_ALL_VERSIONS => DISABLE,
+        SOCIALWIKI_TABLE_GENERIC_VERSIONS => ENABLE_LOCK,
     );
     return $tables;
 }
@@ -250,6 +253,30 @@ function socialwiki_get_all_table_columns() {
             SOCIALWIKI_COLUMN_VERSION_VIEWS=>ENABLE,
         ),
         SOCIALWIKI_TABLE_RECOMENDED_VERSIONS => array(
+            SOCIALWIKI_COLUMN_VERSION_TITLE => ENABLE,
+            SOCIALWIKI_COLUMN_VERSION_CONTRIBUTORS => ENABLE,
+            SOCIALWIKI_COLUMN_VERSION_UPDATED => ENABLE,
+            SOCIALWIKI_COLUMN_VERSION_LIKES => ENABLE,
+            SOCIALWIKI_COLUMN_VERSION_FAVORITE => ENABLE,
+            SOCIALWIKI_COLUMN_VERSION_AUTHOR_POP_MAX => ENABLE,
+            SOCIALWIKI_COLUMN_VERSION_LIKE_SIM_MAX => ENABLE,
+            SOCIALWIKI_COLUMN_VERSION_FOLLOW_SIM_MAX => ENABLE,
+            SOCIALWIKI_COLUMN_VERSION_NETWORK_DISTANCE_MAX => ENABLE,
+            SOCIALWIKI_COLUMN_VERSION_AUTHOR_POP_MIN => DISABLE,
+            SOCIALWIKI_COLUMN_VERSION_LIKE_SIM_MIN => DISABLE,
+            SOCIALWIKI_COLUMN_VERSION_FOLLOW_SIM_MIN => DISABLE,
+            SOCIALWIKI_COLUMN_VERSION_NETWORK_DISTANCE_MIN => DISABLE,
+            SOCIALWIKI_COLUMN_VERSION_AUTHOR_POP_AVG => DISABLE,
+            SOCIALWIKI_COLUMN_VERSION_LIKE_SIM_AVG => DISABLE,
+            SOCIALWIKI_COLUMN_VERSION_FOLLOW_SIM_AVG => DISABLE,
+            SOCIALWIKI_COLUMN_VERSION_NETWORK_DISTANCE_AVG => DISABLE,
+            SOCIALWIKI_COLUMN_VERSION_AUTHOR_POP_SUM => DISABLE,
+            SOCIALWIKI_COLUMN_VERSION_LIKE_SIM_SUM => DISABLE,
+            SOCIALWIKI_COLUMN_VERSION_FOLLOW_SIM_SUM => DISABLE,
+            SOCIALWIKI_COLUMN_VERSION_NETWORK_DISTANCE_SUM => DISABLE,
+            SOCIALWIKI_COLUMN_VERSION_VIEWS=>ENABLE,
+        ),
+        SOCIALWIKI_TABLE_GENERIC_VERSIONS => array(
             SOCIALWIKI_COLUMN_VERSION_TITLE => ENABLE,
             SOCIALWIKI_COLUMN_VERSION_CONTRIBUTORS => ENABLE,
             SOCIALWIKI_COLUMN_VERSION_UPDATED => ENABLE,
@@ -1877,7 +1904,7 @@ function socialwiki_get_latest_pages($swid, $limit = 10)
     global $DB;
     $records = $DB->get_records('socialwiki_pages', array("subwikiid"=>$swid), 'timecreated DESC');
     $rtn = array();
-    for ($i = 0; $i < $limit; $i++) {
+    foreach ($records as $i => $val) {
         array_push($rtn, $records[$i]);
     }
     return $records;
@@ -2259,8 +2286,8 @@ function socialwiki_is_teacher($context,$uid){
 //returns an array of the users peers
 function socialwiki_get_peers($swid,$scale){
 	Global $PAGE,$USER;
-	//$context = get_context_instance(CONTEXT_MODULE, $PAGE->cm->id);
-	//$users=get_enrolled_users($context);
+	$context = get_context_instance(CONTEXT_MODULE, $PAGE->cm->id);
+	$users=get_enrolled_users($context);
 	$peers= array();
 	//$numusers=count($users)-1;
 	foreach ($users as $user){

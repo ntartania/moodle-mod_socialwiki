@@ -1666,6 +1666,7 @@ class page_socialwiki_home extends page_socialwiki {
         $this->tab = $t;
         $PAGE->requires->js(new moodle_url("/mod/socialwiki/likeajax_home.js"));
         $PAGE->requires->js(new moodle_url("/mod/socialwiki/ticker.js"));
+        $PAGE->requires->js(new moodle_url("/mod/socialwiki/table_settings.js"));
         require_once($CFG->dirroot . "/mod/socialwiki/table/table.php");
         require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
         require_once($CFG->dirroot . "/mod/socialwiki/table/userTable.php");
@@ -1922,8 +1923,8 @@ class page_socialwiki_home extends page_socialwiki {
         global $CFG, $USER;
         require_once($CFG->dirroot . '/mod/socialwiki/settings_helper.php');
         echo "<H1>Settings</H1>";
-
-        echo "<hr>";
+        echo "<h2>Table Configuration</h2>";
+        echo "<p style='text-align: center;'>Select table elements to be displayed on the launch page.</p>";
 
         $manage_settings = "";
 
@@ -1932,13 +1933,47 @@ class page_socialwiki_home extends page_socialwiki {
 
         foreach ($tables as $table_id => $table_data) {
             $manage_settings .= html_writer::start_tag('div');
-            $checkbox = "<input type='checkbox' class='table_".$table_id."'";
+            $checkbox = "<input type='checkbox' class='settings_table_checkbox' data-table_id=$table_id ";
             $enabled_data = socialwiki_table_is_enabled($USER->id, $table_id);
             if ($enabled_data->enabled == 1) {
                 $checkbox .= "checked='checked'";
             }
             $checkbox .= ">";
-            $manage_settings .= html_writer::tag('h3', $table_data["title"]." ".$checkbox);
+
+            $title = $table_data["title"];
+            if ($enabled_data->enabled == 0 || $enabled_data->enabled == 1) {
+                $title .= " ".$checkbox;
+            }
+
+            $manage_settings .= html_writer::tag('h3', $title);
+            $manage_settings .= html_writer::start_tag('div');
+            $counter = 0;
+            $manage_settings .= html_writer::start_tag("table", array('class'=>'settings_table'));
+            foreach ($table_data["rows"] as $column_id => $column_data) {
+                if($counter % 3 === 0) {
+                    $manage_settings .= html_writer::start_tag("tr");
+                }
+                $manage_settings .= html_writer::start_tag("td");
+                $row_enabled_data = socialwiki_column_is_enabled($USER->id, $table_id, $column_id);
+
+                $row_checkbox = "<input type='checkbox' class='settings_column_checkbox' data-column_id=$column_id data-table_id=$table_id ";
+                
+                if ($row_enabled_data->enabled == 1) {
+                    $row_checkbox .= "checked='checked'";
+                }
+                
+                $manage_settings .= html_writer::tag('span', $column_data["title"]." ".$row_checkbox);
+
+                $row_checkbox .= ">";
+                $manage_settings .= html_writer::end_tag("td");
+                if($counter % 3 === 2) {
+                    $manage_settings .= html_writer::end_tag("tr");
+                }
+                $counter ++;
+            }
+            $manage_settings .= html_writer::end_tag("table");
+            $manage_settings .= "<hr>";
+            $manage_settings .= html_writer::end_tag('div');
             $manage_settings .= html_writer::end_tag('div');
         }
 
@@ -3123,11 +3158,11 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
 
         // make button to follow/unfollow
 
-        if(!socialwiki_is_following($USER->id,$user->id,$this->subwiki->id)&&$USER->id!=$this->uid){
+        if(!socialwiki_is_following($USER->id,$user->id,$this->subwiki->id)){
             $icon = new moodle_url('/mod/socialwiki/img/icons/man-plus.png');
             $text = 'Follow';
             $tip = 'click to follow this user';            
-        } else if($USER->id!=$this->uid) {
+        } else {
         //show like link
             $icon = new moodle_url('/mod/socialwiki/img/icons/man-minus.png');
             $text = 'Unfollow';
@@ -3151,7 +3186,9 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
         $html.=$OUTPUT->container_start('userinfo');
         //$html.= '<table class="userinfotable"><tr><td>';
         $html.=$OUTPUT->heading(fullname($user),1,'colourtext username');
-        $html.=$theliker;
+        if ($USER->id != $user->id) {
+            $html.=$theliker;
+        }
         //$html.='<br/>';
 		$html.=$OUTPUT->user_picture($user,array('size'=>100, 'class'=>'profile_picture'));
         //$html.= '</td>';
@@ -3167,8 +3204,9 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
         $followdata .= html_writer::tag('span', "Following: $following", array("href"=>"#", "id"=>"following-button"));
         $followdata .= html_writer::end_tag('span');
         $followdata .= html_writer::end_tag('h2');
-        $followdata .= Modal::get_html("<div class='asyncload' tabletype='followers'><table></table></div>", "followers-modal", "followers-button", "Followers", array());
-        $followdata .= Modal::get_html("<div class='asyncload' tabletype='followedusers'><table></table></div>", "following-modal", "following-button", "Following", array());
+        $table = new UserTable( $USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id);
+        $followdata .= Modal::get_html($table->followersTable($user->id), "followers-modal", "followers-button", "Followers", array());
+        $followdata .= Modal::get_html($table->followingTable($user->id), "following-modal", "following-button", "Following", array());
 
         $html .= html_writer::tag("div", $followdata, array("class"=>"userinfo"));
 

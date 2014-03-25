@@ -16,6 +16,11 @@
 
 @import url("bootstrap.css");
 
+.settings_table {
+	text-align: center;
+	width: 100%;
+}
+
 .ticker {
 	float: right;
 	margin: 0 25px 0 25px;
