@@ -1,19 +1,23 @@
 <?php
+//require_once('../../../config.php');
 
 abstract class socialwiki_table {
 
-	protected $uid;
+	protected $uid; //uid of user viewing
 	protected $swid;
 	protected $headers;
+	//protected $cmid; //course module id, needed in versiontable...
 	//protected $tabid; // table id for the html
 
 	/**
 	* creates a table with the given headers, current uid (userid), subwikiid
 	*/
 	public function __construct($u,$s, $h) {
+		Global $PAGE;
 		$this->uid = $u;
 		$this->swid = $s;
 		$this->headers = $h;
+		//$this->cmid = $PAGE->cm->id;
 
 		// $this->initTable($col_names);
 	}

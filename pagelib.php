@@ -1073,8 +1073,8 @@ class page_socialwiki_search extends page_socialwiki {
 		parent::__construct($wiki, $subwiki, $cm);
 		$PAGE->requires->jquery_plugin('ui');
 		$PAGE->requires->jquery_plugin('ui-css');
-		$PAGE->requires->js(new moodle_url("/mod/socialwiki/tree_jslib/tree.js"));
-		$PAGE->requires->css(new moodle_url("/mod/socialwiki/tree_jslib/tree_styles.css"));
+		//$PAGE->requires->js(new moodle_url("/mod/socialwiki/tree_jslib/tree.js"));
+		$PAGE->requires->css(new moodle_url("/mod/socialwiki/socialwiki_tree.css"));
 		$PAGE->requires->js(new moodle_url("/mod/socialwiki/search.js"));
        
         require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
@@ -1136,7 +1136,7 @@ class page_socialwiki_search extends page_socialwiki {
 	
 	//print the tree view
 	private function print_tree(){
-		Global $OUTPUT;
+		/*Global $OUTPUT;
 		//create a tree from the search results
 		$scale=array('follow'=>1,'like'=>1,'trust'=>1,'popular'=>1); //variable used to scale the percentages
 		$peers=socialwiki_get_peers($this->subwiki->id,$scale);	
@@ -1154,7 +1154,62 @@ class page_socialwiki_search extends page_socialwiki {
 		$jpeers=json_encode($peers);
 		$jnodes=json_encode($tree->nodes);
 		$jscale=json_encode($scale);
-		echo '<script> var searchResults='.$jnodes.';var peers='.$jpeers.';var scale='.$jscale.'</script>';
+		echo '<script> var searchResults='.$jnodes.';var peers='.$jpeers.';var scale='.$jscale.'</script>';*/
+        /*
+        this->searchresult contains the results to the search.
+        must build a tree-shaped list with all (step 1) then only a filtered top-k subset (step 2) of the versions
+
+        
+
+        */
+        $pages = $this->search_result;
+        $tree=new socialwiki_tree;
+        $tree->build_tree($pages);
+
+        //cho '<div class="tree">';
+        $tree->display();
+        //echo '</div>';
+        /*'<div class="tree">
+    <ul>
+        <li>
+            <a href="#">Parent</a>
+            <ul>
+                <li>
+                    <a href="#">Child</a>
+                    <ul>
+                        <li>
+                            <a href="#">Grand Child</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#">Child</a>
+                    <ul>
+                        <li><a href="#">Grand Child</a></li>
+                        <li>
+                            <a href="#">Grand Child</a>
+                            <ul>
+                                <li>
+                                    <a href="#">Great Grand Child</a>
+                                </li>
+                                <li>
+                                    <a href="#">Great Grand Child</a>
+                                </li>
+                                <li>
+                                    <a href="#">Great Grand Child</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li><a href="#">Grand Child</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>';*/
+
+
+
 	}
 	
 	//print a list of pages ordered by peer votes

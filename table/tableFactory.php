@@ -20,6 +20,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+Global $CFG, $PAGE;
+
 require_once('../../../config.php');
 require_once($CFG->dirroot . '/mod/socialwiki/table/table.php');
 require_once($CFG->dirroot . '/mod/socialwiki/table/userTable.php');
@@ -37,15 +39,20 @@ const ALLTOPICS= 'alltopics';
 const USERFAVES= 'userfaves';
 const VERSIONSFOLLOWED = 'versionsfollowed';
 
+
+
 $tabletype = required_param('type', PARAM_TEXT);
 $userid = required_param('userid', PARAM_INT);
 $swid = required_param('swid', PARAM_INT);
 $courseid = optional_param('courseid',0, PARAM_INT);
-$cmid = optional_param('cmid',0, PARAM_INT);
+$cmid = required_param('cmid', PARAM_INT);
 $targetuser = optional_param('targetuser', 0, PARAM_INT); 
 $trustcombiner = optional_param('trustcombiner', '', PARAM_TEXT); //max, min, sum, avg
 //when we view another user's page
 
+//not sure I fully understand this...
+$cm = get_coursemodule_from_id('socialwiki', $cmid, 0, false, MUST_EXIST);
+$PAGE->set_cm($cm);
 
 
 $t = null;

@@ -1,9 +1,11 @@
 <?php
 
-global $CFG, $PAGE, $USER;
+//require_once("../../../config.php");
 require_once($CFG->dirroot . "/mod/socialwiki/locallib.php");
 require_once($CFG->dirroot . "/mod/socialwiki/sortableTable/sortableTable.php");
 require_once($CFG->dirroot . "/mod/socialwiki/table/table.php");
+
+Global $CFG, $PAGE, $USER;
 
 const MAX = 'max';
 const MIN = 'min';
@@ -36,7 +38,7 @@ class versionTable extends socialwiki_table {
 		"Follow Similarity",
 	);*/
 
-	public function __construct($uid, $swid, $pages, $headers, $combiner=AVG) {
+	public function __construct($uid, $swid, $pages, $headers,  $combiner=AVG) {
 		parent::__construct($uid, $swid, $headers);
 		//$this->allpages = $pages;
 		$this->get_all_likers($pages); //get all peers involved, store info in $this->allpages and this->allpeers
@@ -191,7 +193,7 @@ class versionTable extends socialwiki_table {
     }
 
     private function make_multi_user_div($contributors){
-    	Global $CFG;
+    	Global $CFG, $PAGE;
     		$idfirst = array_pop($contributors);
     	    $firstctr = fullname(socialwiki_get_user_info($idfirst));
             $num = count ($contributors);
@@ -205,7 +207,12 @@ class versionTable extends socialwiki_table {
             foreach($contributors as $c) {
                     $ctr .= fullname(socialwiki_get_user_info($c)).'&#013'; //that's a newline
             }
-            $href= "href='".$CFG->wwwroot."/mod/socialwiki/viewuserpages.php?userid=".$idfirst."&subwikiid=".$this->swid."'";
+            if ($idfirst==$this->uid){
+                $href= "href='".$CFG->wwwroot."/mod/socialwiki/home.php?id=".$PAGE->cm->id."'";
+            } else {
+                $href= "href='".$CFG->wwwroot."/mod/socialwiki/viewuserpages.php?userid=".$idfirst."&subwikiid=".$this->swid."'";
+            }
+            
             return "<a class='socialwiki_link' ".$href ." title='$ctr'>$firstctr</a>"; 
 
     }
