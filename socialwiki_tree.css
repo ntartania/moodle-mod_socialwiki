@@ -4,6 +4,7 @@
 .tree ul {
 	padding-top: 20px; position: relative;
 	margin : 0;
+	white-space: no wrap
 	
 	transition: all 0.5s;
 	-webkit-transition: all 0.5s;
@@ -15,6 +16,8 @@
 	list-style-type: none;
 	position: relative;
 	padding: 20px 5px 0 5px;
+	overflow: auto;
+	white-space: no wrap
 	
 	transition: all 0.5s;
 	-webkit-transition: all 0.5s;
@@ -100,14 +103,14 @@ right connector from last child*/
 
 /*Time for some hover effects*/
 /*We will apply the hover effect the the lineage of the element also*/
-.tree li a:hover, .tree li a:hover+ul li a {
+.tree li div:hover, .tree li div:hover+ul li div {
 	background: #c8e4f8; color: #000; border: 1px solid #94a0b4;
 }
 /*Connector styles on hover*/
-.tree li a:hover+ul li::after, 
-.tree li a:hover+ul li::before, 
-.tree li a:hover+ul::before, 
-.tree li a:hover+ul ul::before{
+.tree li div:hover+ul li::after, 
+.tree li div:hover+ul li::before, 
+.tree li div:hover+ul::before, 
+.tree li div:hover+ul ul::before{
 	border-color:  #94a0b4;
 }
 

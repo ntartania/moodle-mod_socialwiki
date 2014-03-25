@@ -1571,9 +1571,9 @@ class page_socialwiki_history extends page_socialwiki {
         parent::__construct($wiki, $subwiki, $cm);
         $PAGE->requires->js_init_call('M.mod_socialwiki.history', null, true);
 		$PAGE->requires->jquery();
-		$PAGE->requires->js(new moodle_url("/mod/socialwiki/tree_jslib/tree.js"));
-		$PAGE->requires->css(new moodle_url("/mod/socialwiki/tree_jslib/tree_styles.css"));
-		$PAGE->requires->js(new moodle_url("/mod/socialwiki/history.js"));
+		//$PAGE->requires->js(new moodle_url("/mod/socialwiki/tree_jslib/tree.js"));
+		$PAGE->requires->css(new moodle_url("/mod/socialwiki/socialwiki_tree.css"));
+		//$PAGE->requires->js(new moodle_url("/mod/socialwiki/history.js"));
     }
 
     function print_header() {
@@ -1594,17 +1594,21 @@ class page_socialwiki_history extends page_socialwiki {
 		//build the tree with all of the relate pages
 		$tree=new socialwiki_tree();
 		$tree->build_tree($history);
+        //cho '<div class="tree">';
 		
 		//add radio buttons to compare versions if there is more than one version
 		if(count($tree->nodes)>1){
 			foreach($tree->nodes as $node){
 			$node->content .= "<br/>";
 			$node->content.=$this->choose_from_radio(array(substr($node->id,1) => null), 'compare', 'M.mod_socialwiki.history()', '', true). $this->choose_from_radio(array(substr($node->id,1) => null), 'comparewith', 'M.mod_socialwiki.history()', '', true);
+            if ($node->id == 'l'.$this->page->id){ //current page
+                        $node->content .= "<br/>[current page]";
+            }
 
 			}
 		}
 		echo $this->wikioutput->content_area_begin();
-		echo $this->wikioutput->title_block($this->title);
+		echo '<h1>Related Versions of page '.$this->page->title.'</h1>';
 
 		echo html_writer::start_tag('form', array('action'=>new moodle_url('/mod/socialwiki/diff.php'), 'method'=>'get', 'id'=>'diff'));
 		echo html_writer::tag('div', html_writer::empty_tag('input', array('type'=>'hidden', 'name'=>'pageid', 'value'=>$this->page->id)));
@@ -1613,9 +1617,9 @@ class page_socialwiki_history extends page_socialwiki {
 		echo $OUTPUT->container_start('phptree');		
 		$tree->display();
 		echo $OUTPUT->container_end();
-		$json=json_encode($tree);
+		//$json=json_encode($tree);
 		//send the tree to javascript
-		echo '<script> var searchResults='.$json.';</script>';
+		//echo '<script> var searchResults='.$json.';</script>';
 		//add compare button only if there are multiple versions of a page 
 		if(count($tree->nodes)>1){
 			echo $OUTPUT->container_start('socialwiki_diffbutton');
