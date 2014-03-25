@@ -15,7 +15,7 @@ class SortableTable {
 
 	public function add_header($name) {
 		if(!$this->header_exists($name)) {
-			array_push($this->headers,new Header($name));
+			array_push($this->headers,new Header($this->string_encode($name)));
 		}
 	}
 
@@ -23,7 +23,7 @@ class SortableTable {
 		foreach($row as $head => $value) {
 			$this->add_header($head);
 			$h = $this->get_header($head);
-			$h->add_data($value, $this->row_count);
+			$h->add_data($this->string_encode($value), $this->row_count);
 		}
 		$this->row_count++;
 	}
@@ -42,6 +42,10 @@ class SortableTable {
 			}
 		}
 		return null;
+	}
+
+	private function string_encode($string) {
+		return str_replace("\\\\\"", "\\\"", str_replace("\\\"", "\"", $string));
 	}
 
 	/****** Generate Data Set ******/

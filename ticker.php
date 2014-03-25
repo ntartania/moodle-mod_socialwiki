@@ -4,7 +4,7 @@ require_once('../../config.php');
 require_once($CFG->dirroot . '/mod/socialwiki/locallib.php');
 
 $userid = $_POST["userid"];
-$swid = $POST["swid"];
+$swid = $_POST["swid"];
 $time = $_POST["time"];
 
 $recent_responses = socialwiki_get_updates_after_time($time, $swid);

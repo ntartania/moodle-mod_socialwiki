@@ -2142,11 +2142,11 @@ function socialwiki_get_contributors($pageid){
 	$maybe= ($result==null);
 	if(isset($result->parent)){
 	        $contribs = socialwiki_get_contributors($result->parent); //recursion
-       } else {
-       $contribs = array();
-       } 
+    } else {
+        $contribs = array();
+    } 
 	if (isset($result->userid) && !in_array($result->userid, $contribs)){
-              $contribs[]=$result->userid;//->userid;    
+        $contribs[]=$result->userid;//->userid;    
 	} else {
 		return $contribs;
 	}

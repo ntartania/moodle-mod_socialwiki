@@ -19,6 +19,10 @@ class UserTable {
 		$this->cmid= $cmid;
 	}
 
+	public function genericUserTable($users) {
+		return $this->makeTable($rows, "allUsersTable");
+	}
+
 	public function allUsersTable() {
 		$users = socialwiki_get_subwiki_users($this->swid);
 		$rows = $this->getRows($users);

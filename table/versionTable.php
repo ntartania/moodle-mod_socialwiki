@@ -107,8 +107,6 @@ class VersionTable {
 
         $rows = array();
         foreach ($pages as $title => $page) {
-            $author = socialwiki_get_user_info($page->userid);
-            $contributors = socialwiki_get_contributors($page->id);
             $peer = new peer($page->userid,
                              $this->swid,
                              $this->uid,
@@ -124,7 +122,8 @@ class VersionTable {
 
             $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_CONTRIBUTORS);
             if ($e->enabled == ENABLE) {
-                $row["Contributers"] = fullname($author) . " and ".(count($contributors)-1)." others";
+                //$row["Contributers"] = fullname($author) . " and ".(count($contributors)-1)." others";
+                $row["Author"] = $this->makeAuthorColumn($page->userid);
             }
 
             $e = socialwiki_column_is_enabled($this->uid, $table_id, SOCIALWIKI_COLUMN_VERSION_UPDATED);
@@ -311,5 +310,24 @@ class VersionTable {
     private function makeUserColumn($page) {
         global $CFG;
         return "<span>".$this->makePageLink($page).$this->makeLikeLink($page)."</span>";
+    }
+
+    private function makeAuthorColumn($userid) {
+        global $CFG, $PAGE;
+        $author = socialwiki_get_user_info($userid);
+
+        $string = fullname($author);
+        $link = "<a href='".new moodle_url('/mod/socialwiki/viewuserpages.php', array('userid' => $userid, 'subwikiid' => $this->swid))."''>".$string."</a>";
+        if($this->uid === $userid) {
+            return $link;
+        }
+        if(socialwiki_is_following($this->uid,$userid,$this->swid)) {
+            $img = "man-minus.png";
+        } else {
+            $img = "man-plus.png";
+        }
+        $follow_img = "<img style='width:22px; vertical-align:middle;' class='socialwiki_unlikeimg' src='".$CFG->wwwroot."/mod/socialwiki/img/icons/".$img."'></img>";
+        $follow_link = "<a href='".$CFG->wwwroot."/mod/socialwiki/follow.php?user2=".$userid."&from=".urlencode($PAGE->url->out()."&option=".$this->view)."&swid=".$this->swid."&option=".$this->view."'>".$follow_img."</a>";
+        return $link . $follow_link;
     }
 }
