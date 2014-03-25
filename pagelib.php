@@ -1168,7 +1168,7 @@ class page_socialwiki_search extends page_socialwiki {
 	
 	//print a list of pages ordered by peer votes
 	private function print_list(){
-		Global $CFG, $USER;
+		Global $CFG, $USER, $COURSE, $PAGE;
 
 		if(count($this->search_result)>0){
             $table = new VersionTable($USER->id, $this->subwiki->id, $COURSE->id, $PAGE->cm->id, $this->view);
