@@ -53,6 +53,21 @@ abstract class socialwiki_table {
 		return json_encode($this->get_table_data());
 	}
 
+	protected function make_time_String($t){
+        $display = '<span style="display:none">'.$t.'</span>';
+        $aday = 86400;
+        $timeofday = time()%$aday;
+        $lastmidnight = time() - $timeofday;
+          //seconds since midnight
+        if ($t<$lastmidnight){ //yesterday or earlier
+            $format = '%x';
+        } else {
+            $format = '%H:%M';
+        }
+        $display .= strftime($format, $t);
+        return $display;
+    }
+
 	// public function initTable($col_names) {
 	// 	for ($i = 0; $i<$col_names.count(); $i++) {
 	// 		array_push($columns,

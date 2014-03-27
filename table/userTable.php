@@ -2,6 +2,7 @@
 global $CFG;
 
 require_once($CFG->dirroot . '/mod/socialwiki/locallib.php');
+require_once($CFG->dirroot . '/mod/socialwiki/peer.php');
 //require_once($CFG->dirroot . '/mod/socialwiki/sortableTable/sortableTable.php');
 require_once($CFG->dirroot . '/mod/socialwiki/table/table.php');
 
@@ -121,7 +122,7 @@ class UserTable extends socialwiki_table {
 			$name = "<a style='margin:0;' class='socialwiki_link' href='".$www."/mod/socialwiki/viewuserpages.php?userid=".$user->id."&subwikiid=".$swid."'>".fullname($user)."</a>";
 
 			//echo 'New Peer: '.$id;
-			$peer = new peer($id, $swid, $me, null);
+			$peer = peer::socialwiki_get_peer($id, $swid, $me);
 			switch ($peer->depth) {
     			case 0:
         			$following = "Not in your network";

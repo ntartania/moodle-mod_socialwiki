@@ -34,6 +34,7 @@
  */
 
 require_once($CFG->dirroot . '/mod/socialwiki/edit_form.php');
+
 require_once($CFG->dirroot . '/tag/lib.php');
 
 /**
@@ -2978,6 +2979,8 @@ class page_socialwiki_manage extends page_socialwiki{
 	
 	function print_content(){
 		Global $USER,$PAGE,$OUTPUT,$CFG;
+        
+
 		//get the follows and likes for a user
 		$follows=socialwiki_get_follows($USER->id,$this->subwiki->id);
 		$likes=socialwiki_getlikes($USER->id,$this->subwiki->id);
@@ -3067,6 +3070,8 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
 
 	function print_content(){
 		Global $OUTPUT,$CFG,$USER,$PAGE, $COURSE;
+        require_once($CFG->dirroot . '/mod/socialwiki/peer.php');
+        
         echo '<script> var userid='.$USER->id.', targetuser='.$this->uid.' ,swid='.$this->subwiki->id.', courseid ='.$COURSE->id.' ,cmid='.$PAGE->cm->id.';</script>'; // pass variables to JS
 		$likes=socialwiki_getlikes($this->uid,$this->subwiki->id);
 		$user = socialwiki_get_user_info($this->uid);
@@ -3074,7 +3079,7 @@ class page_socialwiki_viewuserpages extends page_socialwiki{
 		$context = get_context_instance(CONTEXT_MODULE, $PAGE->cm->id);
 		$numpeers=count(get_enrolled_users($context))-1;
 		//get this user's peer score
-		$peer= new peer($user->id,$this->subwiki->id,$USER->id,$numpeers,$scale);
+		$peer= peer::socialwiki_get_peer($user->id,$this->subwiki->id,$USER->id,$numpeers,$scale);
 		
 		$html='';
 		$html.=$this->wikioutput->content_area_begin();

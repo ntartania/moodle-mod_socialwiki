@@ -4,6 +4,7 @@
 require_once($CFG->dirroot . "/mod/socialwiki/locallib.php");
 require_once($CFG->dirroot . "/mod/socialwiki/sortableTable/sortableTable.php");
 require_once($CFG->dirroot . "/mod/socialwiki/table/table.php");
+require_once($CFG->dirroot . "/mod/socialwiki/peer.php");
 
 Global $CFG, $PAGE, $USER;
 
@@ -109,13 +110,14 @@ class versionTable extends socialwiki_table {
 
         foreach ($this->allpages as $page) {
             $user = socialwiki_get_user_info($page->userid);
-            $peer = new peer($page->userid,
-                             $this->swid,
-                             $this->uid,
-                             //socialwiki_get_user_count($swid),
-                             null);
-            $updated = strftime('%d %b %Y', $page->timemodified);
-            $created = strftime('%d %b %Y', $page->timecreated);
+            /*$peer = socialwiki_get_peer($page->userid,
+                                        $this->swid,
+                                        $this->uid
+                                        );
+                             //socialwiki_get_user_count($swid),*/
+                                         
+            $updated = $this->make_time_string($page->timemodified);
+            //$created = strftime('%d %b %Y', $page->timecreated);
 
             $views = $page->pageviews;
             $likes = socialwiki_numlikes($page->id);
@@ -191,6 +193,8 @@ class versionTable extends socialwiki_table {
 		*/
         return $table;
     }
+
+    
 
     private function make_multi_user_div($contributors){
     	Global $CFG, $PAGE;
@@ -289,7 +293,7 @@ class versionTable extends socialwiki_table {
 
 		//define function to get peer from userid
 		$build_function = function ($id) use ($me, $swid){
-							return new peer($id, $swid, $me, null);
+							return peer::socialwiki_get_peer($id, $swid, $me);
 							};
 		return array_combine($ids, array_map($build_function, $ids));
 		//will return an associative array with peerid => peer object for each peerid

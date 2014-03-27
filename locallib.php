@@ -1929,20 +1929,7 @@ function socialwiki_is_teacher($context,$uid){
 	return false;
 }
 
-//returns an array of the users peers
-function socialwiki_get_peers($swid,$scale){
-	Global $PAGE,$USER;
-	//$context = get_context_instance(CONTEXT_MODULE, $PAGE->cm->id);
-	//$users=get_enrolled_users($context);
-	$peers= array();
-	//$numusers=count($users)-1;
-	foreach ($users as $user){
-		if($user->id != $USER->id){
-			$peers[]=new peer($user->id,$swid,$USER->id,$scale);
-		}
-	}
-	return $peers;
-}
+
 
 function socialwiki_get_user_count($swid) {
     Global $PAGE,$USER;
@@ -1962,9 +1949,10 @@ function socialwiki_get_user_count_with_cmid($swid, $cmid) {
 
 //returns an array of pages chosen based on peers likes and follows
 function socialwiki_get_recommended_pages($userid,$swid){
-	Global $PAGE;
+	Global $PAGE, $CFG;
+    require_once($CFG->dirroot . '/mod/socialwiki/peer.php');
 	$scale=array('follow'=>1,'like'=>1,'trust'=>1,'popular'=>1); //scale with weight for each peer category
-	$peers=socialwiki_get_peers($swid,$scale);
+	$peers= socialwiki_get_peers($swid,$scale); //TODO: not sure if this does anything...
 	$pages = socialwiki_get_page_list($swid);
 	
 	foreach ($pages as $page){
@@ -2102,85 +2090,4 @@ function socialwiki_order_pages_using_peers($peers,$pages,$scale){
  }
 
 
-//class that describes the similarity between the current user and another student in the activity
-class peer{
-	public $trust=0; //trust indicator value = 1/distance or 0
-	public $id; //the user id
-	public $likesim=0; //the similarity between likes of the peer and user
-	public $followsim=0; //the similarity between the people the user and peer are following
-	public $popularity;	//percent popularity
-    public $depth; //social distance: 1 for I'm following this user, 2 for friend of a friend, etc.
-	public $score;
 
-	function __construct($id,$swid,$currentuser,$scale=null){
-		//Global $USER;
-		$this->id=$id;
-        if ($id==$currentuser){
-            $this->depth = -1;
-            $this->trust=1;
-            $this->followsim =1;
-        } else{
-            $this->depth=socialwiki_follow_depth($currentuser,$this->id,$swid);
-            if($this->depth ==0){
-                $this->trust=0;
-            }else{
-                $this->trust=1/$this->depth;
-            }
-            $this->set_follow_sim($currentuser,$swid);
-            $this->set_like_sim($currentuser,$swid);    
-        }
-        $this->popularity=socialwiki_get_followers($id,$swid); //not dividing
-		
-        if($scale == null) {
-            $scale = array(
-                'trust' => 1,
-                'like' => 1,
-                'follow' => 1,
-                'popular' => 1
-            );
-        }
-		$this->set_score($scale);
-	}
-	
-
-    function is_me(){
-        Global $USER;
-        return ($USER->id==$this->id);
-    }
-	/*
-	 *sets the follow similarity to the 
-	 *@userid the current users id
-	 *@swid the subwikiid
-	 */
-	function set_follow_sim($userid,$swid){
-		Global $DB;
-		$sql='SELECT COUNT(usertoid) AS total, COUNT(DISTINCT usertoid) AS different
-		FROM {socialwiki_follows} 
-		WHERE (userfromid=? OR userfromid=?) AND subwikiid=?';
-		$data=$DB->get_record_sql($sql,array($this->id,$userid,$swid));
-		if($data->total>0){
-
-			//get the similarity between follows and divide by the number of unique likes  
-			$this->followsim=($data->total-$data->different)/$data->different;
-		}
-	}
-
-	function set_like_sim($userid,$swid){
-	Global $DB;
-		$sql='SELECT COUNT(pageid) AS total, COUNT(DISTINCT pageid) AS different
-		FROM {socialwiki_likes} 
-		WHERE (userid=? OR userid=?) AND subwikiid=?';
-		$data=$DB->get_record_sql($sql,array($this->id,$userid,$swid));
-
-		//get the similarity between likes and divide by unique likes 
-        if ($data->different !=0){
-            $this->likesim=($data->total-$data->different)/$data->different;    
-        }
-		
-	}
-	//sets peer's score to sum of scores times there weight
-	function set_score($scale){
-		$this->score=$this->trust*$scale['trust']+$this->likesim*$scale['like']+$this->followsim*$scale['follow']+$this->popularity*$scale['popular'];
-	}
-
-}

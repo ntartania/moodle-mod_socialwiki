@@ -23,6 +23,7 @@
 Global $CFG, $PAGE;
 
 require_once('../../../config.php');
+require_once($CFG->dirroot . '/mod/socialwiki/peer.php');
 require_once($CFG->dirroot . '/mod/socialwiki/table/table.php');
 require_once($CFG->dirroot . '/mod/socialwiki/table/userTable.php');
 require_once($CFG->dirroot . '/mod/socialwiki/table/topicsTable.php');
@@ -52,6 +53,13 @@ $trustcombiner = optional_param('trustcombiner', '', PARAM_TEXT); //max, min, su
 
 //not sure I fully understand this...
 $cm = get_coursemodule_from_id('socialwiki', $cmid, 0, false, MUST_EXIST);
+$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+require_login($course, true, $cm);
+
+//echo '<p>';
+//var_dump($_SESSION);
+//echo '</p>';
+
 $PAGE->set_cm($cm);
 
 
