@@ -1076,6 +1076,7 @@ class page_socialwiki_search extends page_socialwiki {
 		//$PAGE->requires->js(new moodle_url("/mod/socialwiki/tree_jslib/tree.js"));
 		$PAGE->requires->css(new moodle_url("/mod/socialwiki/socialwiki_tree.css"));
 		$PAGE->requires->js(new moodle_url("/mod/socialwiki/search.js"));
+        $PAGE->requires->js(new moodle_url("/mod/socialwiki/doublescroll.js"));
        
         require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
 	}
