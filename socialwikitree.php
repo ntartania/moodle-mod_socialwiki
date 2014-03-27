@@ -254,7 +254,7 @@ class socialwiki_tree{
 		Global $OUTPUT;
 		//$this->sort();
 		//echo $OUTPUT->heading('OLDEST--->NEWEST',1,'colourtext');
-		$treeul = '<div class="tree"><ul>';
+		$treeul = '<div class="tree" id="doublescroll"><ul>'; // doublescroll = hack to put scrollbars at top and bottom using JS
 
 		foreach($this->roots as $node){
 			$treeul .= $node->to_HTML_List(); //recusively descends tree

@@ -1,10 +1,16 @@
 /*Now the CSS*/
 * {margin: 0; padding: 0;}
 
+.tree {
+white-space: nowrap;
+overflow: auto;
+}
+
 .tree ul {
 	padding-top: 20px; position: relative;
 	margin : 0;
-	white-space: no wrap
+	/*overflow:auto;
+	white-space: no wrap*/
 	
 	transition: all 0.5s;
 	-webkit-transition: all 0.5s;
@@ -12,12 +18,13 @@
 }
 
 .tree li {
-	float: left; text-align: center;
+	display:inline-block;
+	float: none; /*was=left*/
+	vertical-align:top;
+	text-align: center;
 	list-style-type: none;
 	position: relative;
 	padding: 20px 5px 0 5px;
-	overflow: auto;
-	white-space: no wrap
 	
 	transition: all 0.5s;
 	-webkit-transition: all 0.5s;

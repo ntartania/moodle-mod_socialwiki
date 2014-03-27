@@ -1573,7 +1573,7 @@ class page_socialwiki_history extends page_socialwiki {
 		$PAGE->requires->jquery();
 		//$PAGE->requires->js(new moodle_url("/mod/socialwiki/tree_jslib/tree.js"));
 		$PAGE->requires->css(new moodle_url("/mod/socialwiki/socialwiki_tree.css"));
-		//$PAGE->requires->js(new moodle_url("/mod/socialwiki/history.js"));
+		$PAGE->requires->js(new moodle_url("/mod/socialwiki/doublescroll.js"));
     }
 
     function print_header() {
