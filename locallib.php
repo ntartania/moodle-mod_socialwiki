@@ -182,10 +182,10 @@ function socialwiki_get_last_version($pageid) {
 function socialwiki_get_section_page($page, $section) {
 
     $version = socialwiki_get_current_version($page->id);
-    echo "logging in locallib.php line 185";
-    echo "content=".$version->content.":end";
-    echo "format=".$version->contentformat.":end";
-    echo "section:".$section;
+    #echo "logging in locallib.php line 185";
+    #echo "content=".$version->content.":end";
+    #echo "format=".$version->contentformat.":end";
+    #echo "section:".$section;
     $toreturn = socialwiki_parser_proxy::get_section($version->content, $version->contentformat, $section);
     echo $toreturn;
     return $toreturn;

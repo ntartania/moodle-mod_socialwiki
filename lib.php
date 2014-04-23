@@ -551,10 +551,10 @@ function socialwiki_extend_navigation(navigation_node $navref, $course, $module,
             $node = $navref->add(get_string('view', 'socialwiki'), $link, navigation_node::TYPE_SETTING);
         }
 
-        if (socialwiki_user_can_edit($subwiki)) {
+       /* if (socialwiki_user_can_edit($subwiki)) {
             $link = new moodle_url('/mod/socialwiki/edit.php', array('pageid' => $pageid));
             $node = $navref->add(get_string('edit', 'socialwiki'), $link, navigation_node::TYPE_SETTING);
-        }
+        }*/
 
        /* if (has_capability('mod/socialwiki:viewcomment', $context)) {
             $link = new moodle_url('/mod/socialwiki/comments.php', array('pageid' => $pageid));
