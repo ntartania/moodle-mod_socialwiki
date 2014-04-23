@@ -538,8 +538,13 @@ function socialwiki_extend_navigation(navigation_node $navref, $course, $module,
 		$node = $navref->add(get_string('home', 'socialwiki'), $link, navigation_node::TYPE_SETTING);
 	}
 
-    if (is_numeric($pageid)) {
-		
+    if (has_capability('mod/socialwiki:viewpage', $context)) {
+        $link = new moodle_url('/mod/socialwiki/files.php', array('swid' => $swid));
+        $node = $navref->add(get_string('files', 'socialwiki'), $link, navigation_node::TYPE_SETTING);
+    }
+
+
+    if (is_numeric($pageid)) {		
 
         if (has_capability('mod/socialwiki:viewpage', $context)) {
             $link = new moodle_url('/mod/socialwiki/view.php', array('pageid' => $pageid));
@@ -551,26 +556,26 @@ function socialwiki_extend_navigation(navigation_node $navref, $course, $module,
             $node = $navref->add(get_string('edit', 'socialwiki'), $link, navigation_node::TYPE_SETTING);
         }
 
-        if (has_capability('mod/socialwiki:viewcomment', $context)) {
+       /* if (has_capability('mod/socialwiki:viewcomment', $context)) {
             $link = new moodle_url('/mod/socialwiki/comments.php', array('pageid' => $pageid));
             $node = $navref->add(get_string('comments', 'socialwiki'), $link, navigation_node::TYPE_SETTING);
-        }
+        }*/
 
-        if (has_capability('mod/socialwiki:viewpage', $context)) {
+        /*if (has_capability('mod/socialwiki:viewpage', $context)) {
             $link = new moodle_url('/mod/socialwiki/history.php', array('pageid' => $pageid));
             $node = $navref->add(get_string('history', 'socialwiki'), $link, navigation_node::TYPE_SETTING);
-        }
+        }*/
 
-        if (has_capability('mod/socialwiki:viewpage', $context)) {
+        /*if (has_capability('mod/socialwiki:viewpage', $context)) {
             $link = new moodle_url('/mod/socialwiki/manage.php', array('pageid' => $pageid));
             $node = $navref->add(get_string('manage', 'socialwiki'), $link, navigation_node::TYPE_SETTING);
-        }
+        } 
 		
 
         if (has_capability('mod/socialwiki:viewpage', $context)) {
             $link = new moodle_url('/mod/socialwiki/files.php', array('pageid' => $pageid));
             $node = $navref->add(get_string('files', 'socialwiki'), $link, navigation_node::TYPE_SETTING);
-        }
+        }*/
 
         if (has_capability('mod/socialwiki:managewiki', $context)) {
             $link = new moodle_url('/mod/socialwiki/admin.php', array('pageid' => $pageid));
