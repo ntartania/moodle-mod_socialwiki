@@ -187,7 +187,7 @@ function socialwiki_get_section_page($page, $section) {
     #echo "format=".$version->contentformat.":end";
     #echo "section:".$section;
     $toreturn = socialwiki_parser_proxy::get_section($version->content, $version->contentformat, $section);
-    echo $toreturn;
+    #echo $toreturn;
     return $toreturn;
 }
 
