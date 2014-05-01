@@ -1077,18 +1077,19 @@ class page_socialwiki_search extends page_socialwiki {
 		//$PAGE->requires->js(new moodle_url("/mod/socialwiki/tree_jslib/tree.js"));
 		$PAGE->requires->css(new moodle_url("/mod/socialwiki/socialwiki_tree.css"));
 		$PAGE->requires->js(new moodle_url("/mod/socialwiki/search.js"));
+        $PAGE->requires->js(new moodle_url("/mod/socialwiki/jquery.tagcloud.js"));
         $PAGE->requires->js(new moodle_url("/mod/socialwiki/doublescroll.js"));
        
         require_once($CFG->dirroot . "/mod/socialwiki/table/versionTable.php");
 	}
 
-    function set_search_string($search, $searchcontent) {
+    function set_search_string($search, $searchcontent, $exact_match=false) {
         $swid = $this->subwiki->id;
 		$this->search_string = $search;
         if ($searchcontent) {
             $this->search_result = socialwiki_search_all($swid, $search);
         } else {
-            $this->search_result = socialwiki_search_title($swid, $search); //todo: change for exact match
+            $this->search_result = socialwiki_search_title($swid, $search, $exact_match); //todo: change for exact match
         }
 
     }
@@ -1118,15 +1119,18 @@ class page_socialwiki_search extends page_socialwiki {
 		switch ($this->view) {
 			case 1:
 				echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string);
+                //echo '<script>var makeTagCloud = false; </script>';
 				$this->print_tree();
 				break;
 			case 2:
 				echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string);
+                //echo '<script>var makeTagCloud = false; </script>';
 				$this->print_list();
 				break;
 			case 3:
 				echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string);
-				$this->print_popular();
+                //echo '<script>var makeTagCloud = true; </script>';
+				$this->print_tree();
 				break;
 			default:
 				echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string);
@@ -1720,9 +1724,9 @@ class page_socialwiki_home extends page_socialwiki {
 
     private $tab;
 
-    const REVIEW_TAB = 0;
-    const EXPLORE_TAB = 1;
-    const TOPICS_TAB = 2;
+    const REVIEW_TAB = 2;
+    const EXPLORE_TAB = 0;
+    const TOPICS_TAB = 1;
     const PEOPLE_TAB = 3;
 
 
@@ -1838,9 +1842,9 @@ class page_socialwiki_home extends page_socialwiki {
     function generate_home_nav($selected_index = 0) {
         global $PAGE;
         $navlinks = array(
-            "Manage"  => "home.php?id=".$PAGE->cm->id."&tabid=".self::REVIEW_TAB,
             "Explore" => "home.php?id=".$PAGE->cm->id."&tabid=".self::EXPLORE_TAB,
             "Pages" => "home.php?id=".$PAGE->cm->id."&tabid=".self::TOPICS_TAB,
+            "Manage"  => "home.php?id=".$PAGE->cm->id."&tabid=".self::REVIEW_TAB,
             "People" => "home.php?id=".$PAGE->cm->id."&tabid=".self::PEOPLE_TAB,
         );
         return $this->generate_nav($navlinks, $this->tab);

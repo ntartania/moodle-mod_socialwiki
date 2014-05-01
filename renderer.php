@@ -729,13 +729,22 @@ return $hh;
 			
 			//$html .= html_writer::starttag('p');
 			
+            $html.='Contributors to this page:';
             //TODO: add other contributors of the page
+            $contributors = socialwiki_get_contributors($page->id);
 
-			$user = socialwiki_get_user_info($page->userid);
-			$userlink = new moodle_url('/mod/socialwiki/viewuserpages.php', array('userid' => $user->id, 'subwikiid' => $page->subwikiid)); 
+            $contriblinks = "";
+            
+            foreach ($contributors as $contrib){
+                $user = socialwiki_get_user_info($contrib);    
+                $userlink = $this->makeuserlink($user->id, $PAGE->cm->id, $page->subwikiid);    
+                //prepend to list (to get them in chronological order)
+                $contriblinks .= '<br/>'.html_writer::link($userlink->out(false),fullname($user));
+                                
+            }
 			
-			$html.='Latest contributions by: ';
-			$html.=html_writer::link($userlink->out(false),fullname($user));
+			$html.=$contriblinks;
+			
 			//$html .= html_writer::endtag('p');
 			
 			$html .= html_writer::end_div();
@@ -743,6 +752,16 @@ return $hh;
 			$html .= $this->content_area_end();
 			return $html;
 	}
+
+    public function makeuserlink($uid, $cmid, $swid){
+        global $USER;
+        if ($USER->id == $uid){
+            return new moodle_url('/mod/socialwiki/home.php', array('id'=>$cmid));
+        } else {
+            return new moodle_url('/mod/socialwiki/viewuserpages.php', array('userid' => $uid, 'subwikiid' => $swid)); 
+        }
+        
+    }
 	
 	public function help_area_start(){
 		$html = '';
