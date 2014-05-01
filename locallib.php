@@ -1873,9 +1873,10 @@ function socialwiki_get_subwiki_users($swid) {
 
 function socialwiki_get_active_subwiki_users($swid) {    //TODO: change so we only get pages of this subwiki
     Global $DB;
-    $sql = 'SELECT DISTINCT userid
-            FROM {socialwiki_user_views}';
-    $users = $DB->get_records_sql($sql);
+    $sql = 'SELECT DISTINCT v.userid
+            FROM {socialwiki_user_views} as v join {socialwiki_pages} as p on v.pageid=p.id where p.subwikiid=?';
+
+    $users = $DB->get_records_sql($sql, array($swid));
     $uids = array();
     foreach ($users as $u) {
         $uids[] = $u->userid;
