@@ -64,7 +64,12 @@
     var lowest = tagWeights[0];
     var highest = tagWeights.pop();
     var range = highest - lowest;
-    if(range === 0) {range = 1;}
+    //adding stuff to handle range=0
+    var zerorange= false;
+    if(range === 0) {
+      range = 1;
+      zerorange=true; //rmember range was 0
+    }
     // Sizes
     var fontIncr, colorIncr;
     if (opts.size) {
@@ -77,7 +82,12 @@
     return this.each(function() {
       var weighting = $(this).attr("rel") - lowest;
       if (opts.size) {
-        $(this).css({"font-size": opts.size.start + (weighting * fontIncr) + opts.size.unit});
+        if (zerorange){ //if there's just one value, put it in the middle rather than at the bottom of the sizes range.
+          //alert("zero range");
+          $(this).css({"font-size": (opts.size.start + opts.size.end)/2 + opts.size.unit});
+        }else {
+          $(this).css({"font-size": opts.size.start + (weighting * fontIncr) + opts.size.unit});
+        }
       }
       if (opts.color) {
         $(this).css({"color": tagColor(opts.color, colorIncr, weighting)});

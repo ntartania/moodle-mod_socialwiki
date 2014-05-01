@@ -80,8 +80,10 @@ require_once($CFG->dirroot . "/mod/socialwiki/peer.php");
 			                              array("class"=>"colourtext")// tagcloud", "rel"=>"$this->trustvalue")
 			                              //TODO: ugly hack for computing trust w.r.t a page!
 			                              )
-						.' [ID: '.$page->id.']<br/>'
-						.html_writer::link($userlink->out(false),fullname($user),array("class"=>"colourtext"));
+						.' [ID: '.$page->id.']<br/>';
+		$userlink = mod_socialwiki_renderer::makeuserlink($user->id, $PAGE->cm->id, $page->subwikiid);
+		$this->content.=html_writer::link($userlink->out(false),fullname($user));
+						//html_writer::link($userlink->out(false),fullname($user),array("class"=>"colourtext"));
 		/*if(isset($page->votes)){
 			//add page scores
 			$this->content.='<br/>Total Score: '.$page->votes.

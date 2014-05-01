@@ -101,7 +101,7 @@ $(document).ready(function() {
 	
 
 	$.fn.tagcloud.defaults = {
-  		size: {start: 8, end: 32, unit: 'pt'},
+  		size: {start: 7, end: 26, unit: 'pt'},
   		color: {start: '#000', end: '#000'}
 		};
 

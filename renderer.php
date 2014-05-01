@@ -483,7 +483,7 @@ class mod_socialwiki_renderer extends plugin_renderer_base {
 
     }
 	
-	function menu_search($cmid, $currentselect,$searchstring) {
+	function menu_search($cmid, $currentselect, $searchstring, $exact=0) {
 		Global $COURSE;
         $options = array('tree', 'list','popular');
         $items = array();
@@ -494,7 +494,7 @@ class mod_socialwiki_renderer extends plugin_renderer_base {
         foreach ($items as $key => $item) {
             $selectoptions[$key + 1] = $item;
         }
-        $select = new single_select(new moodle_url('/mod/socialwiki/search.php',array('searchstring'=>$searchstring,'courseid'=>$COURSE->id,'cmid'=>$cmid)), 'option', $selectoptions, $currentselect);
+        $select = new single_select(new moodle_url('/mod/socialwiki/search.php',array('searchstring'=>$searchstring,'courseid'=>$COURSE->id,'cmid'=>$cmid, 'exact'=>$exact)), 'option', $selectoptions, $currentselect);
         $select->label = get_string('searchmenu', 'socialwiki') . ': ';
         return $this->output->container($this->output->render($select), 'midpad colourtext');
     }
@@ -737,7 +737,7 @@ return $hh;
             
             foreach ($contributors as $contrib){
                 $user = socialwiki_get_user_info($contrib);    
-                $userlink = $this->makeuserlink($user->id, $PAGE->cm->id, $page->subwikiid);    
+                $userlink = mod_socialwiki_renderer::makeuserlink($user->id, $PAGE->cm->id, $page->subwikiid);    
                 //prepend to list (to get them in chronological order)
                 $contriblinks .= '<br/>'.html_writer::link($userlink->out(false),fullname($user));
                                 
@@ -753,7 +753,7 @@ return $hh;
 			return $html;
 	}
 
-    public function makeuserlink($uid, $cmid, $swid){
+    public static function makeuserlink($uid, $cmid, $swid){
         global $USER;
         if ($USER->id == $uid){
             return new moodle_url('/mod/socialwiki/home.php', array('id'=>$cmid));

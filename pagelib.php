@@ -1061,6 +1061,7 @@ class page_socialwiki_search extends page_socialwiki {
 	private $search_string;
 	//the view mode for viewing results
 	private $view;
+    private $exact; //1 for an exact search type
 
     protected function create_navbar() {
         global $PAGE, $CFG;
@@ -1086,6 +1087,7 @@ class page_socialwiki_search extends page_socialwiki {
     function set_search_string($search, $searchcontent, $exact_match=false) {
         $swid = $this->subwiki->id;
 		$this->search_string = $search;
+        $this->exact = $exact_match;
         if ($searchcontent) {
             $this->search_result = socialwiki_search_all($swid, $search);
         } else {
@@ -1118,22 +1120,22 @@ class page_socialwiki_search extends page_socialwiki {
 		 
 		switch ($this->view) {
 			case 1:
-				echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string);
+				echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string,$this->exact);
                 //echo '<script>var makeTagCloud = false; </script>';
 				$this->print_tree();
 				break;
 			case 2:
-				echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string);
+				echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string,$this->exact);
                 //echo '<script>var makeTagCloud = false; </script>';
 				$this->print_list();
 				break;
 			case 3:
-				echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string);
+				echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string,$this->exact);
                 //echo '<script>var makeTagCloud = true; </script>';
 				$this->print_tree();
 				break;
 			default:
-				echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string);
+				echo $this->wikioutput->menu_search($PAGE->cm->id, $this->view,$this->search_string,$this->exact);
 				$this->print_tree();
         }
 		
