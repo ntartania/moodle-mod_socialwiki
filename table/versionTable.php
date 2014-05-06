@@ -384,7 +384,7 @@ class versionTable extends socialwiki_table {
     }
 
     public static function makeNewPageVersionsTable($uid, $swid, $combiner=AVG){
-    	$pages = socialwiki_get_updated_pages_by_subwiki($swid);
+    	$pages = socialwiki_get_updated_pages_by_subwiki($swid, $uid);
 
         if ($pages) {
             
