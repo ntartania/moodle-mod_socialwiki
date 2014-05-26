@@ -2,7 +2,7 @@
 
 //require_once("../../../config.php");
 require_once($CFG->dirroot . "/mod/socialwiki/locallib.php");
-require_once($CFG->dirroot . "/mod/socialwiki/sortableTable/sortableTable.php");
+//require_once($CFG->dirroot . "/mod/socialwiki/sortableTable/sortableTable.php");
 require_once($CFG->dirroot . "/mod/socialwiki/table/table.php");
 require_once($CFG->dirroot . "/mod/socialwiki/peer.php");
 
